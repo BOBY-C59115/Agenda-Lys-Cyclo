@@ -370,7 +370,7 @@ nav::-webkit-scrollbar{display:none;}
 <div id="view-admin" class="view">
   <div class="stitle">⚙️ Administration</div>
   <div class="asec">
-    <div class="ast" style="color:var(--P);"><span>👑 Membres &amp; Rôles</span><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openNewMem()">＋ Nouveau membre</button></div>
+    <div class="ast" style="color:var(--P);"><span>👑 Membres &amp; Rôles</span><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportMembersExcel()">📊 Export Excel</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openNewMem()">＋ Nouveau membre</button></div></div>
     <div id="admMem"></div>
   </div>
   <div class="asec"><div class="ast" style="color:var(--P);">📋 Événements</div><div id="admEv"></div></div>
@@ -1082,6 +1082,32 @@ window.upAdmAv=inp=>{
   const f=inp.files[0];if(!f)return;const r=new FileReader();
   r.onload=async e=>{const mid=document.getElementById('emId').value;await update(ref(db,'membres/'+mid),{photo:e.target.result});const av=document.getElementById('emAv');const ov=`<div class="aveo">📷</div><input type="file" accept="image/*" onchange="upAdmAv(this)">`;av.innerHTML=`<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">${ov}`;showT('Photo mise à jour !');};r.readAsDataURL(f);
 };
+// ═══ EXPORT EXCEL (CSV compatible Excel) ═══
+window.exportMembersExcel=()=>{
+  if(!isAdm()){showT('Accès refusé.');return;}
+  const headers=['Nom','Prenom','Login','Mot de passe','Telephone','Profil','Pseudo'];
+  const rows=MEs.map(m=>[
+    m.nom||'', m.prenom||'', m.login||'', m.pwd||'', m.tel||'',
+    RL[m.role]?.l.replace(/[⭐👑🚴]/g,'').trim()||m.role||'', m.pseudo||''
+  ]);
+  // Construire le CSV avec point-virgule (compatible Excel français) et BOM UTF-8
+  let csv='\uFEFF'+headers.join(';')+'\r\n';
+  rows.forEach(r=>{
+    csv+=r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(';')+'\r\n';
+  });
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const today=new Date().toISOString().split('T')[0];
+  a.href=url;
+  a.download=`LYS-CYCLO_Membres_${today}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showT('Export Excel téléchargé ! 📊');
+};
+
 window.openNewMem=()=>{
   ['nmPr','nmNo','nmTe','nmPs'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('nmRo').value='participant';document.querySelectorAll('input[name="nmDi"]').forEach(r=>r.checked=false);
