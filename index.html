@@ -249,6 +249,32 @@ nav::-webkit-scrollbar{display:none;}
 .cbts{display:flex;gap:6px;}.cbts button{flex:1;padding:8px;}
 .sms-box{background:rgba(204,255,0,.06);border:1px solid rgba(204,255,0,.2);border-radius:8px;padding:9px;margin-bottom:10px;font-size:11px;color:var(--td);}
 .rtbadge{display:inline-flex;align-items:center;gap:4px;background:rgba(0,230,118,.1);border:1px solid var(--V);color:var(--V);padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-left:6px;}
+/* ── Import Excel des événements ── */
+#mImport .mdl{max-width:640px;}
+.imp-note{font-size:11px;color:var(--td);line-height:1.5;margin:6px 0 10px;}
+.imp-sum{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+.imp-chip{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;border:1px solid var(--bb);color:var(--td);}
+.imp-chip.ok{color:var(--V);border-color:var(--V);}
+.imp-chip.dup{color:var(--O);border-color:var(--O);}
+.imp-chip.err{color:var(--R);border-color:var(--R);}
+.imp-list{max-height:52vh;overflow-y:auto;margin-bottom:10px;border:1px solid var(--bb);border-radius:var(--rs);}
+.imp-row{display:flex;gap:8px;align-items:flex-start;padding:8px;border-bottom:1px solid var(--bb);cursor:pointer;}
+.imp-row:last-child{border-bottom:none;}
+.imp-row.error,.imp-row.nodate{opacity:.6;cursor:default;}
+.imp-row input{margin-top:3px;flex:none;}
+.imp-main{flex:1;min-width:0;}
+.imp-nom{font-size:12px;font-weight:700;color:var(--t);word-break:break-word;}
+.imp-meta{font-size:10px;color:var(--td);margin-top:2px;word-break:break-word;}
+.imp-msg{font-size:10px;margin-top:2px;}
+.imp-msg.e{color:var(--R);}
+.imp-msg.w{color:var(--O);}
+.imp-badge{font-size:9px;font-weight:700;color:var(--td);text-align:right;max-width:105px;}
+.imp-row.ok .imp-badge{color:var(--V);}
+.imp-row.dup .imp-badge{color:var(--O);}
+.imp-row.error .imp-badge{color:var(--R);}
+.imp-actions{display:flex;gap:8px;align-items:center;}
+.imp-actions .bp{flex:1;}
+.bp:disabled{opacity:.45;cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -373,7 +399,7 @@ nav::-webkit-scrollbar{display:none;}
     <div class="ast" style="color:var(--P);"><span>👑 Membres &amp; Rôles</span><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportMembersExcel()">📊 Export Excel</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openNewMem()">＋ Nouveau membre</button></div></div>
     <div id="admMem"></div>
   </div>
-  <div class="asec"><div class="ast" style="color:var(--P);">📋 Événements</div><div id="admEv"></div></div>
+  <div class="asec"><div class="ast" style="color:var(--P);"><span>📋 Événements</span><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openImport()">📥 Importer (Excel)</button></div><div id="admEv"></div></div>
   <div class="adang"><div class="ast" style="color:var(--R);">⚠️ Zone Danger</div><button class="bd" style="width:100%;" onclick="confReset()">Réinitialiser tous les événements</button></div>
 </div>
 
@@ -419,6 +445,20 @@ nav::-webkit-scrollbar{display:none;}
     <div class="fs"><label class="fl">Image événement</label><div class="iuz" id="evIZ"><span style="font-size:18px;">🖼</span><span style="font-size:10px;color:var(--td);">Touchez pour choisir une photo</span><input type="file" accept="image/*" onchange="evIUp(this)"></div><img id="evIPr" class="iprev" src="" alt=""><button id="evIDl" onclick="evIDel()" style="display:none;margin-top:3px;" class="bs">✕ Supprimer</button></div>
     <div class="fs"><label class="fl">Conditions / Commentaires</label><textarea class="fta" id="evDe" placeholder="Niveau requis, équipement…"></textarea></div>
     <button class="bp" id="evSvBtn" onclick="saveEv()">CRÉER L'ÉVÉNEMENT</button>
+  </div>
+</div></div>
+
+<!-- MODAL IMPORT EXCEL DES ÉVÉNEMENTS (Admin / Superviseur) -->
+<div class="mo" id="mImport"><div class="mdl">
+  <button class="mc" onclick="cm('mImport')">×</button><div class="mt2">📥 IMPORTER DES ÉVÉNEMENTS</div>
+  <div id="impStep1">
+    <div class="imp-note">Choisissez un fichier Excel (.xlsx). Colonnes reconnues : Type, Nom, Catégorie, Discipline(s), Kilomètres prévus, Tarif, Lien Facebook, Lien GPX, Date, Heure départ, Lieu, Conditions / Commentaires.<br>Vous verrez un aperçu : <b>rien n'est enregistré avant votre confirmation</b>.</div>
+    <input class="fi" type="file" id="impFile" accept=".xlsx,.xls,.csv" onchange="impFile(this)">
+    <div class="imp-note" id="impMsg"></div>
+  </div>
+  <div id="impStep2" style="display:none">
+    <div id="impBody"></div>
+    <div class="imp-actions"><button class="bp" id="impGo" onclick="impConfirm()">IMPORTER</button><button class="bv2btn" onclick="openImport()">↩ Autre fichier</button></div>
   </div>
 </div></div>
 
@@ -1256,6 +1296,200 @@ let confCB=null;
 window.conf=(ti,ms,cb)=>{document.getElementById('ctitle').textContent=ti;document.getElementById('cmsg').textContent=ms;confCB=cb;document.getElementById('cov').classList.add('open');};
 window.closeCov=()=>{document.getElementById('cov').classList.remove('open');confCB=null;};
 document.getElementById('covOk').onclick=()=>{closeCov();if(confCB)confCB();};
+
+// ═══ IMPORT EXCEL DES ÉVÉNEMENTS (réservé Admin / Superviseur) ═══
+const IMP_XLSX_URL='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+const IMP_MAX_BYTES=5*1024*1024, IMP_MAX_ROWS=300;
+let impRows=[], impBusy=false;
+const impEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const impNorm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const impTxt=v=>String(v??'').replace(/[<>]/g,'').replace(/\s+/g,' ').trim();
+
+// La bibliothèque de lecture Excel n'est chargée que si on ouvre l'import
+function impLoadLib(){
+  if(window.XLSX)return Promise.resolve(window.XLSX);
+  return new Promise((res,rej)=>{
+    const s=document.createElement('script');s.src=IMP_XLSX_URL;
+    s.onload=()=>window.XLSX?res(window.XLSX):rej(new Error('lib'));
+    s.onerror=()=>rej(new Error('lib'));
+    document.head.appendChild(s);
+  });
+}
+
+// En-tête de colonne → champ (tolère accents, majuscules, « * »)
+function impField(h){
+  const n=impNorm(h);
+  if(/^type\b/.test(n))return'type';
+  if(/^nom\b/.test(n))return'nom';
+  if(/^categorie/.test(n))return'cat';
+  if(/^discipline/.test(n))return'disc';
+  if(/^kilometre|^km\b/.test(n))return'km';
+  if(/^tarif/.test(n))return'tarif';
+  if(/facebook|reseau/.test(n))return'fb';
+  if(/gpx|komoot|garmin/.test(n))return'gpx';
+  if(/^date\b/.test(n))return'date';
+  if(/^heure/.test(n))return'heure';
+  if(/^lieu\b/.test(n))return'lieu';
+  if(/^conditions|^commentaire/.test(n))return'desc';
+  return null;
+}
+function impType(v){const n=impNorm(v);if(n.startsWith('sport'))return'sportif';if(n.startsWith('festi'))return'festif';if(n.startsWith('gestion')||n.startsWith('club'))return'club';return null;}
+function impCatSport(v){const n=impNorm(v);if(/club/.test(n))return'Sortie club';if(/brevet/.test(n))return'Brevet';if(/rando/.test(n))return'Randonnée';return null;}
+function impCatClub(v){const n=impNorm(v);if(/assembl|^ag$/.test(n))return'Assemblée générale';if(/inscri/.test(n))return'Inscription annuelle';if(/equip/.test(n))return'Gestion équipement';if(/inventaire/.test(n))return'Inventaire';if(/nettoy/.test(n))return'Nettoyage du club';return'Autre';}
+function impDisc(v){const n=impNorm(v),o=[];if(/vtt/.test(n))o.push('VTT');if(/route/.test(n))o.push('Route');if(/festiv/.test(n))o.push('Festivité');return o;}
+function impDate(v){
+  if(v===''||v==null)return{empty:true};
+  let y,m,d;
+  if(typeof v==='number'){const p=window.XLSX.SSF.parse_date_code(v);if(!p)return{bad:true};y=p.y;m=p.m;d=p.d;}
+  else if(v instanceof Date){y=v.getFullYear();m=v.getMonth()+1;d=v.getDate();}
+  else{
+    const s=String(v).trim();let a=s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/);
+    if(a){d=+a[1];m=+a[2];y=+a[3];}
+    else{a=s.match(/^(\d{4})-(\d{2})-(\d{2})/);if(!a)return{bad:true};y=+a[1];m=+a[2];d=+a[3];}
+  }
+  const t=new Date(y,m-1,d);
+  if(t.getFullYear()!==y||t.getMonth()!==m-1||t.getDate()!==d)return{bad:true};
+  return{iso:`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`};
+}
+function impTime(v){
+  if(v===''||v==null)return{val:''};
+  let h,mi;
+  if(typeof v==='number'){const t=Math.round((v%1)*1440);h=Math.floor(t/60)%24;mi=t%60;}
+  else{const a=String(v).trim().match(/^(\d{1,2})\s*[:hH]\s*(\d{2})?\s*$/);if(!a)return{bad:true};h=+a[1];mi=a[2]?+a[2]:0;if(h>23||mi>59)return{bad:true};}
+  return{val:String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0')};
+}
+
+function impBuildRow(sheet,line,g){
+  const R={sheet,line,errors:[],warns:[],data:null,sel:false,status:'ok'};
+  const type=impType(g('type')),nom=impTxt(g('nom')),lieu=impTxt(g('lieu')),dt=impDate(g('date'));
+  R.nom=nom;R.lieu=lieu;
+  if(dt.empty){R.status='nodate';return R;}          // pas de date : on ignore sans erreur
+  if(!nom)R.errors.push('Nom manquant');
+  if(!type)R.errors.push('Type manquant ou inconnu (Sportif, Festivité, Gestion club)');
+  if(dt.bad)R.errors.push('Date illisible');
+  if(!lieu)R.errors.push('Lieu manquant');
+  R.date=dt.iso;
+  const tm=impTime(g('heure'));
+  if(tm.bad)R.warns.push('Heure illisible : « À confirmer » utilisée');
+  const data={type,nom,date:dt.iso,heure:tm.val||'À confirmer',lieu,desc:impTxt(g('desc')),image:null};
+  const ta=parseFloat(String(g('tarif')).replace(',','.'));
+  if(type==='sportif'){
+    const cat=impCatSport(g('cat'));if(!cat)R.errors.push('Catégorie inconnue (Club, Brevet, Rando)');
+    const ds=impDisc(g('disc'));if(!ds.length)R.errors.push('Discipline manquante (VTT, Route)');
+    data.categorie=cat;data.disciplines=ds;data.km=Math.max(0,parseInt(String(g('km')).replace(',','.'))||0);
+    [['fb','linkFb'],['gpx','linkGpx']].forEach(([f,k])=>{
+      const u=String(g(f)??'').trim();
+      if(u){if(/^https?:\/\/\S+$/i.test(u))data[k]=u;else R.warns.push('Lien ignoré (il doit commencer par https://)');}
+    });
+    // L'appli ne gère le tarif que pour les festivités : on l'ajoute au commentaire si absent
+    if(ta>0&&!/€/.test(data.desc))data.desc=(data.desc?data.desc+' ':'')+'Tarif : '+String(ta).replace('.',',')+' €.';
+  }else if(type==='festif'){
+    if(ta>0)data.tarif=ta;
+  }else if(type==='club'){
+    data.categorie=impCatClub(g('cat'));
+  }
+  R.data=data;
+  if(R.errors.length)R.status='error';
+  return R;
+}
+
+function impParse(wb){
+  const X=window.XLSX,rows=[];let sheets=0;
+  wb.SheetNames.forEach(sn=>{
+    const aoa=X.utils.sheet_to_json(wb.Sheets[sn],{header:1,raw:true,defval:''});
+    let hi=-1,map=null;
+    for(let i=0;i<Math.min(aoa.length,6);i++){
+      const m={};aoa[i].forEach((h,c)=>{const f=impField(h);if(f&&!(f in m))m[f]=c;});
+      if(m.nom!=null&&m.date!=null){hi=i;map=m;break;}
+    }
+    if(hi<0)return;
+    sheets++;
+    for(let i=hi+1;i<aoa.length;i++){
+      const r=aoa[i],g=f=>map[f]!=null?r[map[f]]:'';
+      if(!impTxt(g('nom'))&&!impTxt(g('lieu'))&&(g('date')===''||g('date')==null))continue;
+      rows.push(impBuildRow(sn,i+1,g));
+    }
+  });
+  // Doublons : déjà dans l'agenda (même date + même nom) ou répétés dans le fichier
+  const key=(d,n)=>(d||'')+'|'+impNorm(n);
+  const have=new Set(EVs.map(e=>key(e.date,e.nom))),seen=new Set();
+  rows.forEach(r=>{
+    if(r.status!=='ok')return;
+    const k=key(r.date,r.nom);
+    if(have.has(k)){r.status='dup';r.dupWhy='Déjà dans l’agenda';}
+    else if(seen.has(k)){r.status='dup';r.dupWhy='Répété dans le fichier';}
+    seen.add(k);
+    r.sel=r.status==='ok';
+  });
+  return{rows,sheets};
+}
+
+function impUpdateBtn(){
+  const n=impRows.filter(r=>r.sel).length,b=document.getElementById('impGo');
+  if(b){b.disabled=!n||impBusy;b.textContent=n?`IMPORTER ${n} ÉVÉNEMENT${n>1?'S':''}`:'AUCUN ÉVÉNEMENT CHOISI';}
+}
+function impRender(){
+  const c=s=>impRows.filter(r=>r.status===s).length;
+  let h=`<div class="imp-sum"><span class="imp-chip ok">✅ ${c('ok')} prête(s)</span><span class="imp-chip dup">⚠️ ${c('dup')} doublon(s)</span><span class="imp-chip err">❌ ${c('error')} erreur(s)</span><span class="imp-chip">⏳ ${c('nodate')} sans date</span></div>`;
+  h+=`<div class="imp-note">Les événements seront créés au nom de <b>${impEsc(getMN(CU.id))}</b>. Les doublons sont décochés : cochez-les seulement si vous voulez les créer quand même.</div><div class="imp-list">`;
+  impRows.forEach((r,i)=>{
+    const dis=r.status==='error'||r.status==='nodate';
+    const badge={ok:'✅ Prête',dup:'⚠️ '+(r.dupWhy||'Doublon'),error:'❌ À corriger',nodate:'⏳ Sans date (ignorée)'}[r.status];
+    const meta=[r.date?fmtS(r.date):'',r.lieu,r.data?(r.data.disciplines||[]).join(' + '):'',r.data&&r.data.km?r.data.km+' km':''].filter(Boolean).join(' · ');
+    h+=`<label class="imp-row ${r.status}"><input type="checkbox" ${r.sel?'checked':''} ${dis?'disabled':''} onchange="impToggle(${i},this.checked)"><div class="imp-main"><div class="imp-nom">${impEsc(r.nom||'(sans nom)')}</div><div class="imp-meta">${impEsc(meta)}</div>${r.errors.map(e=>`<div class="imp-msg e">${impEsc(e)}</div>`).join('')}${r.warns.map(w=>`<div class="imp-msg w">${impEsc(w)}</div>`).join('')}<div class="imp-meta">${impEsc(r.sheet)} · ligne ${r.line}</div></div><span class="imp-badge">${badge}</span></label>`;
+  });
+  h+='</div>';
+  document.getElementById('impBody').innerHTML=h;
+  impUpdateBtn();
+}
+window.impToggle=(i,on)=>{if(impRows[i]&&(impRows[i].status==='ok'||impRows[i].status==='dup'))impRows[i].sel=!!on;impUpdateBtn();};
+
+window.openImport=()=>{
+  if(!canMgEv()){showT('Accès refusé.');return;}
+  impRows=[];impBusy=false;
+  document.getElementById('impStep1').style.display='';document.getElementById('impStep2').style.display='none';
+  document.getElementById('impMsg').textContent='';document.getElementById('impFile').value='';
+  document.getElementById('mImport').classList.add('open');
+};
+window.impFile=async inp=>{
+  const f=inp.files&&inp.files[0];if(!f)return;
+  if(!canMgEv()){showT('Accès refusé.');return;}
+  const msg=document.getElementById('impMsg');
+  if(f.size>IMP_MAX_BYTES){msg.textContent='Fichier trop volumineux (5 Mo maximum).';return;}
+  msg.textContent='Lecture du fichier…';
+  try{
+    const X=await impLoadLib();
+    const wb=X.read(await f.arrayBuffer(),{type:'array'});
+    const{rows,sheets}=impParse(wb);
+    if(!sheets){msg.textContent='Aucun onglet reconnu : il faut au moins les colonnes « Nom » et « Date ».';return;}
+    if(!rows.length){msg.textContent='Aucune ligne à importer dans ce fichier.';return;}
+    if(rows.length>IMP_MAX_ROWS){msg.textContent=`Trop de lignes (${rows.length}) : 300 maximum par import.`;return;}
+    impRows=rows;
+    document.getElementById('impStep1').style.display='none';document.getElementById('impStep2').style.display='';
+    impRender();
+  }catch(e){
+    console.error(e);
+    msg.textContent='Impossible de lire ce fichier. Vérifiez qu’il s’agit bien d’un fichier Excel (.xlsx) et que vous êtes connecté à Internet.';
+  }
+};
+window.impConfirm=async()=>{
+  if(!canMgEv()){showT('Accès refusé.');return;}
+  if(impBusy)return;
+  const sel=impRows.filter(r=>r.sel&&(r.status==='ok'||r.status==='dup'));
+  if(!sel.length){showT('Aucun événement sélectionné.');return;}
+  impBusy=true;
+  const btn=document.getElementById('impGo');if(btn){btn.disabled=true;btn.textContent='IMPORT EN COURS…';}
+  try{
+    const base=ref(db,'evenements'),upd={},td=new Date().toISOString().split('T')[0];
+    sel.forEach(r=>{upd[push(base).key]={...r.data,participations:{},createdBy:CU.id,createdAt:td};});
+    await update(base,upd);   // écriture groupée : tout est enregistré, ou rien
+    impBusy=false;impRows=[];cm('mImport');
+    showT(`${sel.length} événement${sel.length>1?'s':''} importé${sel.length>1?'s':''} ! 🎉`);
+  }catch(e){
+    console.error(e);impBusy=false;
+    showT('Échec de l’import : rien n’a été enregistré.');impUpdateBtn();
+  }
+};
 </script>
 </body>
 </html>
