@@ -275,6 +275,21 @@ nav::-webkit-scrollbar{display:none;}
 .imp-actions{display:flex;gap:8px;align-items:center;}
 .imp-actions .bp{flex:1;}
 .bp:disabled{opacity:.45;cursor:not-allowed;}
+/* ── Menu Administration ── */
+.admtiles{display:flex;flex-direction:column;gap:9px;margin-bottom:12px;}
+.admtile{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;background:var(--bc);border:1px solid var(--bb);border-radius:var(--ra);color:var(--t);cursor:pointer;font-family:inherit;transition:border-color .2s;}
+.admtile:hover,.admtile:active{border-color:var(--P);}
+.admti{font-size:28px;flex:none;}
+.admtx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;}
+.admtt{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1.5px;color:var(--j);}
+.admts{font-size:10px;color:var(--td);}
+.admts.warn{color:var(--O);font-weight:700;}
+.admts.ok{color:var(--V);font-weight:700;}
+.admar{font-size:22px;color:var(--td);flex:none;}
+.admhd{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.admhd span{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:1.5px;color:var(--P);}
+.admq{width:100%;padding:9px 10px;background:var(--bm);border:1px solid var(--bb);border-radius:var(--rs);color:var(--t);font-size:12px;margin-bottom:6px;box-sizing:border-box;}
+.admchk{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t);margin:2px 0 8px;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -395,12 +410,35 @@ nav::-webkit-scrollbar{display:none;}
 
 <div id="view-admin" class="view">
   <div class="stitle">⚙️ Administration</div>
+  <div id="admHome">
+    <div class="admtiles">
+      <button class="admtile" onclick="admGo('membres')"><span class="admti">👥</span><span class="admtx"><span class="admtt">Gestion des membres</span><span class="admts" id="admSubM"></span></span><span class="admar">›</span></button>
+      <button class="admtile" onclick="admGo('bar')"><span class="admti">🍺</span><span class="admtx"><span class="admtt">Gestion du bar</span><span class="admts" id="admSubB"></span></span><span class="admar">›</span></button>
+      <button class="admtile" onclick="admGo('events')"><span class="admti">📅</span><span class="admtx"><span class="admtt">Gestion des évènements</span><span class="admts" id="admSubE"></span></span><span class="admar">›</span></button>
+    </div>
+    <div class="adang"><div class="ast" style="color:var(--R);">⚠️ Zone Danger</div><div class="imp-note" style="margin-top:0;">Supprime tous les évènements <b>et</b> toutes les inscriptions de bénévoles du bar.</div><button class="bd" style="width:100%;" onclick="confReset()">Réinitialiser évènements et bar</button></div>
+  </div>
+  <div id="admSecM" class="admsec" style="display:none">
+    <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>👥 Gestion des membres</span></div>
+    <input class="admq" id="admMemQ" type="search" placeholder="🔍 Rechercher un membre (nom, login, rôle)" oninput="admFilterMem()" autocomplete="off">
+    <div class="imp-note" id="admMemCount" style="margin:0 0 6px;"></div>
   <div class="asec">
     <div class="ast" style="color:var(--P);"><span>👑 Membres &amp; Rôles</span><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportMembersExcel()">📊 Export Excel</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openNewMem()">＋ Nouveau membre</button></div></div>
     <div id="admMem"></div>
   </div>
+  </div>
+  <div id="admSecE" class="admsec" style="display:none">
+    <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>📅 Gestion des évènements</span></div>
   <div class="asec"><div class="ast" style="color:var(--P);"><span>📋 Événements</span><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openImport()">📥 Importer (Excel)</button></div><div id="admEv"></div></div>
-  <div class="adang"><div class="ast" style="color:var(--R);">⚠️ Zone Danger</div><button class="bd" style="width:100%;" onclick="confReset()">Réinitialiser tous les événements</button></div>
+  </div>
+  <div id="admSecB" class="admsec" style="display:none">
+    <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>🍺 Gestion du bar</span></div>
+    <div class="asec">
+      <div class="imp-note" id="admBarSum" style="margin-top:0;"></div>
+      <label class="admchk"><input type="checkbox" id="admBarTodo" onchange="admRenderBar()"> Afficher seulement les dates à compléter</label>
+      <div id="admBarList"></div>
+    </div>
+  </div>
 </div>
 
 <button class="fab" id="fabBtn" onclick="openCreate()">＋</button>
@@ -797,7 +835,7 @@ window.sv=(name,idx)=>{
   if(name==='membres')rMembers();
   if(name==='stats')rStats();
   if(name==='profil')rProf();
-  if(name==='admin')rAdmin();
+  if(name==='admin'){admGo('home');rAdmin();}
 };
 
 // ═══ ACCUEIL ═══
@@ -1096,6 +1134,7 @@ function rAdmin(){
   document.getElementById('admEv').innerHTML=EVs.length?
     [...EVs].sort((a,b)=>a.date.localeCompare(b.date)).map(ev=>`<div style="display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid var(--bb);"><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:10px;">${ev.nom}</div><div style="font-size:9px;color:var(--td);">${fmtS(ev.date)} · ${ev.type}</div></div><button class="be" style="padding:2px 6px;font-size:9px;" onclick="openEdit('${ev.id}')">✏️</button><button class="bd" style="padding:2px 6px;font-size:9px;" onclick="confDelEv('${ev.id}')">🗑</button></div>`).join(''):
     '<div style="font-size:10px;color:var(--td);">Aucun événement.</div>';
+  admAfter();
 }
 window.openEdM=mid=>{
   const m=MEs.find(x=>x.id===mid);if(!m)return;
@@ -1172,7 +1211,7 @@ window.createNewMem=async()=>{
   cm('mNewMem');showT(`Membre ${pr} ${no} créé !`);
   setTimeout(()=>alert(`✅ Nouveau membre créé !\n\nPrénom : ${pr}\nNom : ${no}\nLogin : ${login}\nMot de passe : ${pwd}\n\n📱 À communiquer au membre par SMS ou en main propre.`),300);
 };
-window.confReset=()=>conf('RÉINITIALISATION','Supprimer TOUS les événements Firebase ?',async()=>{
+window.confReset=()=>conf('RÉINITIALISATION','Supprimer TOUS les événements ET toutes les inscriptions de bénévoles du bar ? Cette action est irréversible.',async()=>{
   await remove(ref(db,'evenements'));await set(ref(db,'bar'),{slots:{},status:{}});showT('Données réinitialisées.');
 });
 
@@ -1295,7 +1334,7 @@ window.showT=msg=>{const t=document.getElementById('toast');t.textContent=msg;t.
 let confCB=null;
 window.conf=(ti,ms,cb)=>{document.getElementById('ctitle').textContent=ti;document.getElementById('cmsg').textContent=ms;confCB=cb;document.getElementById('cov').classList.add('open');};
 window.closeCov=()=>{document.getElementById('cov').classList.remove('open');confCB=null;};
-document.getElementById('covOk').onclick=()=>{closeCov();if(confCB)confCB();};
+document.getElementById('covOk').onclick=()=>{const cb=confCB;closeCov();if(cb)cb();};
 
 // ═══ IMPORT EXCEL DES ÉVÉNEMENTS (réservé Admin / Superviseur) ═══
 const IMP_XLSX_URL='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
@@ -1490,6 +1529,61 @@ window.impConfirm=async()=>{
     showT('Échec de l’import : rien n’a été enregistré.');impUpdateBtn();
   }
 };
+
+// ═══ MENU ADMINISTRATION : accueil + sections (membres, bar, évènements) ═══
+const admNorm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const admEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+window.admGo=s=>{
+  if(!isAdm()){showT('Accès refusé.');return;}
+  const map={home:'admHome',membres:'admSecM',events:'admSecE',bar:'admSecB'};
+  Object.values(map).forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById(map[s]||'admHome').style.display='';
+  admAfter();
+  try{document.getElementById('view-admin').scrollTop=0;window.scrollTo(0,0);}catch(e){}
+};
+window.admFilterMem=()=>{
+  const q=admNorm((document.getElementById('admMemQ')||{}).value||'').trim();
+  const rows=document.querySelectorAll('#admMem tbody tr');let n=0;
+  rows.forEach(tr=>{
+    const c=tr.cells;const txt=admNorm((c[0]?c[0].textContent:'')+' '+(c[1]?c[1].textContent:'')+' '+(c[3]?c[3].textContent:''));
+    const ok=!q||txt.includes(q);tr.style.display=ok?'':'none';if(ok)n++;
+  });
+  const el=document.getElementById('admMemCount');
+  if(el)el.textContent=q?`${n} résultat${n>1?'s':''} sur ${rows.length} membres`:`${rows.length} membres`;
+};
+function admBarStats(nb){
+  const days=nextBarDays(nb);let closed=0,empty=0,half=0,full=0;
+  days.forEach(ds=>{
+    const bd=BAs[ds]||{b1:'',b2:''};const n=(bd.b1?1:0)+(bd.b2?1:0);
+    if(BSs[ds]===false)closed++;else if(n===0)empty++;else if(n===1)half++;else full++;
+  });
+  return{days,closed,empty,half,full};
+}
+window.admRenderBar=()=>{
+  const st=admBarStats(20);
+  const todo=document.getElementById('admBarTodo');const only=!!(todo&&todo.checked);
+  let h='';
+  st.days.forEach(ds=>{
+    const bd=BAs[ds]||{b1:'',b2:''},closed=BSs[ds]===false,n=(bd.b1?1:0)+(bd.b2?1:0);
+    if(only&&(closed||n===2))return;
+    const s=closed?['🔴 Fermé','var(--R)']:n===2?['✅ Complet','var(--V)']:n===1?['🟠 1 bénévole sur 2','var(--O)']:['⚠️ Aucun bénévole','var(--O)'];
+    const who=closed?'':[bd.b1,bd.b2].filter(Boolean).map(id=>admEsc(getMN(id))).join(' &amp; ');
+    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${isFerie(ds)?'🇫🇷 ':''}${fmtL(ds)}</span><span style="font-size:10px;font-weight:700;color:${s[1]};">${s[0]}</span></div>${who?`<div style="font-size:10px;margin-bottom:2px;">🍺 ${who}</div>`:''}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${closed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${closed?'🟢 Ouvrir le bar':'🔴 Fermer le bar'}</button></div></div>`;
+  });
+  const list=document.getElementById('admBarList'),sum=document.getElementById('admBarSum');
+  if(list)list.innerHTML=h||`<div class="empty"><div class="ei">🍺</div><div>${only?'Toutes les dates sont complètes ou fermées.':'Aucune date de bar.'}</div></div>`;
+  if(sum)sum.innerHTML=`<b>${st.empty}</b> sans bénévole · <b>${st.half}</b> à compléter (1 sur 2) · <b>${st.full}</b> complète${st.full>1?'s':''} · <b>${st.closed}</b> fermée${st.closed>1?'s':''} <span style="opacity:.8;">(${st.days.length} prochaines dates)</span>`;
+};
+function admTiles(){
+  const set=(id,t,cls)=>{const el=document.getElementById(id);if(el){el.textContent=t;el.className='admts'+(cls?' '+cls:'');}};
+  set('admSubM',`${MEs.length} membre${MEs.length>1?'s':''}`);
+  const td=new Date().toISOString().split('T')[0];const up=EVs.filter(e=>(e.date||'')>=td).length;
+  set('admSubE',`${EVs.length} évènement${EVs.length>1?'s':''} · ${up} à venir`);
+  const b=admBarStats(15),todo=b.empty+b.half;
+  if(todo)set('admSubB',`⚠️ ${todo} date${todo>1?'s':''} à compléter (${b.empty} sans bénévole)`,'warn');
+  else set('admSubB','✅ Toutes les dates sont complètes','ok');
+}
+function admAfter(){if(!isAdm())return;admTiles();admRenderBar();admFilterMem();}
 </script>
 </body>
 </html>
