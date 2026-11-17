@@ -253,6 +253,23 @@ nav::-webkit-scrollbar{display:none;}
 #mImport .mdl{max-width:640px;}
 .imp-note{font-size:11px;color:var(--td);line-height:1.5;margin:6px 0 10px;}
 .imp-sum{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+
+.bg2{background:#3a2400;color:#ffb347;}.bm2{background:#2a2a3a;color:#c9b8ff;}
+.fmls{margin:2px 0 6px;padding:5px 7px;border-left:3px solid var(--j);background:var(--bm);border-radius:6px;font-size:10px;line-height:1.6;}
+.dtag{font-size:9px;opacity:.9;}
+.mydisc{font-size:10px;margin:5px 0;padding:4px 7px;background:var(--bm);border-radius:6px;}
+.mydisc a{color:var(--j);text-decoration:underline;cursor:pointer;margin-left:4px;}
+.dcnt{font-size:10px;margin-top:4px;color:var(--td);}
+.evbar{margin-top:6px;padding:6px 8px;border-radius:7px;border:1px dashed var(--bb);font-size:10px;}
+.evbar.decider{border-color:var(--O);}
+.evbt{font-weight:700;}.evbs{color:var(--td);font-size:9px;}.evba{color:var(--O);font-weight:700;font-size:9px;margin-top:2px;}
+.evbb{display:inline-flex;gap:4px;flex-wrap:wrap;margin-left:4px;}
+.evbb button{font-size:9px;padding:2px 6px;}
+.evbar .evbb{display:flex;margin:5px 0 0 0;}
+.evchip{font-size:10px;margin:2px 0 4px;line-height:1.5;}
+.fml{border:1px solid var(--bb);border-radius:8px;padding:7px;margin-bottom:6px;}
+.fmt{font-weight:700;font-size:11px;margin-bottom:5px;}.fml .fi{margin-bottom:4px;}
+.hint{font-size:9px;color:var(--td);margin-top:3px;}
 .imp-chip{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;border:1px solid var(--bb);color:var(--td);}
 .imp-chip.ok{color:var(--V);border-color:var(--V);}
 .imp-chip.dup{color:var(--O);border-color:var(--O);}
@@ -372,7 +389,7 @@ nav::-webkit-scrollbar{display:none;}
 
 <div id="view-sorties" class="view">
   <div class="stitle">🚴 Principaux RDV</div>
-  <div class="fb"><button class="fc active" onclick="flt('tous',this)">Tous</button><button class="fc" onclick="flt('route',this)">🔵 Route</button><button class="fc" onclick="flt('vtt',this)">🟢 VTT</button><button class="fc" onclick="flt('festif',this)">🎉 Festif</button><button class="fc" onclick="flt('brevet',this)">🏅 Brevet/Rando</button><button class="fc" onclick="flt('club',this)">🛠️ Club</button></div>
+  <div class="fb"><button class="fc active" onclick="flt('tous',this)">Tous</button><button class="fc" onclick="flt('route',this)">🔵 Route</button><button class="fc" onclick="flt('vtt',this)">🟢 VTT</button><button class="fc" onclick="flt('festif',this)">🎉 Festif</button><button class="fc" onclick="flt('brevet',this)">🏅 Brevet/Rando</button><button class="fc" onclick="flt('club',this)">🛠️ Club</button><button class="fc" onclick="flt('gravel',this)">🟠 Gravel</button><button class="fc" onclick="flt('marche',this)">🥾 Marche</button><button class="fc" onclick="flt('ext',this)">🤝 Autres clubs</button></div>
   <div id="sorEv"></div>
 </div>
 
@@ -388,6 +405,7 @@ nav::-webkit-scrollbar{display:none;}
   <div class="stitle">📊 Statistiques</div>
   <div class="sgrid"><div class="sc"><div class="sn" id="stEv">0</div><div class="sl">Événements</div></div><div class="sc"><div class="sn" id="stMem">0</div><div class="sl">Membres</div></div><div class="sc"><div class="sn" id="stKm">0</div><div class="sl">Km cumulés</div></div><div class="sc"><div class="sn" id="stPa">0</div><div class="sl">Participations</div></div></div>
   <div class="card"><div style="font-family:'Barlow Condensed';font-size:12px;font-weight:700;margin-bottom:5px;">Mes participations</div><div id="myPa" style="font-size:10px;color:var(--td);">…</div></div>
+  <div id="stDisc"></div>
 </div>
 
 <div id="view-profil" class="view">
@@ -429,7 +447,7 @@ nav::-webkit-scrollbar{display:none;}
   </div>
   <div id="admSecE" class="admsec" style="display:none">
     <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>📅 Gestion des évènements</span></div>
-  <div class="asec"><div class="ast" style="color:var(--P);"><span>📋 Événements</span><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openImport()">📥 Importer (Excel)</button></div><div id="admEv"></div></div>
+  <div class="asec"><div class="ast" style="color:var(--P);"><span>📋 Événements</span><span style="display:flex;gap:4px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openImport()">📥 Importer</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportEvents()">📤 Exporter</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportModel()">📄 Modèle</button></span></div><div id="admEv"></div></div>
   </div>
   <div id="admSecB" class="admsec" style="display:none">
     <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>🍺 Gestion du bar</span></div>
@@ -458,8 +476,9 @@ nav::-webkit-scrollbar{display:none;}
     <div class="fs"><label class="fl">2 — Nom *</label><input class="fi" id="evNom" placeholder="ex: Sortie des Flandres"></div>
     <div class="ts" id="evSpo">
       <div class="fs"><label class="fl">Catégorie *</label><div class="rg"><div class="ro"><input type="radio" name="evCat" id="ec1" value="Sortie club"><label class="rl" for="ec1">🏠 Club</label></div><div class="ro"><input type="radio" name="evCat" id="ec2" value="Brevet"><label class="rl" for="ec2">🏅 Brevet</label></div><div class="ro"><input type="radio" name="evCat" id="ec3" value="Randonnée"><label class="rl" for="ec3">🗺 Rando</label></div></div></div>
-      <div class="fs"><label class="fl">Discipline(s) *</label><div class="cg2"><div class="co2"><input type="checkbox" id="dcV"><label class="cl2" for="dcV">🟢 VTT</label></div><div class="co2"><input type="checkbox" id="dcR"><label class="cl2" for="dcR">🔵 Route</label></div><div class="co2"><input type="checkbox" id="dcF"><label class="cl2" for="dcF">🎉 Festivité</label></div></div></div>
-      <div class="fs"><label class="fl">Kilomètres prévus</label><input class="fi" id="evKm" type="number" placeholder="ex: 80" min="1"></div>
+      <div class="fs"><label class="fl">Discipline(s) * <span class="hint">— cochez toutes celles proposées</span></label><div class="cg2"><div class="co2"><input type="checkbox" id="dcV" onchange="onDisc()"><label class="cl2" for="dcV">🟢 VTT</label></div><div class="co2"><input type="checkbox" id="dcR" onchange="onDisc()"><label class="cl2" for="dcR">🔵 Route</label></div><div class="co2"><input type="checkbox" id="dcG" onchange="onDisc()"><label class="cl2" for="dcG">🟠 Gravel</label></div><div class="co2"><input type="checkbox" id="dcM" onchange="onDisc()"><label class="cl2" for="dcM">🥾 Marche</label></div><div class="co2"><input type="checkbox" id="dcF" onchange="onDisc()"><label class="cl2" for="dcF">🎉 Festivité</label></div></div></div>
+      <div id="evFml"></div>
+      <div class="fs"><label class="fl">Kilomètres prévus <span class="hint">(si aucun parcours n’est saisi ci-dessus)</span></label><input class="fi" id="evKm" type="number" placeholder="ex: 80" min="1"></div>
     </div>
     <div class="ts" id="evFes"><div class="fs"><label class="fl">Tarif/pers. € (vide=gratuit)</label><input class="fi" id="evTa" type="number" placeholder="ex: 18" min="0" step="0.5"></div></div>
     <div class="ts" id="evClub">
@@ -478,8 +497,14 @@ nav::-webkit-scrollbar{display:none;}
       <div class="fs"><label class="fl">🔗 Lien Facebook / réseau social (optionnel)</label><input class="fi" id="evLinkFb" type="url" placeholder="https://facebook.com/evenement/..."></div>
       <div class="fs"><label class="fl">🗺 Lien trace GPX / Komoot / Garmin (optionnel)</label><input class="fi" id="evLinkGpx" type="url" placeholder="https://www.komoot.com/tour/... ou lien GPX"></div>
     </div>
+    <div class="ts" id="evXtra">
+      <div class="fs"><label class="fl">🏢 Organisateur <span class="hint">(vide = Lys Cyclo)</span></label><input class="fi" id="evOrg" placeholder="ex : Les Renards des Sables" maxlength="80"></div>
+      <div class="frow"><div class="fs"><label class="fl">Affiliation</label><input class="fi" id="evAff" placeholder="ex : FFCT" maxlength="80"></div><div class="fs"><label class="fl">Heure de fin</label><input class="fi" id="evHf" type="time"></div></div>
+      <div class="fs"><label class="fl">📝 Lien d’inscription en ligne (optionnel)</label><input class="fi" id="evInsc" type="url" placeholder="https://..."></div>
+    </div>
     <div class="frow"><div class="fs"><label class="fl">Date *</label><input class="fi" id="evDa" type="date"></div><div class="fs"><label class="fl">Heure départ</label><input class="fi" id="evHe" type="time" value="09:00"></div></div>
     <div class="fs"><label class="fl">Lieu *</label><input class="fi" id="evLi" placeholder="Place du Général de Gaulle, Lys-lez-Lannoy"></div>
+    <div class="fs"><label class="fl">🍺 Bar du club ce jour-là</label><div class="rg"><div class="ro"><input type="radio" name="evBar" id="eb1" value="decider"><label class="rl" for="eb1">❓ À décider</label></div><div class="ro"><input type="radio" name="evBar" id="eb2" value="ouvert"><label class="rl" for="eb2">🟢 Ouvert</label></div><div class="ro"><input type="radio" name="evBar" id="eb3" value="ferme"><label class="rl" for="eb3">🔴 Fermé</label></div></div><div class="hint">Simple information pour le calendrier du bar : rien n’est modifié automatiquement.</div></div>
     <div class="fs"><label class="fl">Image événement</label><div class="iuz" id="evIZ"><span style="font-size:18px;">🖼</span><span style="font-size:10px;color:var(--td);">Touchez pour choisir une photo</span><input type="file" accept="image/*" onchange="evIUp(this)"></div><img id="evIPr" class="iprev" src="" alt=""><button id="evIDl" onclick="evIDel()" style="display:none;margin-top:3px;" class="bs">✕ Supprimer</button></div>
     <div class="fs"><label class="fl">Conditions / Commentaires</label><textarea class="fta" id="evDe" placeholder="Niveau requis, équipement…"></textarea></div>
     <button class="bp" id="evSvBtn" onclick="saveEv()">CRÉER L'ÉVÉNEMENT</button>
@@ -490,7 +515,7 @@ nav::-webkit-scrollbar{display:none;}
 <div class="mo" id="mImport"><div class="mdl">
   <button class="mc" onclick="cm('mImport')">×</button><div class="mt2">📥 IMPORTER DES ÉVÉNEMENTS</div>
   <div id="impStep1">
-    <div class="imp-note">Choisissez un fichier Excel (.xlsx). Colonnes reconnues : Type, Nom, Catégorie, Discipline(s), Kilomètres prévus, Tarif, Lien Facebook, Lien GPX, Date, Heure départ, Lieu, Conditions / Commentaires.<br>Vous verrez un aperçu : <b>rien n'est enregistré avant votre confirmation</b>.</div>
+    <div class="imp-note">Choisissez un fichier Excel (.xlsx). Format conseillé : <b>une ligne par discipline</b> (VTT, Route, Gravel, Marche) avec le même Nom et la même Date ; colonnes Parcours, Tarif adulte, Tarif -12 ans, Organisateur, Bar… (bouton « 📄 Modèle » dans Administration › Évènements). Les anciens fichiers restent acceptés.<br>Vous verrez un aperçu : <b>rien n'est enregistré avant votre confirmation</b>.</div>
     <input class="fi" type="file" id="impFile" accept=".xlsx,.xls,.csv" onchange="impFile(this)">
     <div class="imp-note" id="impMsg"></div>
   </div>
@@ -498,6 +523,12 @@ nav::-webkit-scrollbar{display:none;}
     <div id="impBody"></div>
     <div class="imp-actions"><button class="bp" id="impGo" onclick="impConfirm()">IMPORTER</button><button class="bv2btn" onclick="openImport()">↩ Autre fichier</button></div>
   </div>
+</div></div>
+
+<!-- MODAL CHOIX DE DISCIPLINE -->
+<div class="mo" id="mDisc"><div class="mdl">
+  <button class="mc" onclick="cm('mDisc')">×</button><div class="mt2">🎯 MA DISCIPLINE</div>
+  <div class="imp-note" id="discNom"></div><div id="discBtns"></div>
 </div></div>
 
 <!-- MODAL MODIFIER MEMBRE -->
@@ -925,7 +956,7 @@ function rBar(){
       if(noB)slots+=`<div class="blink" style="color:var(--O);font-size:9px;margin-top:3px;">⚠️ Aucun bénévole inscrit !</div>`;
     }
     const admBtns=isAdm()?`<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${isClosed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${isClosed?'🟢 Ouvrir le bar':'🔴 Fermer le bar'}</button></div>`:'';
-    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${fer}${fmtL(ds)}</span><span style="font-size:10px;color:${isClosed?'var(--R)':noB?'var(--O)':'var(--V)'};">${isClosed?'🔴 Bar fermé':noB?'⚠️ Bénévoles attendus':'🟢 Bénévoles inscrits'}</span></div>${isClosed?`<div style="font-size:10px;color:var(--R);font-weight:700;">❌ Bar fermé ce jour.</div>`:slots}${admBtns}</div>`;
+    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${fer}${fmtL(ds)}</span><span style="font-size:10px;color:${isClosed?'var(--R)':noB?'var(--O)':'var(--V)'};">${isClosed?'🔴 Bar fermé':noB?'⚠️ Bénévoles attendus':'🟢 Bénévoles inscrits'}</span></div>${evChips(ds)}${isClosed?`<div style="font-size:10px;color:var(--R);font-weight:700;">❌ Bar fermé ce jour.</div>`:slots}${admBtns}</div>`;
   }
   document.getElementById('barDays').innerHTML=h;
 }
@@ -1000,14 +1031,80 @@ function rBarInfo(ds){
     if(CU&&alrB)slots+=`<button class="bd" style="margin-left:5px;font-size:9px;padding:2px 6px;" onclick="selfUnregB('${ds}')">Me désinscrire</button>`;
   }
   const admBtns=isAdm()?`<div style="display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;"><button class="be" style="font-size:9px;padding:3px 6px;" onclick="openBarEd('${ds}')">✏️ Gérer</button><button class="${isClosed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 6px;" onclick="toggleBS('${ds}')">${isClosed?'🟢 Ouvrir':'🔴 Fermer'}</button></div>`:'';
-  el.innerHTML=`<div class="barinfo ${isClosed?'bif':noB?'biw':'bio'}" style="margin-bottom:8px;"><div class="bit" style="color:${isClosed?'var(--R)':noB?'var(--O)':'var(--V)'};">${isClosed?'🔴 Bar FERMÉ':'🟢 Bar OUVERT'}${ferH}</div>${isClosed?'<div style="font-size:10px;color:var(--R);">Bar fermé ce jour.</div>':'<div>'+slots+'</div>'}${admBtns}</div>`;
+  el.innerHTML=`<div class="barinfo ${isClosed?'bif':noB?'biw':'bio'}" style="margin-bottom:8px;"><div class="bit" style="color:${isClosed?'var(--R)':noB?'var(--O)':'var(--V)'};">${isClosed?'🔴 Bar FERMÉ':'🟢 Bar OUVERT'}${ferH}</div>${evChips(ds,true)}${isClosed?'<div style="font-size:10px;color:var(--R);">Bar fermé ce jour.</div>':'<div>'+slots+'</div>'}${admBtns}</div>`;
 }
 
 // ═══ EVENT CARDS ═══
+// ═══ MULTI-DISCIPLINES : outils communs ═══
+const DISC={VTT:{i:'🟢',c:'bv2'},Route:{i:'🔵',c:'br2'},Gravel:{i:'🟠',c:'bg2'},Marche:{i:'🥾',c:'bm2'}};
+const DORD=['VTT','Route','Gravel','Marche'];
+const DCB={VTT:'dcV',Route:'dcR',Gravel:'dcG',Marche:'dcM'};
+const hx=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const eur=n=>{const v=parseFloat(n);if(isNaN(v))return'';return v===0?'gratuit':(Number.isInteger(v)?String(v):String(Math.round(v*100)/100).replace('.',','))+' €';};
+const parseKm=p=>(String(p??'').match(/\d+(?:[.,]\d+)?/g)||[]).map(x=>parseFloat(x.replace(',','.'))).filter(x=>x>0);
+const kmTxt=p=>parseKm(p).join('/');
+const isOwn=e=>!e.organisateur||/lys/i.test(e.organisateur);
+function evFml(ev){
+  if(ev.formules){const a=Array.isArray(ev.formules)?ev.formules:Object.values(ev.formules);const r=a.filter(f=>f&&DISC[f.d]);if(r.length)return r;}
+  if(ev.type==='sportif')return(ev.disciplines||[]).filter(d=>DISC[d]).map(d=>({d}));
+  return[];
+}
+function fmlLine(f){
+  let s=`${DISC[f.d].i} <b>${f.d}</b>`;
+  if(f.parcours)s+=' '+kmTxt(f.parcours)+' km';
+  if(f.tarif!=null){s+=' · '+eur(f.tarif);if(f.tarifJ!=null)s+=` (${eur(f.tarifJ)} −12 ans)`;}
+  if(f.note)s+=` · <i>${hx(f.note)}</i>`;
+  return s;
+}
+// une option = une discipline + (éventuellement) un parcours précis
+function optsDisc(ev){
+  if(ev.type!=='sportif')return[];
+  const o=[];
+  evFml(ev).forEach(f=>{const k=parseKm(f.parcours);if(k.length)k.forEach(p=>o.push({d:f.d,p,f}));else o.push({d:f.d,p:null,f});});
+  return o;
+}
+function kmOf(ev,id){
+  const c=ev.choix&&ev.choix[id],fm=evFml(ev);
+  if(c){if(c.p)return c.p;const f=fm.find(x=>x.d===c.d),k=f?parseKm(f.parcours):[];return k.length?Math.max(...k):(ev.km||0);}
+  return fm.length>1?0:(ev.km||0);
+}
+function discTag(ev,id){const c=ev.choix&&ev.choix[id];if(!c||!DISC[c.d])return'';return` <span class="dtag">${DISC[c.d].i} ${c.d}${c.p?' '+c.p+' km':''}</span>`;}
+function evBarBtns(e){return`<span class="evbb"><button class="bv2btn" onclick="evSetBar('${e.id}','ouvert')">🟢 Ouvrir</button><button class="bd" onclick="evSetBar('${e.id}','ferme')">🔴 Fermer</button><button class="be" onclick="evSetBar('${e.id}','decider')">❓</button></span>`;}
+// évènements d'un jour de bar (calendrier du bar)
+function evChips(ds,btn){
+  return EVs.filter(e=>e.date===ds&&e.type!=='club').map(e=>{
+    const m=e.barMode,t=m==='ouvert'?'🟢 bar souhaité':m==='ferme'?'🔴 pas de bar':m==='decider'?'❓ bar à décider':'';
+    return`<div class="evchip" style="color:${m==='decider'?'var(--O)':'var(--td)'}">📌 <b>${hx(e.nom)}</b>${t?' — '+t:''}${btn&&isAdm()&&m?evBarBtns(e):''}</div>`;
+  }).join('');
+}
+function barH(ev){
+  if(ev.type==='club'||!ev.barMode)return'';
+  const today=new Date().toISOString().split('T')[0];if(ev.date<today)return'';
+  const m=ev.barMode,ds=ev.date,bd=isBarDay(ds),closed=BSs[ds]===false;
+  const t={ouvert:'🟢 Bar souhaité ce jour',ferme:'🔴 Pas de bar ce jour',decider:'❓ Bar : à décider'}[m]||'';
+  let cal;
+  if(bd){const b=BAs[ds]||{};const n=(b.b1?1:0)+(b.b2?1:0);cal=closed?'Calendrier du bar : fermé':`Calendrier du bar : ouvert · ${n}/2 bénévole${n>1?'s':''}`;}
+  else cal='Jour hors calendrier habituel du bar (dimanches et fériés)';
+  let al='';
+  if(bd&&m==='ferme'&&!closed)al='⚠️ Le calendrier du bar est encore ouvert ce jour';
+  if(bd&&m==='ouvert'&&closed)al='⚠️ Le calendrier du bar est fermé ce jour';
+  return`<div class="evbar ${m}"><div class="evbt">${t}</div><div class="evbs">${cal}</div>${al?`<div class="evba">${al}</div>`:''}${isAdm()?evBarBtns(ev):''}</div>`;
+}
+window.evSetBar=async(evId,mode)=>{
+  if(!isAdm()){showT('Accès refusé.');return;}
+  const ev=EVs.find(e=>e.id===evId);if(!ev)return;
+  await update(ref(db,'evenements/'+evId),{barMode:mode});
+  if(isBarDay(ev.date)){
+    if(mode==='ferme')BSs[ev.date]=false;else if(mode==='ouvert')delete BSs[ev.date];
+    if(mode!=='decider')await saveBsData();
+    showT(mode==='ferme'?'Bar fermé ce jour.':mode==='ouvert'?'Bar ouvert ce jour.':'Bar : à décider.');
+  }else showT('Choix noté (ce jour n’est pas dans le calendrier habituel du bar).');
+};
+
 function bdgsFor(ev){
   if(ev.type==='festif')return'<span class="bdg bf2">🎉 Festivité</span>';
   if(ev.type==='club')return'<span class="bdg bcl">🛠️ Gestion club</span>';
-  let s='';(ev.disciplines||[]).forEach(d=>{if(d==='VTT')s+='<span class="bdg bv2">🟢 VTT</span>';if(d==='Route')s+='<span class="bdg br2">🔵 Route</span>';});
+  let s='';DORD.forEach(d=>{if((ev.disciplines||[]).includes(d))s+=`<span class="bdg ${DISC[d].c}">${DISC[d].i} ${d}</span>`;});
   if(ev.categorie==='Brevet')s+='<span class="bdg bb3">🏅 Brevet</span>';if(ev.categorie==='Randonnée')s+='<span class="bdg bn2">🗺 Rando</span>';
   return s||'<span class="bdg br2">🚴 Sportif</span>';
 }
@@ -1017,20 +1114,37 @@ function evCard(ev){
   const oui=cntP(ev,'oui'),non=cntP(ev,'non'),ben=cntP(ev,'benev');
   const tot=oui+ben,rep=Object.keys(ev.participations||{}).length,nonRep=Math.max(0,MEs.length-rep);
   let insc='';
-  if(tot>0){const nms=Object.entries(ev.participations||{}).filter(([,v])=>v==='oui'||v==='benev').map(([id])=>getMN(id));insc=`<div class="ilist"><span style="font-size:9px;color:var(--td);text-transform:uppercase;">Participants : </span>${nms.map(n=>`<span class="iitem">✅ ${n}</span>`).join('')}</div>`;}
+  if(tot>0){const nms=Object.entries(ev.participations||{}).filter(([,v])=>v==='oui'||v==='benev').map(([id])=>getMN(id)+discTag(ev,id));insc=`<div class="ilist"><span style="font-size:9px;color:var(--td);text-transform:uppercase;">Participants : </span>${nms.map(n=>`<span class="iitem">✅ ${n}</span>`).join('')}</div>`;}
   const cr=MEs.find(x=>x.id===ev.createdBy);const crN=cr?(cr.pseudo||(cr.prenom+' '+cr.nom.split(' ')[0])):'?';
   const imgH=ev.image?`<img src="${ev.image}" class="eimg" alt="">`:'';
   const tH=ev.tarif?`<div class="tbadge">💶 ${parseFloat(ev.tarif).toFixed(2)} €/pers.</div>`:(ev.type==='festif'?'<div style="font-size:9px;color:var(--V);font-weight:700;margin-bottom:4px;">✓ Gratuit</div>':'');
   const admH=canMgEv()?`<div class="cact"><button class="be" onclick="openEdit('${ev.id}')">✏️ Modifier</button><button class="bd" onclick="confDelEv('${ev.id}')">🗑 Supprimer</button></div>`:'';
-  const linksH=(ev.linkFb||ev.linkGpx)?`<div class="evlinks">${ev.linkFb?`<a href="${ev.linkFb}" target="_blank" class="evlink-btn evlink-fb">📘 Facebook</a>`:''}${ev.linkGpx?`<a href="${ev.linkGpx}" target="_blank" class="evlink-btn evlink-gpx">🗺 Trace GPX</a>`:''}</div>`:'';
-  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${ev.heure}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}</div>${linksH}<div class="ecreat">📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b></div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="sz"><div class="szi ct"><div class="szn">${rep}</div><div class="szl">Répondants</div></div><div class="szi co"><div class="szn">${tot}</div><div class="szl">Participants</div></div><div class="szi cn"><div class="szn">${non}</div><div class="szl">Absents</div></div><div class="szi ck"><div class="szn">${nonRep}</div><div class="szl">Sans réponse</div></div></div><div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${insc}${admH}</div>`;
+  const linksH=(ev.linkFb||ev.linkGpx||ev.linkInsc)?`<div class="evlinks">${ev.linkInsc?`<a href="${ev.linkInsc}" target="_blank" rel="noopener" class="evlink-btn evlink-gpx">📝 S’inscrire en ligne</a>`:''}${ev.linkFb?`<a href="${ev.linkFb}" target="_blank" class="evlink-btn evlink-fb">📘 Facebook</a>`:''}${ev.linkGpx?`<a href="${ev.linkGpx}" target="_blank" class="evlink-btn evlink-gpx">🗺 Trace GPX</a>`:''}</div>`:'';
+  const fmL=evFml(ev),ops=optsDisc(ev);
+  const fmH=(ev.formules&&ev.formules.length)?`<div class="fmls">${fmL.map(f=>`<div>${fmlLine(f)}</div>`).join('')}</div>`:'';
+  const orgH=ev.organisateur?`<span class="mi">🏢 ${hx(ev.organisateur)}${ev.affil?' · '+hx(ev.affil):''}</span>`:(ev.affil?`<span class="mi">🏢 ${hx(ev.affil)}</span>`:'');
+  let myDiscH='';
+  if(CU&&my==='oui'&&ops.length>1){const c=ev.choix&&ev.choix[CU.id];myDiscH=`<div class="mydisc">🎯 Ma discipline : ${c&&DISC[c.d]?`<b>${DISC[c.d].i} ${c.d}${c.p?' '+c.p+' km':''}</b>`:'<b>non choisie</b>'} <a onclick="pickDisc('${ev.id}')">${c?'changer':'choisir'}</a></div>`;}
+  let dcH='';
+  if(ops.length>1&&oui>0){
+    const cn={};let sc=0,est=0,anyE=false;
+    Object.entries(ev.participations||{}).forEach(([id,v])=>{if(v!=='oui')return;const c=ev.choix&&ev.choix[id];if(c&&DISC[c.d]){cn[c.d]=(cn[c.d]||0)+1;const f=fmL.find(x=>x.d===c.d);if(f&&f.tarif!=null){est+=f.tarif;anyE=true;}}else sc++;});
+    const pp=DORD.filter(d=>cn[d]).map(d=>`${DISC[d].i} ${d} <b>${cn[d]}</b>`);if(sc)pp.push(`sans choix <b>${sc}</b>`);
+    dcH=`<div class="dcnt">${pp.join(' · ')}${canMgEv()&&anyE?` · 💶 ≈ ${eur(est)} (tarifs adultes)`:''}</div>`;
+  }
+  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}</div>${linksH}<div class="ecreat">📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b></div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="sz"><div class="szi ct"><div class="szn">${rep}</div><div class="szl">Répondants</div></div><div class="szi co"><div class="szn">${tot}</div><div class="szl">Participants</div></div><div class="szi cn"><div class="szn">${non}</div><div class="szl">Absents</div></div><div class="szi ck"><div class="szn">${nonRep}</div><div class="szl">Sans réponse</div></div></div><div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
 }
 window.setPart=async(evId,s)=>{
   if(!CU){showT('Connectez-vous !');return;}
   const ev=EVs.find(e=>e.id===evId);if(!ev)return;
-  const parts={...(ev.participations||{})};
-  if(parts[CU.id]===s)delete parts[CU.id];else parts[CU.id]=s;
-  await update(ref(db,'evenements/'+evId),{participations:parts});
+  const parts={...(ev.participations||{})},choix={...(ev.choix||{})};
+  if(parts[CU.id]===s){delete parts[CU.id];delete choix[CU.id];}
+  else{
+    if(s==='oui'){const o=optsDisc(ev);if(o.length>1){pickDisc(evId);return;}if(o.length===1)choix[CU.id]=o[0].p?{d:o[0].d,p:o[0].p}:{d:o[0].d};}
+    else delete choix[CU.id];
+    parts[CU.id]=s;
+  }
+  await update(ref(db,'evenements/'+evId),{participations:parts,choix:Object.keys(choix).length?choix:null});
   showT('Réponse enregistrée !');
 };
 
@@ -1042,6 +1156,9 @@ function rSorties(){
   if(curFilter==='festif')f=f.filter(e=>e.type==='festif');
   if(curFilter==='brevet')f=f.filter(e=>e.categorie==='Brevet'||e.categorie==='Randonnée');
   if(curFilter==='club')f=f.filter(e=>e.type==='club');
+  if(curFilter==='gravel')f=f.filter(e=>e.disciplines?.includes('Gravel'));
+  if(curFilter==='marche')f=f.filter(e=>e.disciplines?.includes('Marche'));
+  if(curFilter==='ext')f=f.filter(e=>e.type==='sportif'&&!isOwn(e));
   document.getElementById('sorEv').innerHTML=f.length?f.map(evCard).join(''):'<div class="empty"><div class="ei">🚴</div><div>Aucun événement.</div></div>';
 }
 window.flt=(t,btn)=>{curFilter=t;document.querySelectorAll('.fc').forEach(c=>c.classList.remove('active'));btn.classList.add('active');rSorties();};
@@ -1056,13 +1173,13 @@ function rMembers(){
 }
 
 // ═══ STATS ═══
-function rStats(){
+function rStats(){rStatsX();
   const tk=EVs.reduce((s,e)=>s+(e.km||0),0);const tp=EVs.reduce((s,e)=>s+Object.values(e.participations||{}).filter(v=>v==='oui'||v==='benev').length,0);
   document.getElementById('stEv').textContent=EVs.length;document.getElementById('stMem').textContent=MEs.length;document.getElementById('stKm').textContent=tk;document.getElementById('stPa').textContent=tp;
   if(CU){
     const me=EVs.filter(e=>e.participations?.[CU.id]==='oui'||e.participations?.[CU.id]==='benev');
-    const mk=me.reduce((s,e)=>s+(e.km||0),0);
-    document.getElementById('myPa').innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:5px;"><span>🚴 <b>${me.length}</b> sortie${me.length!==1?'s':''}</span><span>📏 <b>${mk} km</b></span></div>${me.map(e=>`<div style="margin-top:3px;font-size:10px;">• ${e.nom} — ${fmtS(e.date)}</div>`).join('')}${me.length===0?'<span>Aucune participation.</span>':''}`;
+    const mk=Math.round(me.reduce((s,e)=>s+kmOf(e,CU.id),0)*10)/10;
+    document.getElementById('myPa').innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:5px;"><span>🚴 <b>${me.length}</b> sortie${me.length!==1?'s':''}</span><span>📏 <b>${mk} km</b></span></div>${me.map(e=>`<div style="margin-top:3px;font-size:10px;">• ${e.nom}${discTag(e,CU.id)} — ${fmtS(e.date)}</div>`).join('')}${me.length===0?'<span>Aucune participation.</span>':''}`;
   }
 }
 
@@ -1222,16 +1339,17 @@ window.openEdit=evId=>{
   editEvId=evId;evImgD=ev.image||null;resetEvF();document.getElementById('mCrtTitle').textContent="MODIFIER L'ÉVÉNEMENT";document.getElementById('evSvBtn').textContent='ENREGISTRER';
   const tr=document.querySelector(`input[name="evT"][value="${ev.type}"]`);if(tr){tr.checked=true;onEvT();}
   document.getElementById('evNom').value=ev.nom||'';document.getElementById('evDa').value=ev.date||'';document.getElementById('evHe').value=ev.heure||'09:00';document.getElementById('evLi').value=ev.lieu||'';document.getElementById('evDe').value=ev.desc||'';
-  if(ev.type==='sportif'){const cr=document.querySelector(`input[name="evCat"][value="${ev.categorie}"]`);if(cr)cr.checked=true;(ev.disciplines||[]).forEach(d=>{const cb=document.getElementById(d==='VTT'?'dcV':d==='Route'?'dcR':'dcF');if(cb)cb.checked=true;});if(ev.km)document.getElementById('evKm').value=ev.km;
+  if(ev.type==='sportif'){const cr=document.querySelector(`input[name="evCat"][value="${ev.categorie}"]`);if(cr)cr.checked=true;fillFormules(ev);
     if(ev.linkFb)document.getElementById('evLinkFb').value=ev.linkFb;
     if(ev.linkGpx)document.getElementById('evLinkGpx').value=ev.linkGpx;
   }
   if(ev.type==='festif'&&ev.tarif)document.getElementById('evTa').value=ev.tarif;
   if(ev.type==='club'){const cc=document.querySelector(`input[name="evClubCat"][value="${ev.categorie}"]`);if(cc)cc.checked=true;}
   if(ev.image){document.getElementById('evIPr').src=ev.image;document.getElementById('evIPr').style.display='block';document.getElementById('evIZ').style.display='none';document.getElementById('evIDl').style.display='';}
+  fillExtras(ev);
   document.getElementById('mCreate').classList.add('open');
 };
-window.onEvT=()=>{const t=document.querySelector('input[name="evT"]:checked')?.value;document.getElementById('evBody').classList.toggle('v',!!t);document.getElementById('evSpo').classList.toggle('v',t==='sportif');document.getElementById('evFes').classList.toggle('v',t==='festif');document.getElementById('evClub').classList.toggle('v',t==='club');document.getElementById('evLinks').classList.toggle('v',t==='sportif');};
+window.onEvT=()=>{const t=document.querySelector('input[name="evT"]:checked')?.value;document.getElementById('evBody').classList.toggle('v',!!t);document.getElementById('evSpo').classList.toggle('v',t==='sportif');document.getElementById('evFes').classList.toggle('v',t==='festif');document.getElementById('evClub').classList.toggle('v',t==='club');document.getElementById('evLinks').classList.toggle('v',t==='sportif');document.getElementById('evXtra').classList.toggle('v',t==='sportif');};
 window.evIUp=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{evImgD=e.target.result;document.getElementById('evIPr').src=evImgD;document.getElementById('evIPr').style.display='block';document.getElementById('evIZ').style.display='none';document.getElementById('evIDl').style.display='';};r.readAsDataURL(f);};
 window.evIDel=()=>{evImgD=null;document.getElementById('evIPr').src='';document.getElementById('evIPr').style.display='none';document.getElementById('evIZ').style.display='';document.getElementById('evIDl').style.display='none';};
 window.saveEv=async()=>{
@@ -1239,10 +1357,12 @@ window.saveEv=async()=>{
   if(!t||!nom||!da||!li){showT('Remplissez les champs requis !');return;}
   const td=new Date().toISOString().split('T')[0];
   const data={type:t,nom,date:da,heure:he,lieu:li,desc:de,image:evImgD||null,createdBy:CU.id,createdAt:td};
-  if(t==='sportif'){data.categorie=document.querySelector('input[name="evCat"]:checked')?.value||null;data.disciplines=['VTT','Route','Fest'].filter(d=>document.getElementById(d==='VTT'?'dcV':d==='Route'?'dcR':'dcF')?.checked).map(d=>d==='Fest'?'Festivité':d);data.km=parseInt(document.getElementById('evKm').value)||0;
-    const lfb=document.getElementById('evLinkFb').value.trim();if(lfb)data.linkFb=lfb;
-    const lgpx=document.getElementById('evLinkGpx').value.trim();if(lgpx)data.linkGpx=lgpx;
+  if(t==='sportif'){data.categorie=document.querySelector('input[name="evCat"]:checked')?.value||null;const sp=readFormules();if(!sp.disciplines.length){showT('Choisissez au moins une discipline !');return;}data.disciplines=sp.disciplines;data.km=sp.km;data.formules=sp.formules.length?sp.formules:null;
+    const lfb=document.getElementById('evLinkFb').value.trim();data.linkFb=lfb||null;
+    const lgpx=document.getElementById('evLinkGpx').value.trim();data.linkGpx=lgpx||null;
   }
+  if(t==='sportif'){data.heureFin=document.getElementById('evHf').value||null;data.organisateur=document.getElementById('evOrg').value.trim()||null;data.affil=document.getElementById('evAff').value.trim()||null;const li2=document.getElementById('evInsc').value.trim();if(li2&&!/^https?:\/\/\S+$/i.test(li2)){showT('Lien d’inscription : il doit commencer par https://');return;}data.linkInsc=li2||null;}
+  data.barMode=document.querySelector('input[name="evBar"]:checked')?.value||null;
   if(t==='festif'){const tf=parseFloat(document.getElementById('evTa').value);if(!isNaN(tf)&&tf>0)data.tarif=tf;}
   if(t==='club'){data.categorie=document.querySelector('input[name="evClubCat"]:checked')?.value||'Autre';}
   if(editEvId){
@@ -1258,7 +1378,7 @@ window.saveEv=async()=>{
   cm('mCreate');resetEvF();editEvId=null;
 };
 window.confDelEv=evId=>{const ev=EVs.find(e=>e.id===evId);if(!ev)return;conf('SUPPRIMER',`Supprimer "${ev.nom}" ?`,async()=>{await remove(ref(db,'evenements/'+evId));showT('Supprimé.');});};
-function resetEvF(){['evNom','evDa','evLi','evDe','evKm','evTa','evLinkFb','evLinkGpx'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('evHe').value='09:00';document.querySelectorAll('input[name="evT"],input[name="evCat"],input[name="evClubCat"]').forEach(r=>r.checked=false);['dcV','dcR','dcF'].forEach(id=>{const cb=document.getElementById(id);if(cb)cb.checked=false;});['evBody','evSpo','evFes','evClub','evLinks'].forEach(id=>document.getElementById(id).classList.remove('v'));window.evIDel();evImgD=null;}
+function resetEvF(){['evNom','evDa','evLi','evDe','evKm','evTa','evLinkFb','evLinkGpx','evHf','evOrg','evAff','evInsc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('evHe').value='09:00';document.querySelectorAll('input[name="evT"],input[name="evCat"],input[name="evClubCat"]').forEach(r=>r.checked=false);['dcV','dcR','dcG','dcM','dcF'].forEach(id=>{const cb=document.getElementById(id);if(cb)cb.checked=false;});['evBody','evSpo','evFes','evClub','evLinks','evXtra'].forEach(id=>document.getElementById(id).classList.remove('v'));window.evIDel();evImgD=null;resetMore();}
 
 // ═══ DASHBOARD ACCUEIL ═══
 function renderDashboard(){
@@ -1363,7 +1483,14 @@ function impField(h){
   if(/^categorie/.test(n))return'cat';
   if(/^discipline/.test(n))return'disc';
   if(/^kilometre|^km\b/.test(n))return'km';
-  if(/^tarif/.test(n))return'tarif';
+  if(/^tarif/.test(n))return /12|enfant|jeune|reduit|moins/.test(n)?'tarifj':'tarif';
+  if(/^parcours/.test(n))return'parcours';
+  if(/^remarque|^precision|^note\b/.test(n))return'note';
+  if(/^organisateur|^club organisateur/.test(n))return'org';
+  if(/^affiliation|^federation/.test(n))return'aff';
+  if(/inscription/.test(n))return'insc';
+  if(/^bar\b/.test(n))return'bar';
+  if(/^heure.*fin|^fin\b/.test(n))return'hfin';
   if(/facebook|reseau/.test(n))return'fb';
   if(/gpx|komoot|garmin/.test(n))return'gpx';
   if(/^date\b/.test(n))return'date';
@@ -1375,7 +1502,7 @@ function impField(h){
 function impType(v){const n=impNorm(v);if(n.startsWith('sport'))return'sportif';if(n.startsWith('festi'))return'festif';if(n.startsWith('gestion')||n.startsWith('club'))return'club';return null;}
 function impCatSport(v){const n=impNorm(v);if(/club/.test(n))return'Sortie club';if(/brevet/.test(n))return'Brevet';if(/rando/.test(n))return'Randonnée';return null;}
 function impCatClub(v){const n=impNorm(v);if(/assembl|^ag$/.test(n))return'Assemblée générale';if(/inscri/.test(n))return'Inscription annuelle';if(/equip/.test(n))return'Gestion équipement';if(/inventaire/.test(n))return'Inventaire';if(/nettoy/.test(n))return'Nettoyage du club';return'Autre';}
-function impDisc(v){const n=impNorm(v),o=[];if(/vtt/.test(n))o.push('VTT');if(/route/.test(n))o.push('Route');if(/festiv/.test(n))o.push('Festivité');return o;}
+function impDisc(v){const n=impNorm(v),o=[];if(/vtt/.test(n))o.push('VTT');if(/route|cyclo/.test(n))o.push('Route');if(/gravel/.test(n))o.push('Gravel');if(/marche|pedestre|randonneur/.test(n))o.push('Marche');if(/festiv/.test(n))o.push('Festivité');return o;}
 function impDate(v){
   if(v===''||v==null)return{empty:true};
   let y,m,d;
@@ -1398,8 +1525,9 @@ function impTime(v){
   return{val:String(h).padStart(2,'0')+':'+String(mi).padStart(2,'0')};
 }
 
+const IMP_INH=['type','cat','lieu','heure','hfin','desc','org','aff','insc','fb','gpx','bar'];
 function impBuildRow(sheet,line,g){
-  const R={sheet,line,errors:[],warns:[],data:null,sel:false,status:'ok'};
+  const R={sheet,line,lines:[line],errors:[],warns:[],data:null,sel:false,status:'ok',formules:[],kmv:0,hasF:false};
   const type=impType(g('type')),nom=impTxt(g('nom')),lieu=impTxt(g('lieu')),dt=impDate(g('date'));
   R.nom=nom;R.lieu=lieu;
   if(dt.empty){R.status='nodate';return R;}          // pas de date : on ignore sans erreur
@@ -1411,25 +1539,50 @@ function impBuildRow(sheet,line,g){
   const tm=impTime(g('heure'));
   if(tm.bad)R.warns.push('Heure illisible : « À confirmer » utilisée');
   const data={type,nom,date:dt.iso,heure:tm.val||'À confirmer',lieu,desc:impTxt(g('desc')),image:null};
-  const ta=parseFloat(String(g('tarif')).replace(',','.'));
+  const num=f=>{const s=String(g(f)??'').trim().replace(',','.');if(s==='')return null;const v=parseFloat(s);return isNaN(v)||v<0?null:v;};
+  const ta=num('tarif'),tj=num('tarifj');
+  const urlOk=(f,k)=>{const u=String(g(f)??'').trim();if(u){if(/^https?:\/\/\S+$/i.test(u))data[k]=u;else R.warns.push('Lien ignoré (il doit commencer par https://)');}};
+  if(type==='sportif'||type==='festif'){
+    const bn=impNorm(g('bar'));data.barMode=/ouv|oui/.test(bn)?'ouvert':/ferm|non/.test(bn)?'ferme':'decider';
+  }
   if(type==='sportif'){
     const cat=impCatSport(g('cat'));if(!cat)R.errors.push('Catégorie inconnue (Club, Brevet, Rando)');
-    const ds=impDisc(g('disc'));if(!ds.length)R.errors.push('Discipline manquante (VTT, Route)');
-    data.categorie=cat;data.disciplines=ds;data.km=Math.max(0,parseInt(String(g('km')).replace(',','.'))||0);
-    [['fb','linkFb'],['gpx','linkGpx']].forEach(([f,k])=>{
-      const u=String(g(f)??'').trim();
-      if(u){if(/^https?:\/\/\S+$/i.test(u))data[k]=u;else R.warns.push('Lien ignoré (il doit commencer par https://)');}
-    });
-    // L'appli ne gère le tarif que pour les festivités : on l'ajoute au commentaire si absent
-    if(ta>0&&!/€/.test(data.desc))data.desc=(data.desc?data.desc+' ':'')+'Tarif : '+String(ta).replace('.',',')+' €.';
+    const ds=impDisc(g('disc'));if(!ds.length)R.errors.push('Discipline manquante (VTT, Route, Gravel, Marche)');
+    data.categorie=cat;
+    R.hasF=ds.includes('Festivité');
+    R.kmv=Math.max(0,parseFloat(String(g('km')).replace(',','.'))||0);
+    const dsm=ds.filter(d=>DISC[d]);
+    const pcRaw=g('parcours');const pc=kmTxt(pcRaw!==''&&pcRaw!=null?pcRaw:g('km'));
+    if(dsm.length===1){
+      const f={d:dsm[0]};if(pc)f.parcours=pc;if(ta!=null)f.tarif=ta;if(tj!=null)f.tarifJ=tj;
+      const nt=impTxt(g('note'));if(nt)f.note=nt.slice(0,120);
+      R.formules=[f];
+    }else if(dsm.length>1){
+      R.formules=dsm.map(d=>({d}));
+      if(ta>0&&!/€/.test(data.desc))data.desc=(data.desc?data.desc+' ':'')+'Tarif : '+String(ta).replace('.',',')+' €.';
+    }else if(ta>0&&!/€/.test(data.desc))data.desc=(data.desc?data.desc+' ':'')+'Tarif : '+String(ta).replace('.',',')+' €.';
+    urlOk('fb','linkFb');urlOk('gpx','linkGpx');urlOk('insc','linkInsc');
+    const hf=impTime(g('hfin'));if(hf.bad)R.warns.push('Heure de fin illisible : ignorée');else if(hf.val)data.heureFin=hf.val;
+    const org=impTxt(g('org'));if(org)data.organisateur=org.slice(0,80);
+    const af=impTxt(g('aff'));if(af)data.affil=af.slice(0,80);
   }else if(type==='festif'){
     if(ta>0)data.tarif=ta;
   }else if(type==='club'){
     data.categorie=impCatClub(g('cat'));
   }
+  data.disciplines=ds_of(R,data);
   R.data=data;
   if(R.errors.length)R.status='error';
   return R;
+}
+function ds_of(R,data){return data.type==='sportif'?[...DORD.filter(d=>R.formules.some(f=>f.d===d)),...(R.hasF?['Festivité']:[])]:undefined;}
+function impFinal(R){
+  const d=R.data;if(!d)return;
+  if(d.type!=='sportif'){delete d.disciplines;return;}
+  if(R.formules.length)d.formules=R.formules;else delete d.formules;
+  d.disciplines=ds_of(R,d);
+  const ks=R.formules.flatMap(f=>parseKm(f.parcours));
+  d.km=ks.length?Math.max(...ks):(R.kmv||0);
 }
 
 function impParse(wb){
@@ -1443,16 +1596,35 @@ function impParse(wb){
     }
     if(hi<0)return;
     sheets++;
+    const memo={};
     for(let i=hi+1;i<aoa.length;i++){
-      const r=aoa[i],g=f=>map[f]!=null?r[map[f]]:'';
-      if(!impTxt(g('nom'))&&!impTxt(g('lieu'))&&(g('date')===''||g('date')==null))continue;
+      const r=aoa[i],g0=f=>map[f]!=null?r[map[f]]:'';
+      if(!impTxt(g0('nom'))&&!impTxt(g0('lieu'))&&(g0('date')===''||g0('date')==null))continue;
+      // format « une ligne par discipline » : les cellules vides héritent de la 1re ligne du même évènement
+      const mk=impNorm(impTxt(g0('nom')))+'|'+String(g0('date')),m=memo[mk]||(memo[mk]={});
+      const g=f=>{const v=g0(f);const inh=IMP_INH.includes(f);if(v===''||v==null)return inh&&m[f]!=null?m[f]:'';if(inh)m[f]=v;return v;};
       rows.push(impBuildRow(sn,i+1,g));
     }
   });
+  // Regroupement : lignes du même évènement (même date + même nom) avec des disciplines différentes
+  const out=[],grp=new Map();
+  rows.forEach(r=>{
+    if(r.status!=='ok'||!r.data||r.data.type!=='sportif'){out.push(r);return;}
+    const k=(r.date||'')+'|'+impNorm(r.nom),t=grp.get(k);
+    if(t){
+      const clash=!r.formules.length||r.formules.some(f=>t.formules.some(x=>x.d===f.d));
+      if(!clash){t.formules.push(...r.formules);t.lines.push(r.line);t.warns.push(...r.warns);
+        if(t.data.heure==='À confirmer'&&r.data.heure!=='À confirmer')t.data.heure=r.data.heure;
+        if(!t.data.desc&&r.data.desc)t.data.desc=r.data.desc;
+        t.kmv=Math.max(t.kmv||0,r.kmv||0);return;}
+    }else grp.set(k,r);
+    out.push(r);
+  });
+  out.forEach(impFinal);
   // Doublons : déjà dans l'agenda (même date + même nom) ou répétés dans le fichier
   const key=(d,n)=>(d||'')+'|'+impNorm(n);
   const have=new Set(EVs.map(e=>key(e.date,e.nom))),seen=new Set();
-  rows.forEach(r=>{
+  out.forEach(r=>{
     if(r.status!=='ok')return;
     const k=key(r.date,r.nom);
     if(have.has(k)){r.status='dup';r.dupWhy='Déjà dans l’agenda';}
@@ -1460,7 +1632,11 @@ function impParse(wb){
     seen.add(k);
     r.sel=r.status==='ok';
   });
-  return{rows,sheets};
+  return{rows:out,sheets};
+}
+function impDiscTxt(d){
+  if(d.formules&&d.formules.length)return d.formules.map(f=>f.d+(f.parcours?' '+kmTxt(f.parcours)+' km':'')+(f.tarif!=null?' '+eur(f.tarif):'')).join(' · ');
+  return(d.disciplines||[]).join(' + ')+(d.km?' · '+d.km+' km':'');
 }
 
 function impUpdateBtn(){
@@ -1474,8 +1650,8 @@ function impRender(){
   impRows.forEach((r,i)=>{
     const dis=r.status==='error'||r.status==='nodate';
     const badge={ok:'✅ Prête',dup:'⚠️ '+(r.dupWhy||'Doublon'),error:'❌ À corriger',nodate:'⏳ Sans date (ignorée)'}[r.status];
-    const meta=[r.date?fmtS(r.date):'',r.lieu,r.data?(r.data.disciplines||[]).join(' + '):'',r.data&&r.data.km?r.data.km+' km':''].filter(Boolean).join(' · ');
-    h+=`<label class="imp-row ${r.status}"><input type="checkbox" ${r.sel?'checked':''} ${dis?'disabled':''} onchange="impToggle(${i},this.checked)"><div class="imp-main"><div class="imp-nom">${impEsc(r.nom||'(sans nom)')}</div><div class="imp-meta">${impEsc(meta)}</div>${r.errors.map(e=>`<div class="imp-msg e">${impEsc(e)}</div>`).join('')}${r.warns.map(w=>`<div class="imp-msg w">${impEsc(w)}</div>`).join('')}<div class="imp-meta">${impEsc(r.sheet)} · ligne ${r.line}</div></div><span class="imp-badge">${badge}</span></label>`;
+    const meta=[r.date?fmtS(r.date):'',r.lieu,r.data?impDiscTxt(r.data):''].filter(Boolean).join(' · ');
+    h+=`<label class="imp-row ${r.status}"><input type="checkbox" ${r.sel?'checked':''} ${dis?'disabled':''} onchange="impToggle(${i},this.checked)"><div class="imp-main"><div class="imp-nom">${impEsc(r.nom||'(sans nom)')}</div><div class="imp-meta">${impEsc(meta)}</div>${r.errors.map(e=>`<div class="imp-msg e">${impEsc(e)}</div>`).join('')}${r.warns.map(w=>`<div class="imp-msg w">${impEsc(w)}</div>`).join('')}<div class="imp-meta">${impEsc(r.sheet)} · ${r.lines&&r.lines.length>1?'lignes '+r.lines.join(', '):'ligne '+r.line}</div></div><span class="imp-badge">${badge}</span></label>`;
   });
   h+='</div>';
   document.getElementById('impBody').innerHTML=h;
@@ -1568,7 +1744,7 @@ window.admRenderBar=()=>{
     if(only&&(closed||n===2))return;
     const s=closed?['🔴 Fermé','var(--R)']:n===2?['✅ Complet','var(--V)']:n===1?['🟠 1 bénévole sur 2','var(--O)']:['⚠️ Aucun bénévole','var(--O)'];
     const who=closed?'':[bd.b1,bd.b2].filter(Boolean).map(id=>admEsc(getMN(id))).join(' &amp; ');
-    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${isFerie(ds)?'🇫🇷 ':''}${fmtL(ds)}</span><span style="font-size:10px;font-weight:700;color:${s[1]};">${s[0]}</span></div>${who?`<div style="font-size:10px;margin-bottom:2px;">🍺 ${who}</div>`:''}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${closed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${closed?'🟢 Ouvrir le bar':'🔴 Fermer le bar'}</button></div></div>`;
+    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${isFerie(ds)?'🇫🇷 ':''}${fmtL(ds)}</span><span style="font-size:10px;font-weight:700;color:${s[1]};">${s[0]}</span></div>${evChips(ds,true)}${who?`<div style="font-size:10px;margin-bottom:2px;">🍺 ${who}</div>`:''}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${closed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${closed?'🟢 Ouvrir le bar':'🔴 Fermer le bar'}</button></div></div>`;
   });
   const list=document.getElementById('admBarList'),sum=document.getElementById('admBarSum');
   if(list)list.innerHTML=h||`<div class="empty"><div class="ei">🍺</div><div>${only?'Toutes les dates sont complètes ou fermées.':'Aucune date de bar.'}</div></div>`;
@@ -1582,8 +1758,145 @@ function admTiles(){
   const b=admBarStats(15),todo=b.empty+b.half;
   if(todo)set('admSubB',`⚠️ ${todo} date${todo>1?'s':''} à compléter (${b.empty} sans bénévole)`,'warn');
   else set('admSubB','✅ Toutes les dates sont complètes','ok');
+  const dec=EVs.filter(e=>e.barMode==='decider'&&(e.date||'')>=td&&e.type!=='club').length;
+  if(dec){const el=document.getElementById('admSubB');if(el){el.textContent+=` · ❓ ${dec} évènement${dec>1?'s':''} : bar à décider`;el.className='admts warn';}}
 }
 function admAfter(){if(!isAdm())return;admTiles();admRenderBar();admFilterMem();}
+
+// ═══ MULTI-DISCIPLINES : formulaire ═══
+function buildFml(){
+  const c=document.getElementById('evFml');if(!c)return;
+  c.innerHTML=DORD.map(d=>`<div class="fml" id="fm-${d}" style="display:none"><div class="fmt">${DISC[d].i} ${d} — parcours &amp; tarifs</div><input class="fi" id="fp-${d}" placeholder="Parcours en km, ex : 28/38/48"><div class="frow"><input class="fi" id="ft-${d}" type="number" min="0" step="0.5" placeholder="Tarif adulte €"><input class="fi" id="fj-${d}" type="number" min="0" step="0.5" placeholder="Tarif −12 ans €"></div><input class="fi" id="fn-${d}" placeholder="Remarque (ex : GPS uniquement)"></div>`).join('');
+}
+window.onDisc=()=>{DORD.forEach(d=>{const on=document.getElementById(DCB[d])?.checked,b=document.getElementById('fm-'+d);if(b)b.style.display=on?'':'none';});};
+function readFormules(){
+  const formules=[],disciplines=[];let km=0;
+  DORD.forEach(d=>{
+    if(!document.getElementById(DCB[d])?.checked)return;
+    disciplines.push(d);
+    const f={d},p=kmTxt(document.getElementById('fp-'+d).value);if(p)f.parcours=p;
+    const t=document.getElementById('ft-'+d).value,j=document.getElementById('fj-'+d).value,n=document.getElementById('fn-'+d).value.trim();
+    if(t!==''&&!isNaN(parseFloat(t)))f.tarif=Math.max(0,parseFloat(t));
+    if(j!==''&&!isNaN(parseFloat(j)))f.tarifJ=Math.max(0,parseFloat(j));
+    if(n)f.note=n.slice(0,120);
+    formules.push(f);parseKm(p).forEach(x=>{if(x>km)km=x;});
+  });
+  if(document.getElementById('dcF')?.checked)disciplines.push('Festivité');
+  if(!km)km=parseInt(document.getElementById('evKm').value)||0;
+  return{formules,disciplines,km};
+}
+function fillFormules(ev){
+  const fm=evFml(ev);
+  fm.forEach(f=>{const cb=document.getElementById(DCB[f.d]);if(cb)cb.checked=true;
+    const set=(k,v)=>{const el=document.getElementById(k+'-'+f.d);if(el&&v!=null)el.value=v;};
+    set('fp',f.parcours?kmTxt(f.parcours).replace(/\//g,'/'):'');set('ft',f.tarif);set('fj',f.tarifJ);set('fn',f.note);});
+  if((ev.disciplines||[]).includes('Festivité'))document.getElementById('dcF').checked=true;
+  if(!(ev.formules&&ev.formules.length)&&ev.km)document.getElementById('evKm').value=ev.km;
+  onDisc();
+}
+function fillExtras(ev){
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+  s('evHf',ev.heureFin);s('evOrg',ev.organisateur);s('evAff',ev.affil);s('evInsc',ev.linkInsc);
+  document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value===ev.barMode));
+}
+function resetMore(){
+  ['evHf','evOrg','evAff','evInsc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  DORD.forEach(d=>['fp','ft','fj','fn'].forEach(k=>{const el=document.getElementById(k+'-'+d);if(el)el.value='';}));
+  onDisc();
+  document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value==='decider'));
+}
+
+// ═══ MULTI-DISCIPLINES : choix de discipline par les membres ═══
+let discCtx=null;
+window.pickDisc=evId=>{
+  if(!CU){showT('Connectez-vous !');return;}
+  const ev=EVs.find(e=>e.id===evId);if(!ev)return;const o=optsDisc(ev);if(!o.length)return;
+  discCtx={id:evId,o};
+  document.getElementById('discNom').textContent=ev.nom+' — '+fmtS(ev.date);
+  document.getElementById('discBtns').innerHTML=o.map((x,i)=>`<button class="bp" style="margin:4px 0;" onclick="setDisc(${i})">${DISC[x.d].i} ${x.d}${x.p?' — '+x.p+' km':''}${x.f&&x.f.tarif!=null?' · '+eur(x.f.tarif):''}</button>`).join('')+`<button class="bv2btn" style="width:100%;margin-top:6px;padding:8px;" onclick="setDisc(-1)">🤷 Je choisirai plus tard</button>`;
+  document.getElementById('mDisc').classList.add('open');
+};
+window.setDisc=async i=>{
+  if(!CU||!discCtx)return;
+  const ev=EVs.find(e=>e.id===discCtx.id);if(!ev)return;
+  const parts={...(ev.participations||{})},choix={...(ev.choix||{})};
+  parts[CU.id]='oui';
+  if(i>=0){const o=discCtx.o[i];choix[CU.id]=o.p?{d:o.d,p:o.p}:{d:o.d};}else delete choix[CU.id];
+  const id=discCtx.id;discCtx=null;cm('mDisc');
+  await update(ref(db,'evenements/'+id),{participations:parts,choix:Object.keys(choix).length?choix:null});
+  showT('Réponse enregistrée !');
+};
+
+// ═══ STATISTIQUES : disciplines et clubs voisins/amis ═══
+function rStatsX(){
+  const host=document.getElementById('stDisc');if(!host)return;
+  const T='font-family:\'Barlow Condensed\';font-size:12px;font-weight:700;margin-bottom:5px;';
+  const sp=EVs.filter(e=>e.type==='sportif');
+  const cnt=e=>Object.values(e.participations||{}).filter(v=>v==='oui'||v==='benev').length;
+  const grp=a=>({n:a.length,p:a.reduce((s,e)=>s+cnt(e),0)});
+  const own=sp.filter(isOwn),ext=sp.filter(e=>!isOwn(e));
+  const go=grp(own),ge=grp(ext);
+  const avg=g=>g.n?String(Math.round(g.p/g.n*10)/10).replace('.',','):'–';
+  const dc={};let sc=0;
+  sp.forEach(e=>Object.entries(e.participations||{}).forEach(([id,v])=>{if(v!=='oui')return;const c=e.choix&&e.choix[id];if(c&&DISC[c.d])dc[c.d]=(dc[c.d]||0)+1;else sc++;}));
+  const dl=DORD.filter(d=>dc[d]).map(d=>`<span class="iitem">${DISC[d].i} ${d} <b style="margin-left:3px;">${dc[d]}</b></span>`).join('')+(sc?`<span class="iitem">sans choix <b style="margin-left:3px;">${sc}</b></span>`:'');
+  let h=`<div class="card"><div style="${T}">Participations par discipline</div><div style="font-size:10px;color:var(--td);">${dl||'Aucune participation pour le moment.'}</div></div>`;
+  const row=(l,g)=>`<tr><td style="padding:3px 6px 3px 0;">${l}</td><td style="text-align:center;"><b>${g.n}</b></td><td style="text-align:center;"><b>${g.p}</b></td><td style="text-align:center;"><b>${avg(g)}</b></td></tr>`;
+  h+=`<div class="card"><div style="${T}">Lys Cyclo / clubs voisins et amis</div><table style="width:100%;font-size:10px;border-collapse:collapse;"><thead><tr style="color:var(--td);text-align:center;"><th style="text-align:left;font-weight:600;"></th><th>Évènements</th><th>Participants</th><th>Moy./évènement</th></tr></thead><tbody>${row('🏠 Lys Cyclo',go)}${row('🤝 Autres clubs',ge)}</tbody></table>`;
+  if(ext.length){
+    h+='<div style="margin-top:6px;font-size:10px;">'+[...ext].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>{
+      const c={};Object.entries(e.participations||{}).forEach(([id,v])=>{if(v!=='oui')return;const x=e.choix&&e.choix[id];if(x&&DISC[x.d])c[x.d]=(c[x.d]||0)+1;});
+      const dd=DORD.filter(d=>c[d]).map(d=>DISC[d].i+c[d]).join(' ');
+      return`<div style="margin-top:3px;">• <b>${hx(e.nom)}</b> <span style="color:var(--td);">(${hx(e.organisateur)} · ${fmtS(e.date)})</span> — ${cnt(e)} participant${cnt(e)>1?'s':''}${dd?' · '+dd:''}</div>`;}).join('')+'</div>';
+  }
+  host.innerHTML=h+'</div>';
+}
+
+// ═══ EXPORT EXCEL (même format que l'import : une ligne par discipline) ═══
+const XL_HEAD=['Type','Nom','Catégorie','Discipline','Parcours (km)','Tarif adulte (€)','Tarif -12 ans (€)','Remarque discipline','Date','Heure départ','Heure fin','Lieu','Organisateur','Affiliation','Bar','Lien inscription','Lien Facebook','Lien GPX','Kilomètres prévus','Conditions / Commentaires'];
+function xlRows(list){
+  const T={sportif:'Sportif',festif:'Festivité',club:'Gestion club'},B={ouvert:'Ouvert',ferme:'Fermé',decider:'À décider'};
+  const out=[];
+  list.forEach(e=>{
+    const fm=evFml(e),hasF=(e.disciplines||[]).includes('Festivité');
+    const mk=f=>[T[e.type]||'',e.nom||'',e.categorie||'',f?f.d:(hasF?'Festivité':''),f&&f.parcours?kmTxt(f.parcours):'',
+      f&&f.tarif!=null?f.tarif:(!f&&e.type==='festif'&&e.tarif?e.tarif:''),f&&f.tarifJ!=null?f.tarifJ:'',f&&f.note?f.note:'',
+      e.date||'',/^\d/.test(e.heure||'')?e.heure:'',e.heureFin||'',e.lieu||'',e.organisateur||'',e.affil||'',e.type==='club'?'':(B[e.barMode]||''),
+      e.linkInsc||'',e.linkFb||'',e.linkGpx||'',e.km||'',e.desc||''];
+    if(fm.length)fm.forEach(f=>out.push(mk(f)));else out.push(mk(null));
+  });
+  return out;
+}
+async function xlDownload(sheets,name){
+  const X=await impLoadLib(),wb=X.utils.book_new();
+  sheets.forEach(([n,aoa,cols])=>{const ws=X.utils.aoa_to_sheet(aoa);if(cols)ws['!cols']=cols.map(w=>({wch:w}));X.utils.book_append_sheet(wb,ws,n);});
+  X.writeFile(wb,name);
+}
+const XL_COLS=[12,34,14,12,14,12,12,24,12,10,10,36,22,14,11,28,24,24,10,60];
+window.exportEvents=async()=>{
+  if(!canMgEv()){showT('Accès refusé.');return;}
+  try{
+    const list=[...EVs].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const R={0:'Absent',1:'Ne sait pas'},L={oui:'Participe',non:'Absent',nsp:'Ne sait pas',benev:'Bénévole'};
+    const pr=[['Évènement','Date','Membre','Réponse','Discipline','Parcours (km)']];
+    list.forEach(e=>Object.entries(e.participations||{}).forEach(([id,v])=>{const c=e.choix&&e.choix[id];pr.push([e.nom,e.date,getMN(id),L[v]||v,c?c.d:'',c&&c.p?c.p:'']);}));
+    await xlDownload([['Import_Agenda',[XL_HEAD,...xlRows(list)],XL_COLS],['Participations',pr,[34,12,22,14,12,12]]],'Agenda_Lys-Cyclo_'+new Date().toISOString().split('T')[0]+'.xlsx');
+    showT(`${list.length} évènement${list.length>1?'s':''} exporté${list.length>1?'s':''}.`);
+  }catch(e){console.error(e);showT('Export impossible (connexion Internet nécessaire).');}
+};
+window.exportModel=async()=>{
+  if(!canMgEv()){showT('Accès refusé.');return;}
+  try{
+    const ex={type:'sportif',nom:'Rando des Renards des Sables',categorie:'Randonnée',date:'2027-02-21',heure:'07:30',heureFin:'14:00',lieu:'Salle des fêtes, Avenue Léo Lagrange, 59148 Flines-lez-Raches',organisateur:'Les Renards des Sables',affil:'FFCT',barMode:'decider',desc:'Départ libre dès 07h30. Inscription sur place 07h30-09h30. Ravitos : soupe à l’oignon, fruits, pain d’épice. Cadeau : 1 kg d’oignons. Au retour : 1 boisson + 1 sandwich. Station de lavage VTT.',
+      formules:[{d:'VTT',parcours:'28/38/48',tarif:6,tarifJ:3},{d:'Route',parcours:'35/55',tarif:4,tarifJ:2},{d:'Gravel',parcours:'48',tarif:6,tarifJ:3,note:'GPS uniquement'},{d:'Marche',parcours:'6/12',tarif:4,tarifJ:2}]};
+    const help=[['Mode d’emploi du fichier d’import'],[''],['• Une ligne par discipline : un évènement multi-disciplines = plusieurs lignes avec le même Nom et la même Date.'],['• Les informations communes (lieu, heure, organisateur, commentaires…) peuvent être écrites sur la 1re ligne seulement : les autres lignes les reprennent.'],['• Type : Sportif, Festivité ou Gestion club. Catégorie (sportif) : Club, Brevet ou Rando.'],['• Discipline : VTT, Route, Gravel ou Marche. Parcours : distances séparées par « / » (ex : 28/38/48).'],['• Bar : Ouvert, Fermé ou À décider (vide = À décider).'],['• Date : JJ/MM/AAAA. Heure : HH:MM. Les colonnes obligatoires sont Type, Nom, Date, Lieu (et Catégorie + Discipline pour un sportif).'],['• Rien n’est enregistré avant la confirmation dans l’aperçu.']];
+    await xlDownload([['Import_Agenda',[XL_HEAD,...xlRows([ex])],XL_COLS],['Mode d’emploi',help,[120]]],'Modele_import_evenements.xlsx');
+    showT('Modèle téléchargé.');
+  }catch(e){console.error(e);showT('Téléchargement impossible (connexion Internet nécessaire).');}
+};
+
+buildFml();resetMore();
+
 </script>
 </body>
 </html>
