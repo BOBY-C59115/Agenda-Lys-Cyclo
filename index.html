@@ -363,7 +363,7 @@ nav::-webkit-scrollbar{display:none;}
   <div class="acc-layout" style="margin-bottom:10px;">
     <div class="acc-block-cal">
       <div class="acc-cal-toggle" onclick="toggleAccCal()">
-        <div class="acc-sub" style="margin-bottom:0;">📅 Calendrier</div>
+        <div class="acc-sub" style="margin-bottom:0;">📅 Agenda</div>
         <span class="acc-cal-chevron" id="accCalChev">▼</span>
       </div>
       <div class="acc-cal-body" id="accCalBody">
@@ -382,7 +382,7 @@ nav::-webkit-scrollbar{display:none;}
 </div>
 
 <div id="view-agenda" class="view">
-  <div class="stitle">📅 Calendrier</div>
+  <div class="stitle">📅 Agenda</div>
   <div class="calw"><div class="calh"><button class="caln" onclick="calNav(-1)">‹</button><div class="calm" id="calMon"></div><button class="caln" onclick="calNav(1)">›</button></div><div class="calg" id="calG"></div></div>
   <div id="calBarInfo"></div><div id="agEv"></div>
 </div>
@@ -504,7 +504,7 @@ nav::-webkit-scrollbar{display:none;}
     </div>
     <div class="frow"><div class="fs"><label class="fl">Date *</label><input class="fi" id="evDa" type="date"></div><div class="fs"><label class="fl">Heure départ</label><input class="fi" id="evHe" type="time" value="09:00"></div></div>
     <div class="fs"><label class="fl">Lieu *</label><input class="fi" id="evLi" placeholder="Place du Général de Gaulle, Lys-lez-Lannoy"></div>
-    <div class="fs"><label class="fl">🍺 Bar du club ce jour-là</label><div class="rg"><div class="ro"><input type="radio" name="evBar" id="eb1" value="decider"><label class="rl" for="eb1">❓ À décider</label></div><div class="ro"><input type="radio" name="evBar" id="eb2" value="ouvert"><label class="rl" for="eb2">🟢 Ouvert</label></div><div class="ro"><input type="radio" name="evBar" id="eb3" value="ferme"><label class="rl" for="eb3">🔴 Fermé</label></div></div><div class="hint">Simple information pour le calendrier du bar : rien n’est modifié automatiquement.</div></div>
+    <div class="fs"><label class="fl">🍺 Bar du club ce jour-là</label><div class="rg"><div class="ro"><input type="radio" name="evBar" id="eb1" value="decider"><label class="rl" for="eb1">❓ À décider</label></div><div class="ro"><input type="radio" name="evBar" id="eb2" value="ouvert"><label class="rl" for="eb2">🟢 Ouvert</label></div><div class="ro"><input type="radio" name="evBar" id="eb3" value="ferme"><label class="rl" for="eb3">🔴 Fermé</label></div></div><div class="hint">Simple information pour l’agenda du bar : rien n’est modifié automatiquement.</div></div>
     <div class="fs"><label class="fl">Image événement</label><div class="iuz" id="evIZ"><span style="font-size:18px;">🖼</span><span style="font-size:10px;color:var(--td);">Touchez pour choisir une photo</span><input type="file" accept="image/*" onchange="evIUp(this)"></div><img id="evIPr" class="iprev" src="" alt=""><button id="evIDl" onclick="evIDel()" style="display:none;margin-top:3px;" class="bs">✕ Supprimer</button></div>
     <div class="fs"><label class="fl">Conditions / Commentaires</label><textarea class="fta" id="evDe" placeholder="Niveau requis, équipement…"></textarea></div>
     <button class="bp" id="evSvBtn" onclick="saveEv()">CRÉER L'ÉVÉNEMENT</button>
@@ -675,7 +675,8 @@ const isBarDay=s=>{const d=new Date(s+'T12:00:00');return d.getDay()===0||getJF(
 const isFerie=s=>getJF(parseInt(s.split('-')[0])).has(s);
 function fmtS(s){if(!s)return'—';const[y,m,d]=s.split('-');const dt=new Date(+y,+m-1,+d);const DA=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];const MO=['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];return`${DA[dt.getDay()]} ${d} ${MO[+m-1]} ${y}`;}
 function fmtL(s){if(!s)return'—';const[y,m,d]=s.split('-');const dt=new Date(+y,+m-1,+d);const DA=['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi'];const MO=['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];return`${DA[dt.getDay()]} ${d} ${MO[+m-1]} ${y}`;}
-function nextBarDays(n){const days=[];const now=new Date();for(let i=0;days.length<n&&i<400;i++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);const s=d.toISOString().split('T')[0];if(isBarDay(s))days.push(s);}return days;}
+const isoL=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+function nextBarDays(n){const days=[];const now=new Date();for(let i=0;days.length<n&&i<400;i++){const d=new Date(now.getFullYear(),now.getMonth(),now.getDate()+i);const s=isoL(d);if(isBarDay(s))days.push(s);}return days;}
 const getMN=id=>{const m=MEs.find(x=>x.id===id);return m?(m.pseudo||(m.prenom+' '+m.nom.split(' ')[0])):'?';};
 
 // ═══ INIT ═══
@@ -890,7 +891,7 @@ function rAccCal(){
   let h=DA.map(d=>`<div class="mcdn">${d}</div>`).join('');
   for(let i=0;i<off;i++){const pd=new Date(accCalY,accCalM,-off+i+1);h+=`<div class="mcd om">${pd.getDate()}</div>`;}
   for(let d=1;d<=last.getDate();d++){
-    const dt=new Date(accCalY,accCalM,d),s=dt.toISOString().split('T')[0];
+    const dt=new Date(accCalY,accCalM,d),s=isoL(dt);
     const isT=dt.getTime()===today.getTime(),isSel=accSelDate===s;
     const hasE=evD.has(s),isBD=isBarDay(s),bst=BSs[s],isFer=jf.has(s);
     let dots='';
@@ -998,7 +999,7 @@ function rCal(){
   let h=DA.map(d=>`<div class="cdn">${d}</div>`).join('');
   for(let i=0;i<off;i++){const pd=new Date(calY,calM,-off+i+1);h+=`<div class="cd om">${pd.getDate()}</div>`;}
   for(let d=1;d<=last.getDate();d++){
-    const dt=new Date(calY,calM,d),s=dt.toISOString().split('T')[0];
+    const dt=new Date(calY,calM,d),s=isoL(dt);
     const isT=dt.getTime()===today.getTime();const hasE=evD.has(s);const isBD=isBarDay(s);const bst=BSs[s];const isFer=jf.has(s);
     let dots='';
     if(hasE)dots+='<span class="dot dot-ev"></span>';
@@ -1013,7 +1014,7 @@ window.calClick=s=>{document.querySelectorAll('.cd').forEach(d=>d.classList.remo
 function rAgenda(ds){
   let f=ds?EVs.filter(e=>e.date===ds):EVs.filter(e=>{const d=new Date(e.date);return d.getFullYear()===calY&&d.getMonth()===calM;});
   f.sort((a,b)=>a.date.localeCompare(b.date)||a.heure.localeCompare(b.heure));
-  if(!ds)rBarInfo(new Date().toISOString().split('T')[0]);
+  if(!ds)rBarInfo(isoL(new Date()));
   document.getElementById('agEv').innerHTML=f.length?f.map(evCard).join(''):`<div class="empty"><div class="ei">📅</div><div>${ds?'Aucun événement ce jour.':'Aucun événement ce mois.'}</div></div>`;
 }
 function rBarInfo(ds){
@@ -1079,15 +1080,15 @@ function evChips(ds,btn){
 }
 function barH(ev){
   if(ev.type==='club'||!ev.barMode)return'';
-  const today=new Date().toISOString().split('T')[0];if(ev.date<today)return'';
+  const today=isoL(new Date());if(ev.date<today)return'';
   const m=ev.barMode,ds=ev.date,bd=isBarDay(ds),closed=BSs[ds]===false;
   const t={ouvert:'🟢 Bar souhaité ce jour',ferme:'🔴 Pas de bar ce jour',decider:'❓ Bar : à décider'}[m]||'';
   let cal;
-  if(bd){const b=BAs[ds]||{};const n=(b.b1?1:0)+(b.b2?1:0);cal=closed?'Calendrier du bar : fermé':`Calendrier du bar : ouvert · ${n}/2 bénévole${n>1?'s':''}`;}
-  else cal='Jour hors calendrier habituel du bar (dimanches et fériés)';
+  if(bd){const b=BAs[ds]||{};const n=(b.b1?1:0)+(b.b2?1:0);cal=closed?'Agenda du bar : fermé':`Agenda du bar : ouvert · ${n}/2 bénévole${n>1?'s':''}`;}
+  else cal='Jour hors agenda habituel du bar (dimanches et fériés)';
   let al='';
-  if(bd&&m==='ferme'&&!closed)al='⚠️ Le calendrier du bar est encore ouvert ce jour';
-  if(bd&&m==='ouvert'&&closed)al='⚠️ Le calendrier du bar est fermé ce jour';
+  if(bd&&m==='ferme'&&!closed)al='⚠️ L’agenda du bar est encore ouvert ce jour';
+  if(bd&&m==='ouvert'&&closed)al='⚠️ L’agenda du bar est fermé ce jour';
   return`<div class="evbar ${m}"><div class="evbt">${t}</div><div class="evbs">${cal}</div>${al?`<div class="evba">${al}</div>`:''}${isAdm()?evBarBtns(ev):''}</div>`;
 }
 window.evSetBar=async(evId,mode)=>{
@@ -1098,7 +1099,7 @@ window.evSetBar=async(evId,mode)=>{
     if(mode==='ferme')BSs[ev.date]=false;else if(mode==='ouvert')delete BSs[ev.date];
     if(mode!=='decider')await saveBsData();
     showT(mode==='ferme'?'Bar fermé ce jour.':mode==='ouvert'?'Bar ouvert ce jour.':'Bar : à décider.');
-  }else showT('Choix noté (ce jour n’est pas dans le calendrier habituel du bar).');
+  }else showT('Choix noté (ce jour n’est pas dans l’agenda habituel du bar).');
 };
 
 function bdgsFor(ev){
@@ -1294,7 +1295,7 @@ window.exportMembersExcel=()=>{
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  const today=new Date().toISOString().split('T')[0];
+  const today=isoL(new Date());
   a.href=url;
   a.download=`LYS-CYCLO_Membres_${today}.csv`;
   document.body.appendChild(a);
@@ -1333,7 +1334,7 @@ window.confReset=()=>conf('RÉINITIALISATION','Supprimer TOUS les événements E
 });
 
 // ═══ ÉVÉNEMENTS CRUD ═══
-window.openCreate=()=>{if(!canMgEv()){showT('Accès refusé.');return;}editEvId=null;evImgD=null;resetEvF();document.getElementById('mCrtTitle').textContent='NOUVEL ÉVÉNEMENT';document.getElementById('evSvBtn').textContent="CRÉER L'ÉVÉNEMENT";document.getElementById('evDa').value=new Date().toISOString().split('T')[0];document.getElementById('mCreate').classList.add('open');};
+window.openCreate=()=>{if(!canMgEv()){showT('Accès refusé.');return;}editEvId=null;evImgD=null;resetEvF();document.getElementById('mCrtTitle').textContent='NOUVEL ÉVÉNEMENT';document.getElementById('evSvBtn').textContent="CRÉER L'ÉVÉNEMENT";document.getElementById('evDa').value=isoL(new Date());document.getElementById('mCreate').classList.add('open');};
 window.openEdit=evId=>{
   if(!canMgEv())return;const ev=EVs.find(e=>e.id===evId);if(!ev)return;
   editEvId=evId;evImgD=ev.image||null;resetEvF();document.getElementById('mCrtTitle').textContent="MODIFIER L'ÉVÉNEMENT";document.getElementById('evSvBtn').textContent='ENREGISTRER';
@@ -1355,7 +1356,7 @@ window.evIDel=()=>{evImgD=null;document.getElementById('evIPr').src='';document.
 window.saveEv=async()=>{
   const t=document.querySelector('input[name="evT"]:checked')?.value;const nom=document.getElementById('evNom').value.trim();const da=document.getElementById('evDa').value;const he=document.getElementById('evHe').value;const li=document.getElementById('evLi').value.trim();const de=document.getElementById('evDe').value.trim();
   if(!t||!nom||!da||!li){showT('Remplissez les champs requis !');return;}
-  const td=new Date().toISOString().split('T')[0];
+  const td=isoL(new Date());
   const data={type:t,nom,date:da,heure:he,lieu:li,desc:de,image:evImgD||null,createdBy:CU.id,createdAt:td};
   if(t==='sportif'){data.categorie=document.querySelector('input[name="evCat"]:checked')?.value||null;const sp=readFormules();if(!sp.disciplines.length){showT('Choisissez au moins une discipline !');return;}data.disciplines=sp.disciplines;data.km=sp.km;data.formules=sp.formules.length?sp.formules:null;
     const lfb=document.getElementById('evLinkFb').value.trim();data.linkFb=lfb||null;
@@ -1396,7 +1397,7 @@ function renderDashboard(){
     {icon:"🍺",label:"Bar",sub:isA?"Gérer le bar":"M'inscrire",cls:"",nav:()=>sv("bar",3),badge:barAlerts>0&&isA?barAlerts:0},
     {icon:"👥",label:"Membres",sub:"Annuaire du club",cls:"",nav:()=>sv("membres",4)},
     {icon:"👤",label:"Profil",sub:"Mes informations",cls:"",nav:()=>sv("profil",6)},
-    {icon:"📅",label:"Agenda",sub:"Calendrier complet",cls:"",nav:()=>sv("agenda",1)},
+    {icon:"📅",label:"Agenda",sub:"Agenda complet",cls:"",nav:()=>sv("agenda",1)},
     {icon:"📊",label:"Stats",sub:"Statistiques",cls:"",nav:()=>sv("stats",5)},
   ];
   if(isA){
@@ -1695,7 +1696,7 @@ window.impConfirm=async()=>{
   impBusy=true;
   const btn=document.getElementById('impGo');if(btn){btn.disabled=true;btn.textContent='IMPORT EN COURS…';}
   try{
-    const base=ref(db,'evenements'),upd={},td=new Date().toISOString().split('T')[0];
+    const base=ref(db,'evenements'),upd={},td=isoL(new Date());
     sel.forEach(r=>{upd[push(base).key]={...r.data,participations:{},createdBy:CU.id,createdAt:td};});
     await update(base,upd);   // écriture groupée : tout est enregistré, ou rien
     impBusy=false;impRows=[];cm('mImport');
@@ -1753,7 +1754,7 @@ window.admRenderBar=()=>{
 function admTiles(){
   const set=(id,t,cls)=>{const el=document.getElementById(id);if(el){el.textContent=t;el.className='admts'+(cls?' '+cls:'');}};
   set('admSubM',`${MEs.length} membre${MEs.length>1?'s':''}`);
-  const td=new Date().toISOString().split('T')[0];const up=EVs.filter(e=>(e.date||'')>=td).length;
+  const td=isoL(new Date());const up=EVs.filter(e=>(e.date||'')>=td).length;
   set('admSubE',`${EVs.length} évènement${EVs.length>1?'s':''} · ${up} à venir`);
   const b=admBarStats(15),todo=b.empty+b.half;
   if(todo)set('admSubB',`⚠️ ${todo} date${todo>1?'s':''} à compléter (${b.empty} sans bénévole)`,'warn');
@@ -1880,7 +1881,7 @@ window.exportEvents=async()=>{
     const R={0:'Absent',1:'Ne sait pas'},L={oui:'Participe',non:'Absent',nsp:'Ne sait pas',benev:'Bénévole'};
     const pr=[['Évènement','Date','Membre','Réponse','Discipline','Parcours (km)']];
     list.forEach(e=>Object.entries(e.participations||{}).forEach(([id,v])=>{const c=e.choix&&e.choix[id];pr.push([e.nom,e.date,getMN(id),L[v]||v,c?c.d:'',c&&c.p?c.p:'']);}));
-    await xlDownload([['Import_Agenda',[XL_HEAD,...xlRows(list)],XL_COLS],['Participations',pr,[34,12,22,14,12,12]]],'Agenda_Lys-Cyclo_'+new Date().toISOString().split('T')[0]+'.xlsx');
+    await xlDownload([['Import_Agenda',[XL_HEAD,...xlRows(list)],XL_COLS],['Participations',pr,[34,12,22,14,12,12]]],'Agenda_Lys-Cyclo_'+isoL(new Date())+'.xlsx');
     showT(`${list.length} évènement${list.length>1?'s':''} exporté${list.length>1?'s':''}.`);
   }catch(e){console.error(e);showT('Export impossible (connexion Internet nécessaire).');}
 };
