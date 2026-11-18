@@ -270,6 +270,29 @@ nav::-webkit-scrollbar{display:none;}
 .fml{border:1px solid var(--bb);border-radius:8px;padding:7px;margin-bottom:6px;}
 .fmt{font-weight:700;font-size:11px;margin-bottom:5px;}.fml .fi{margin-bottom:4px;}
 .hint{font-size:9px;color:var(--td);margin-top:3px;}
+
+.seg{display:flex;margin-bottom:8px;border:1px solid var(--bb);border-radius:8px;overflow:hidden;}
+.segb{flex:1;padding:7px;background:transparent;border:none;color:var(--td);font-weight:700;font-size:11px;cursor:pointer;}
+.segb.active{background:var(--j);color:var(--b);}
+.hc{padding:3px 8px;border-radius:20px;border:1px solid var(--bb);background:transparent;color:var(--td);font-size:10px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.hc.active{background:var(--j);color:var(--b);border-color:var(--j);}
+.hcard{background:var(--bc);border:1px solid var(--bb);border-radius:var(--ra);padding:10px;margin-bottom:8px;}
+.hd{font-size:10px;color:var(--j);font-weight:700;text-transform:uppercase;letter-spacing:.5px;}
+.ht{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;line-height:1.15;margin:2px 0 4px;}
+.hv{font-size:12px;font-weight:700;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.hs{font-size:10px;color:var(--td);margin:3px 0;line-height:1.4;}
+.hk{font-size:11px;margin:5px 0;display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
+.hdep{display:inline-flex;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;background:rgba(255,167,38,.15);color:var(--O);}
+.bcatx{background:#2a2a2a;color:#ddd;}
+.hdet{width:100%;margin-top:6px;padding:7px;background:transparent;border:1px solid var(--j);border-radius:7px;color:var(--j);font-weight:700;font-size:11px;cursor:pointer;}
+.hempty{font-size:11px;color:var(--td);padding:10px;border:1px dashed var(--bb);border-radius:var(--ra);margin-bottom:8px;}
+.hempty a{color:var(--j);text-decoration:underline;cursor:pointer;}
+.hbar{border-radius:var(--ra);padding:9px 10px;margin-bottom:7px;font-size:12px;line-height:1.45;border:1px solid var(--bb);background:var(--bc);}
+.hbar.ok{border-color:var(--V);}.hbar.wa{border-color:var(--O);}.hbar.cl{border-color:var(--R);color:var(--R);}
+.hbd{font-size:10px;font-weight:700;color:var(--td);text-transform:uppercase;margin-bottom:2px;}
+.hadm{background:rgba(255,167,38,.08);border:1px solid var(--O);border-radius:var(--ra);padding:7px 9px;margin-bottom:9px;}
+.hadt{font-size:10px;font-weight:700;color:var(--O);text-transform:uppercase;margin-bottom:4px;}
+.hchip{display:block;font-size:11px;padding:4px 0;cursor:pointer;text-decoration:underline;}
 .imp-chip{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;border:1px solid var(--bb);color:var(--td);}
 .imp-chip.ok{color:var(--V);border-color:var(--V);}
 .imp-chip.dup{color:var(--O);border-color:var(--O);}
@@ -344,11 +367,8 @@ nav::-webkit-scrollbar{display:none;}
 <nav>
   <button class="nb active" id="nav0" onclick="sv('accueil',0)"><span class="ni">🏠</span>Accueil</button>
   <button class="nb" id="nav1" onclick="sv('agenda',1)"><span class="ni">📅</span>Agenda</button>
-  <button class="nb" id="nav2" onclick="sv('sorties',2)"><span class="ni">🚴</span>RDV</button>
   <button class="nb" id="nav3" onclick="sv('bar',3)"><span class="ni">🍺</span>Bar</button>
-  <button class="nb" id="nav4" onclick="sv('membres',4)"><span class="ni">👥</span>Membres</button>
-  <button class="nb" id="nav5" onclick="sv('stats',5)"><span class="ni">📊</span>Stats</button>
-  <button class="nb" id="nav6" onclick="sv('profil',6)"><span class="ni">👤</span>Profil</button>
+  <button class="nb" id="nav9" onclick="sv('plus',9)"><span class="ni">➕</span>Plus</button>
   <button class="nb htab" id="nav7" onclick="sv('admin',7)"><span class="ni">⚙️</span>Admin</button>
 </nav>
 
@@ -356,39 +376,24 @@ nav::-webkit-scrollbar{display:none;}
   <!-- BANDEAU BIENVENUE -->
   <div class="wb"><div class="wav" id="wAv"></div><div class="wt"><h2 id="wMsg">Bienvenue !</h2><p id="wSub"></p></div></div>
 
-  <!-- DASHBOARD ICÔNES -->
+  <div id="homeAdm"></div>
+  <div class="stitle" id="homeWkT">🚴 Cette semaine</div>
+  <div class="fb" id="homeFb"></div>
+  <div id="homeWk"></div>
+  <div id="homeSoon"></div>
+  <div id="homeBar"></div>
+  <div class="stitle" style="margin-top:8px;">Accès rapides</div>
   <div class="dash-grid" id="dashGrid"></div>
-
-  <!-- CALENDRIER + BAR (toggle mobile) -->
-  <div class="acc-layout" style="margin-bottom:10px;">
-    <div class="acc-block-cal">
-      <div class="acc-cal-toggle" onclick="toggleAccCal()">
-        <div class="acc-sub" style="margin-bottom:0;">📅 Agenda</div>
-        <span class="acc-cal-chevron" id="accCalChev">▼</span>
-      </div>
-      <div class="acc-cal-body" id="accCalBody">
-        <div style="margin-top:6px;">
-          <div class="mcalh"><button class="mcaln" onclick="accCalNav(-1)">‹</button><div class="mcalm" id="accCalMon"></div><button class="mcaln" onclick="accCalNav(1)">›</button></div>
-          <div class="mcalg" id="accCalG"></div>
-        </div>
-      </div>
-    </div>
-    <div class="acc-block"><div class="acc-sub">🍺 Bar</div><div id="accBarList"></div></div>
-  </div>
-
-  <!-- ÉVÉNEMENTS DU MOIS -->
-  <div class="stitle" id="accEvTitle">⚡ Événements du mois</div>
-  <div id="accEv"></div>
 </div>
 
 <div id="view-agenda" class="view">
-  <div class="stitle">📅 Agenda</div>
+  <div class="stitle">📅 Agenda</div><div class="seg"><button class="segb active" onclick="sv('agenda',1)">🗓 Mois</button><button class="segb" onclick="sv('sorties',1)">📋 Liste</button></div>
   <div class="calw"><div class="calh"><button class="caln" onclick="calNav(-1)">‹</button><div class="calm" id="calMon"></div><button class="caln" onclick="calNav(1)">›</button></div><div class="calg" id="calG"></div></div>
   <div id="calBarInfo"></div><div id="agEv"></div>
 </div>
 
 <div id="view-sorties" class="view">
-  <div class="stitle">🚴 Principaux RDV</div>
+  <div class="stitle">📅 Agenda</div><div class="seg"><button class="segb" onclick="sv('agenda',1)">🗓 Mois</button><button class="segb active" onclick="sv('sorties',1)">📋 Liste</button></div>
   <div class="fb"><button class="fc active" onclick="flt('tous',this)">Tous</button><button class="fc" onclick="flt('route',this)">🔵 Route</button><button class="fc" onclick="flt('vtt',this)">🟢 VTT</button><button class="fc" onclick="flt('festif',this)">🎉 Festif</button><button class="fc" onclick="flt('brevet',this)">🏅 Brevet/Rando</button><button class="fc" onclick="flt('club',this)">🛠️ Club</button><button class="fc" onclick="flt('gravel',this)">🟠 Gravel</button><button class="fc" onclick="flt('marche',this)">🥾 Marche</button><button class="fc" onclick="flt('ext',this)">🤝 Autres clubs</button></div>
   <div id="sorEv"></div>
 </div>
@@ -398,6 +403,8 @@ nav::-webkit-scrollbar{display:none;}
   <p style="font-size:11px;color:var(--td);margin-bottom:9px;">Bar ouvert les <b style="color:var(--t)">dimanches et jours fériés</b>. Inscrivez-vous bénévole (2 max/jour).</p>
   <div id="barDays"></div>
 </div>
+
+<div id="view-plus" class="view"><div class="stitle">➕ Plus</div><div class="dash-grid" id="plusGrid"></div></div>
 
 <div id="view-membres" class="view"><div class="stitle">👥 Membres du club</div><div class="cgrid" id="memList"></div></div>
 
@@ -729,7 +736,7 @@ async function initFirebase(){
       document.getElementById('splash').style.display='none';
       if(CU){
         document.getElementById('screenApp').classList.add('show');
-        applyRoleUI();sv('accueil',0);setTimeout(initAccCal,200);
+        applyRoleUI();sv('accueil',0);
       }else{
         document.getElementById('screenLogin').classList.add('show');
       }
@@ -741,7 +748,7 @@ initFirebase();
 function refreshAll(){
   const a=document.querySelector('.view.active');if(!a)return;
   const name=a.id.replace('view-','');
-  if(name==='accueil'){rAccueil();initAccCal();}
+  if(name==='accueil')rAccueil();
   if(name==='agenda'){rCal();rAgenda(null);}
   if(name==='sorties')rSorties();
   if(name==='bar')rBar();
@@ -772,7 +779,7 @@ window.doLogin=async()=>{
   localStorage.setItem('lc_user_v3',JSON.stringify(CU));
   document.getElementById('screenLogin').classList.remove('show');
   document.getElementById('screenApp').classList.add('show');
-  applyRoleUI();sv('accueil',0);setTimeout(initAccCal,200);
+  applyRoleUI();sv('accueil',0);
   showT('Bonjour '+CU.prenom+' ! 👋');
 };
 
@@ -800,7 +807,7 @@ window.doRegister=async()=>{
   CU={...nm};localStorage.setItem('lc_user_v3',JSON.stringify(CU));
   document.getElementById('screenLogin').classList.remove('show');
   document.getElementById('screenApp').classList.add('show');
-  applyRoleUI();sv('accueil',0);setTimeout(initAccCal,200);
+  applyRoleUI();sv('accueil',0);
   showT('Bienvenue '+pr+' ! 🎉 Login: '+login);
 };
 
@@ -851,11 +858,13 @@ function applyRoleUI(){
   document.getElementById('nav7').classList.toggle('htab',!isAdm());
   document.getElementById('fabBtn').classList.toggle('show',canMgEv());
 }
-window.goProf=()=>sv('profil',6);
+window.goProf=()=>sv('profil',9);
 function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=document.createElement('img');img.src=m.photo;el.appendChild(img);}else el.textContent=(m.prenom||'?')[0].toUpperCase();}
 
 // ═══ NAVIGATION ═══
-window.sv=(name,idx)=>{
+const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
+let homeFilt='tous';
+window.sv=(name,idx0)=>{const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const v=document.getElementById('view-'+name);if(v)v.classList.add('active');
@@ -867,6 +876,7 @@ window.sv=(name,idx)=>{
   if(name==='membres')rMembers();
   if(name==='stats')rStats();
   if(name==='profil')rProf();
+  if(name==='plus')renderPlus();
   if(name==='admin'){admGo('home');rAdmin();}
 };
 
@@ -877,8 +887,8 @@ function rAccueil(){
   if(CU.photo)wAv.innerHTML=`<img src="${CU.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
   else wAv.textContent=(CU.prenom||'?')[0].toUpperCase();
   document.getElementById('wMsg').textContent=`Bonjour, ${CU.pseudo||CU.prenom} !`;
-  document.getElementById('wSub').textContent=`${RL[CU.role]?.l||''} · LYS-CYCLO · 🔴 Temps réel Firebase`;
-  renderDashboard();rAccCal();rAccBar();rAccEv();
+  document.getElementById('wSub').textContent=`${RL[CU.role]?.l||''} · LYS-CYCLO`;
+  renderHome();renderDashboard();
 }
 window.accCalNav=dir=>{accCalM+=dir;if(accCalM>11){accCalM=0;accCalY++;}if(accCalM<0){accCalM=11;accCalY--;}rAccCal();rAccEv();};
 function rAccCal(){
@@ -1382,40 +1392,6 @@ window.confDelEv=evId=>{const ev=EVs.find(e=>e.id===evId);if(!ev)return;conf('SU
 function resetEvF(){['evNom','evDa','evLi','evDe','evKm','evTa','evLinkFb','evLinkGpx','evHf','evOrg','evAff','evInsc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});document.getElementById('evHe').value='09:00';document.querySelectorAll('input[name="evT"],input[name="evCat"],input[name="evClubCat"]').forEach(r=>r.checked=false);['dcV','dcR','dcG','dcM','dcF'].forEach(id=>{const cb=document.getElementById(id);if(cb)cb.checked=false;});['evBody','evSpo','evFes','evClub','evLinks','evXtra'].forEach(id=>document.getElementById(id).classList.remove('v'));window.evIDel();evImgD=null;resetMore();}
 
 // ═══ DASHBOARD ACCUEIL ═══
-function renderDashboard(){
-  const grid=document.getElementById("dashGrid");
-  if(!grid||!CU)return;
-  const isA=isAdm(),isS=isSup();
-  const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=EVs.filter(e=>new Date(e.date)>=now).length;
-  const barAlerts=nextBarDays(6).filter(ds=>BSs[ds]!==false&&!BAs[ds]?.b1&&!BAs[ds]?.b2).length;
-
-  const btns=[
-    {icon:"🚴",label:"RDV",sub:"Voir tous les RDV",cls:"",nav:()=>sv("sorties",2),badge:upcoming>0?upcoming:0},
-    {icon:"🎉",label:"Festivités",sub:"Événements festifs",cls:"",nav:()=>{sv("sorties",2);setTimeout(()=>flt("festif",document.querySelector(".fc:nth-child(4)")),150);}},
-    {icon:"🛠️",label:"Vie du club",sub:"AG, inventaire…",cls:"",nav:()=>{sv("sorties",2);setTimeout(()=>flt("club",document.querySelector(".fc:nth-child(6)")),150);}},
-    {icon:"🍺",label:"Bar",sub:isA?"Gérer le bar":"M'inscrire",cls:"",nav:()=>sv("bar",3),badge:barAlerts>0&&isA?barAlerts:0},
-    {icon:"👥",label:"Membres",sub:"Annuaire du club",cls:"",nav:()=>sv("membres",4)},
-    {icon:"👤",label:"Profil",sub:"Mes informations",cls:"",nav:()=>sv("profil",6)},
-    {icon:"📅",label:"Agenda",sub:"Agenda complet",cls:"",nav:()=>sv("agenda",1)},
-    {icon:"📊",label:"Stats",sub:"Statistiques",cls:"",nav:()=>sv("stats",5)},
-  ];
-  if(isA){
-    btns.push({icon:"⚙️",label:"Gestion Bar",sub:"Fermer / bénévoles",cls:"dash-admin",nav:()=>sv("bar",3)});
-    btns.push({icon:"👑",label:"Gestion",sub:"Gérer les membres",cls:"dash-admin",nav:()=>sv("admin",7)});
-    btns.push({icon:"➕",label:"Créer",sub:"Nouvel événement",cls:"dash-add",nav:()=>openCreate()});
-  }
-  if(isS){
-    btns.push({icon:"🔧",label:"Admin",sub:"Panneau complet",cls:"dash-sup",nav:()=>sv("admin",7)});
-  }
-
-  grid.innerHTML=btns.map(b=>{
-    const badge=b.badge>0?`<div class="dash-badge">${b.badge}</div>`:"";
-    const fn=b.nav.toString().replace(/"/g,"&quot;");
-    return `<div class="dash-btn ${b.cls}" onclick="(${fn})()">${badge}<div class="dash-icon">${b.icon}</div><div class="dash-label">${b.label}</div><div class="dash-sub">${b.sub}</div></div>`;
-  }).join("");
-}
-
 // ═══ TOGGLE MOT DE PASSE ADMIN ═══
 let pwdVisible = false;
 window.togglePwdView = () => {
@@ -1897,6 +1873,109 @@ window.exportModel=async()=>{
 };
 
 buildFml();resetMore();
+
+
+// ═══ NOUVEL ACCUEIL (membres, admins) ═══
+window.homeF=d=>{homeFilt=d;renderHome();};
+const cityOf=l=>{
+  const p=String(l||'').split(',').map(x=>x.trim()).filter(Boolean);let c=p.length?p[p.length-1]:String(l||'').trim();
+  const m=c.match(/\b\d{5}\s+(.+)$/);if(m)c=m[1];else c=c.replace(/^\d{4,5}\s*/,'');
+  return c.trim();
+};
+function weekEnd(t){const d=new Date(t.getFullYear(),t.getMonth(),t.getDate());d.setDate(d.getDate()+(7-d.getDay())%7);return d;}  // dimanche (aujourd'hui si dimanche)
+const lcf=s=>{s=String(s||'');return(s.charAt(0).toLowerCase()+s.slice(1)).replace(/ \d{4}$/,'');};
+const fullName=id=>{const m=MEs.find(x=>x.id===id);return m?`${m.prenom||''} ${m.nom||''}`.trim():'?';};
+const CATB={'Sortie club':'🏠 Sortie club','Brevet':'🏅 Brevet','Randonnée':'🗺 Rando'};
+function kmSummary(ev){
+  if(ev.type==='festif')return ev.tarif?`💶 ${eur(ev.tarif)} / pers.`:'✓ Gratuit';
+  if(ev.type!=='sportif')return'';
+  if(ev.formules&&ev.formules.length)return evFml(ev).map(f=>`${DISC[f.d].i} <b>${f.d}</b>${f.parcours?' '+kmTxt(f.parcours)+' km':''}`).join(' · ');
+  const ds=(ev.disciplines||[]).filter(d=>DISC[d]);
+  return ds.map(d=>`${DISC[d].i} <b>${d}</b>`).join(' · ')+(ev.km?` · ${ev.km} km`:'');
+}
+function shortCard(ev){
+  const my=CU?(ev.participations&&ev.participations[CU.id])||'':'';
+  const ville=cityOf(ev.lieu),dep=ville&&!/lys/i.test(ville);
+  let badges='';
+  if(ev.type==='sportif'){badges+=CATB[ev.categorie]?`<span class="bdg bcatx">${CATB[ev.categorie]}</span>`:'';}
+  else badges=bdgsFor(ev)+(ev.type==='club'&&ev.categorie?`<span class="bdg bcatx">${hx(ev.categorie)}</span>`:'');
+  const org=(ev.type==='sportif'&&!isOwn(ev))?`<span class="hdep" style="background:rgba(66,103,178,.15);color:#7a9bdb;">🤝 ${hx(ev.organisateur)}</span>`:'';
+  const heure=/^\d/.test(ev.heure||'')?ev.heure:'';
+  const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
+  const dep1=(lieuTxt||heure)?`<div class="hs">🏁 Départ${lieuTxt?' : '+lieuTxt:''}${heure?' · <b>'+heure+'</b>':''}</div>`:'';
+  const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${isFerie(ev.date)?' · 🇫🇷 férié':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'} ${dep?'<span class="hdep">🚗 Déplacement</span>':''}${org}</div>${dep1}<div class="hk">${badges}</div>${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Je participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div><button class="hdet" onclick="goEv('${ev.id}')">Voir le détail ›</button></div>`;
+}
+window.goEv=id=>{
+  const ev=EVs.find(e=>e.id===id);if(!ev)return;
+  const[y,m]=ev.date.split('-');calY=+y;calM=+m-1;
+  sv('agenda',1);calClick(ev.date);
+  setTimeout(()=>{const el=document.getElementById('agEv');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},60);
+};
+function renderHomeBar(T,E){
+  const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
+  const rows=days.map(ds=>{
+    const bd=BAs[ds]||{b1:'',b2:''},closed=BSs[ds]===false;
+    const ids=[bd.b1,bd.b2].filter(Boolean),alr=CU&&ids.includes(CU.id),full=ids.length===2;
+    const dl=lcf(fmtL(ds))+(isFerie(ds)&&new Date(ds+'T12:00:00').getDay()!==0?' (férié)':'');
+    if(closed)return`<div class="hbar cl"><div>⚠️ <b>Attention, le bar sera fermé ce ${dl}.</b></div></div>`;
+    let msg;
+    if(ids.length)msg=`À votre retour, vous serez accueilli${ids.length>1?'s':''} par : <b>${ids.map(i=>hx(fullName(i))).join('</b> &amp; <b>')}</b>`;
+    else msg=`Bar du ${dl} : <b>pas encore de bénévole</b>.`;
+    let act='';
+    if(CU&&alr)act=`<button class="bd" style="font-size:10px;padding:4px 8px;" onclick="selfUnregB('${ds}')">Me désinscrire</button>`;
+    else if(CU&&!full)act=`<button class="binscrire" onclick="selfRegB('${ds}')">🍺 ${ids.length?'Je viens aussi aider':'Je m’inscris comme bénévole'}</button>`;
+    return`<div class="hbar ${ids.length?'ok':'wa'}"><div class="hbd">🍺 ${dl.charAt(0).toUpperCase()+dl.slice(1)}</div><div>${msg}</div>${act?`<div style="margin-top:5px;">${act}</div>`:''}</div>`;
+  });
+  return rows.join('');
+}
+function renderHome(){
+  const host=document.getElementById('homeWk');if(!host||!CU)return;
+  const now=new Date(),T=isoL(now),Ed=weekEnd(now),E=isoL(Ed),T15=isoL(new Date(now.getFullYear(),now.getMonth(),now.getDate()+15));
+  // admin : à traiter
+  const adm=document.getElementById('homeAdm');
+  if(adm){
+    let h='';
+    if(isAdm()){
+      const empty=nextBarDays(6).filter(ds=>BSs[ds]!==false&&!(BAs[ds]&&(BAs[ds].b1||BAs[ds].b2))).length;
+      const dec=EVs.filter(e=>e.barMode==='decider'&&(e.date||'')>=T&&e.type!=='club').length;
+      const go="sv('admin',7);admGo('bar')";
+      if(empty)h+=`<span class="hchip" onclick="${go}">🍺 ${empty} date${empty>1?'s':''} de bar sans bénévole ›</span>`;
+      if(dec)h+=`<span class="hchip" onclick="${go}">❓ ${dec} évènement${dec>1?'s':''} : bar à décider ›</span>`;
+    }
+    adm.innerHTML=h?`<div class="hadm"><div class="hadt">À traiter</div>${h}</div>`:'';
+  }
+  // chips disciplines
+  const chips=[['tous','Tous'],['Route','🔵 Route'],['VTT','🟢 VTT'],['Gravel','🟠 Gravel'],['Marche','🥾 Marche']];
+  document.getElementById('homeFb').innerHTML=chips.map(([k,l])=>`<button class="hc${homeFilt===k?' active':''}" onclick="homeF('${k}')">${l}</button>`).join('');
+  document.getElementById('homeWkT').textContent=now.getDay()===0?'🚴 Aujourd’hui — dimanche':'🚴 Cette semaine — jusqu’à '+lcf(fmtL(E));
+  const srt=(a,b)=>a.date.localeCompare(b.date)||String(a.heure).localeCompare(String(b.heure));
+  const wk=EVs.filter(e=>e.type==='sportif'&&e.date>=T&&e.date<=E&&(homeFilt==='tous'||(e.disciplines||[]).includes(homeFilt))).sort(srt);
+  host.innerHTML=wk.length?wk.map(shortCard).join(''):`<div class="hempty">${homeFilt==='tous'?'Pas de sortie prévue d’ici dimanche.':'Aucune sortie '+homeFilt+' d’ici dimanche.'} <a onclick="sv('agenda',1)">Voir l’agenda ›</a></div>`;
+  const soon=EVs.filter(e=>(e.type==='festif'||e.type==='club')&&e.date>=T&&e.date<=T15).sort(srt);
+  document.getElementById('homeSoon').innerHTML=soon.length?`<div class="stitle" style="margin-top:6px;">🎉 Dans les 15 prochains jours</div>`+soon.map(shortCard).join(''):'';
+  document.getElementById('homeBar').innerHTML=`<div class="stitle" style="margin-top:6px;">🍺 Le bar</div>`+renderHomeBar(T,E);
+}
+function renderDashboard(){
+  const grid=document.getElementById("dashGrid");
+  if(!grid||!CU)return;
+  const isA=isAdm();
+  const T=isoL(new Date());
+  const barAlerts=nextBarDays(6).filter(ds=>BSs[ds]!==false&&!BAs[ds]?.b1&&!BAs[ds]?.b2).length;
+  const b=[
+    ['📅','Agenda','Mois et liste',"sv('agenda',1)",'',0],
+    ['📋','Liste des RDV','Tous les évènements',"sv('sorties',1)",'',0],
+    ['🍺','Bar',isA?'Gérer le bar':'M’inscrire',"sv('bar',3)",'',isA?barAlerts:0],
+    ['👥','Membres','Annuaire du club',"sv('membres',9)",'',0],
+    ['📊','Stats','Statistiques',"sv('stats',9)",'',0],
+    ['👤','Profil','Mes informations',"sv('profil',9)",'',0]];
+  if(isA){b.push(['➕','Créer','Nouvel évènement',"openCreate()",'dash-add',0]);b.push(['⚙️','Administration','Évènements, membres, bar',"sv('admin',7)",'dash-sup',0]);}
+  grid.innerHTML=b.map(([i,l,s,fn,c,n])=>`<div class="dash-btn ${c}" onclick="${fn}">${n>0?`<div class="dash-badge">${n}</div>`:''}<div class="dash-icon">${i}</div><div class="dash-label">${l}</div><div class="dash-sub">${s}</div></div>`).join('');
+}
+function renderPlus(){
+  const g=document.getElementById('plusGrid');if(!g)return;
+  g.innerHTML=[['👥','Membres','Annuaire du club',"sv('membres',9)"],['📊','Stats','Statistiques',"sv('stats',9)"],['👤','Profil','Mes informations',"sv('profil',9)"],['📋','Liste des RDV','Tous les évènements',"sv('sorties',1)"]].map(([i,l,s,fn])=>`<div class="dash-btn" onclick="${fn}"><div class="dash-icon">${i}</div><div class="dash-label">${l}</div><div class="dash-sub">${s}</div></div>`).join('');
+}
 
 </script>
 </body>
