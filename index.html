@@ -296,6 +296,26 @@ nav::-webkit-scrollbar{display:none;}
 .agsearch{margin-bottom:8px;}
 .flash{animation:flash 2.2s ease-out 1;}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--j);}100%{box-shadow:0 0 0 0 transparent;}}
+
+.hcard{padding:7px 9px;margin-bottom:6px;}
+.hd{font-size:9.5px;}.hcat{color:var(--td);text-transform:none;font-weight:600;}
+.ht{font-size:16px;margin:1px 0 2px;}
+.hv{font-size:11px;gap:5px;}
+.hs{font-size:9.5px;margin:1px 0;}
+.hk{font-size:10.5px;margin:2px 0;gap:3px;}
+.hpp{display:flex;gap:3px;margin-top:5px;}
+.hpp button{flex:1 1 auto;padding:5px 2px;font-size:9.5px;font-weight:700;white-space:nowrap;background:transparent;border:1px solid var(--bb);border-radius:6px;color:var(--t);cursor:pointer;}
+.hpp .hmore{flex:0 0 auto;padding:5px 7px;color:var(--j);border-color:var(--j);}
+.hpp .on-o{background:rgba(0,230,118,.18);border-color:var(--V);color:var(--V);}
+.hpp .on-n{background:rgba(255,82,82,.15);border-color:var(--R);color:var(--R);}
+.hpp .on-k{background:rgba(255,167,38,.15);border-color:var(--O);color:var(--O);}
+.hpp .on-b{background:rgba(66,165,245,.15);border-color:#42a5f5;color:#42a5f5;}
+.hbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;margin-bottom:6px;font-size:12px;border-width:2px;}
+.hbar.wa{background:rgba(255,167,38,.12);}
+.hbar.ok{background:rgba(0,230,118,.08);}
+.hbar.cl{background:rgba(255,82,82,.1);}
+.hba{flex:0 0 auto;}.hba button{white-space:nowrap;}
+.hneed{font-size:9.5px;color:var(--td);}
 .imp-chip{font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;border:1px solid var(--bb);color:var(--td);}
 .imp-chip.ok{color:var(--V);border-color:var(--V);}
 .imp-chip.dup{color:var(--O);border-color:var(--O);}
@@ -380,11 +400,11 @@ nav::-webkit-scrollbar{display:none;}
   <div class="wb"><div class="wav" id="wAv"></div><div class="wt"><h2 id="wMsg">Bienvenue !</h2><p id="wSub"></p></div></div>
 
   <div id="homeAdm"></div>
+  <div id="homeBar"></div>
   <div class="stitle" id="homeWkT">🚴 Cette semaine</div>
   <div class="fb" id="homeFb"></div>
   <div id="homeWk"></div>
   <div id="homeSoon"></div>
-  <div id="homeBar"></div>
   <div class="stitle" style="margin-top:8px;">Accès rapides</div>
   <div class="dash-grid" id="dashGrid"></div>
 </div>
@@ -1918,32 +1938,28 @@ function kmSummary(ev){
 function shortCard(ev){
   const my=CU?(ev.participations&&ev.participations[CU.id])||'':'';
   const ville=cityOf(ev.lieu);
-  let badges='';
-  if(ev.type==='sportif'){badges+=CATB[ev.categorie]?`<span class="bdg bcatx">${CATB[ev.categorie]}</span>`:'';}
-  else badges=bdgsFor(ev)+(ev.type==='club'&&ev.categorie?`<span class="bdg bcatx">${hx(ev.categorie)}</span>`:'');
-  const org=(ev.type==='sportif'&&!isOwn(ev))?`<span class="hdep" style="background:rgba(66,103,178,.15);color:#7a9bdb;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const heure=/^\d/.test(ev.heure||'')?ev.heure:'';
+  const cat=ev.type==='sportif'?(CATB[ev.categorie]||''):(ev.type==='club'&&ev.categorie?hx(ev.categorie):'');
+  const typ=ev.type==='festif'?'🎉 Festif':ev.type==='club'?'🛠️ Vie du club':'';
+  const org=(ev.type==='sportif'&&!isOwn(ev))?` <span class="hdep" style="background:rgba(66,103,178,.15);color:#7a9bdb;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
-  const dep1=(lieuTxt||heure)?`<div class="hs">🏁 Départ${lieuTxt?' : '+lieuTxt:''}${heure?' · <b>'+heure+'</b>':''}</div>`:'';
   const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
-  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${isFerie(ev.date)?' · 🇫🇷 férié':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'} ${trChip(ev)}${org}</div>${dep1}<div class="hk">${badges}</div>${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Je participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div><button class="hdet" onclick="goEv('${ev.id}')">Voir le détail ›</button></div>`;
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${lieuTxt?`<div class="hs">🏁 ${lieuTxt}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
 }
 function renderHomeBar(T,E){
   const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
-  const rows=days.map(ds=>{
+  return days.map(ds=>{
     const bd=BAs[ds]||{b1:'',b2:''},closed=BSs[ds]===false;
     const ids=[bd.b1,bd.b2].filter(Boolean),alr=CU&&ids.includes(CU.id),full=ids.length===2;
     const dl=lcf(fmtL(ds))+(isFerie(ds)&&new Date(ds+'T12:00:00').getDay()!==0?' (férié)':'');
-    if(closed)return`<div class="hbar cl"><div>⚠️ <b>Attention, le bar sera fermé ce ${dl}.</b></div></div>`;
-    let msg;
-    if(ids.length)msg=`À votre retour, vous serez accueilli${ids.length>1?'s':''} par : <b>${ids.map(i=>hx(fullName(i))).join('</b> &amp; <b>')}</b>`;
-    else msg=`Bar du ${dl} : <b>pas encore de bénévole</b>.`;
+    const D=`<b>🍺 ${dl.charAt(0).toUpperCase()+dl.slice(1)}</b>`;
+    if(closed)return`<div class="hbar cl"><div>🍺 ⚠️ <b>Attention, le bar sera fermé ce ${dl}.</b></div></div>`;
     let act='';
-    if(CU&&alr)act=`<button class="bd" style="font-size:10px;padding:4px 8px;" onclick="selfUnregB('${ds}')">Me désinscrire</button>`;
-    else if(CU&&!full)act=`<button class="binscrire" onclick="selfRegB('${ds}')">🍺 ${ids.length?'Je viens aussi aider':'Je m’inscris comme bénévole'}</button>`;
-    return`<div class="hbar ${ids.length?'ok':'wa'}"><div class="hbd">🍺 ${dl.charAt(0).toUpperCase()+dl.slice(1)}</div><div>${msg}</div>${act?`<div style="margin-top:5px;">${act}</div>`:''}</div>`;
-  });
-  return rows.join('');
+    if(CU&&alr)act=`<button class="bd" onclick="selfUnregB('${ds}')">Me désinscrire</button>`;
+    else if(CU&&!full)act=`<button class="binscrire" onclick="selfRegB('${ds}')">🍺 ${ids.length?'Je viens aider':'Je m’inscris au bar'}</button>`;
+    if(ids.length)return`<div class="hbar ok"><div>${D} — À votre retour, vous serez accueilli${ids.length>1?'s':''} par : <b>${ids.map(i=>hx(fullName(i))).join('</b> &amp; <b>')}</b>${ids.length<2?' <span class="hneed">(1 bénévole de plus bienvenu)</span>':''}</div>${act?`<div class="hba">${act}</div>`:''}</div>`;
+    return`<div class="hbar wa"><div>${D} — ⚠️ <b>Toujours pas de bénévole !</b> Il faut quelqu’un au bar.</div>${act?`<div class="hba">${act}</div>`:''}</div>`;
+  }).join('');
 }
 function renderHome(){
   const host=document.getElementById('homeWk');if(!host||!CU)return;
@@ -1970,7 +1986,7 @@ function renderHome(){
   host.innerHTML=wk.length?wk.map(shortCard).join(''):`<div class="hempty">${homeFilt==='tous'?'Pas de sortie prévue d’ici dimanche.':'Aucune sortie '+homeFilt+' d’ici dimanche.'} <a onclick="sv('agenda',1)">Voir l’agenda ›</a></div>`;
   const soon=EVs.filter(e=>(e.type==='festif'||e.type==='club')&&e.date>=T&&e.date<=T15).sort(srt);
   document.getElementById('homeSoon').innerHTML=soon.length?`<div class="stitle" style="margin-top:6px;">🎉 Dans les 15 prochains jours</div>`+soon.map(shortCard).join(''):'';
-  document.getElementById('homeBar').innerHTML=`<div class="stitle" style="margin-top:6px;">🍺 Le bar</div>`+renderHomeBar(T,E);
+  document.getElementById('homeBar').innerHTML=renderHomeBar(T,E);
 }
 function renderDashboard(){
   const grid=document.getElementById("dashGrid");
