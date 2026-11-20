@@ -366,6 +366,27 @@ nav::-webkit-scrollbar{display:none;}
 .card,.dash-btn,.hcard,.lbox{box-shadow:0 1px 3px rgba(15,35,66,.08);}
 input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 .binscrire{color:var(--jd);}
+
+.pcount{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:2px 0 6px;font-size:11px;color:var(--td);}
+.pcount b{color:var(--t);}
+.pcount button{flex:0 0 auto;padding:6px 9px;background:transparent;border:1px solid var(--j);border-radius:7px;color:var(--j);font-weight:700;font-size:11px;cursor:pointer;}
+.hpl{font-size:10px;margin:3px 0 0;}.hpl a{color:var(--j);font-weight:700;cursor:pointer;text-decoration:underline;}
+.plg{margin-bottom:9px;}.plg h4{font-size:12px;color:var(--t);margin-bottom:3px;}.plg div{font-size:12px;color:var(--t);line-height:1.6;}
+.agbig{display:flex;align-items:center;gap:12px;width:100%;padding:15px 14px;margin-bottom:9px;background:var(--bc);border:2px solid var(--j);border-radius:var(--ra);color:var(--t);font-size:15px;font-weight:700;cursor:pointer;text-align:left;}
+.agbig span.ai{font-size:26px;}.agbig small{display:block;font-size:11px;font-weight:400;color:var(--td);}
+.agback{background:transparent;border:0;color:var(--j);font-weight:700;font-size:13px;padding:6px 2px;margin-bottom:4px;cursor:pointer;}
+.mch{display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px;font-weight:700;color:var(--t);}
+.mch button{background:var(--bc);border:1px solid var(--bb);border-radius:8px;padding:6px 14px;color:var(--j);font-weight:700;font-size:16px;cursor:pointer;}
+.mcg{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.mcg .cw{font-size:10px;text-align:center;color:var(--td);font-weight:700;}
+.mcg button{aspect-ratio:1/1;background:var(--bc);border:1px solid var(--bb);border-radius:8px;color:var(--t);font-size:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0;}
+.mcg button.has{border-color:var(--j);font-weight:700;}
+.mcg button.td{background:var(--j);color:#fff;}
+.mcg button i{display:block;width:6px;height:6px;border-radius:50%;background:var(--j);margin-top:2px;}
+.mcg button.td i{background:#fff;}.mcg button.au i{background:var(--bb);}
+.mcg .cv{visibility:hidden;}
+.hann{width:100%;margin:0 0 7px;padding:11px;background:var(--j);color:#fff;border:0;border-radius:var(--ra);font-weight:700;font-size:13px;cursor:pointer;}
+#annTx{width:100%;min-height:260px;font-size:12px;line-height:1.5;padding:8px;border:1px solid var(--bb);border-radius:8px;color:var(--t);background:#fff;}
 </style>
 </head>
 <body>
@@ -413,6 +434,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   <div class="wb"><div class="wav" id="wAv"></div><div class="wt"><h2 id="wMsg">Bienvenue !</h2><p id="wSub"></p></div></div>
 
   <div id="homeAdm"></div>
+  <div id="homeAnn"></div>
   <div id="homeBar"></div>
   <div class="stitle" id="homeWkT">🚴 Cette semaine</div>
   <div class="fb" id="homeFb"></div>
@@ -423,16 +445,32 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 </div>
 
 <div id="view-agenda" class="view">
-  <div class="stitle">📅 Agenda</div>
-  <div class="agsearch">
-    <input class="fi" id="agQ" type="search" placeholder="🔎 Rechercher : Roubaix, banquet, brevet, VTT…" oninput="agRender()" autocomplete="off">
-    <div class="frow" style="margin-top:5px;align-items:center;"><div class="fs" style="margin:0;"><input class="fi" id="agD" type="date" onchange="agRender()" aria-label="Chercher par date"></div><button class="be" style="flex:0 0 auto;" onclick="agClear()">✕ Effacer</button></div>
+  <div id="agHome">
+    <div class="stitle">📅 Agenda</div>
+    <div class="agsearch"><input class="fi" id="agQ0" type="search" placeholder="🔎 Rechercher : Roubaix, banquet, brevet, VTT…" onkeydown="if(event.key==='Enter')agGoSearch()" autocomplete="off"><button class="bp" style="margin-top:6px;width:100%;" onclick="agGoSearch()">🔎 Rechercher</button></div>
+    <button class="agbig" onclick="agOpen('list')"><span class="ai">📋</span><span>Liste des évènements planifiés<small>Tous les évènements à venir, avec filtres</small></span></button>
+    <button class="agbig" onclick="agOpen('cal')"><span class="ai">🗓️</span><span>Calendrier du mois<small>Touchez un jour pour voir ses évènements</small></span></button>
   </div>
-  <div class="fb" id="agF1"></div>
-  <div class="fb" id="agF2" style="display:none"></div>
-  <label class="admchk"><input type="checkbox" id="agPast" onchange="agRender()"> Afficher aussi les évènements passés</label>
-  <div class="hint" id="agCount" style="margin:0 0 6px;"></div>
-  <div id="agEv"></div>
+  <div id="agList" style="display:none">
+    <button class="agback" onclick="agOpen('home')">‹ Agenda</button>
+    <div class="stitle">📋 Évènements planifiés</div>
+    <div class="agsearch">
+      <input class="fi" id="agQ" type="search" placeholder="🔎 Rechercher : Roubaix, banquet, brevet, VTT…" oninput="agRender()" autocomplete="off">
+      <div class="frow" style="margin-top:5px;align-items:center;"><div class="fs" style="margin:0;"><input class="fi" id="agD" type="date" onchange="agRender()" aria-label="Chercher par date"></div><button class="be" style="flex:0 0 auto;" onclick="agClear()">✕ Effacer</button></div>
+    </div>
+    <div class="fb" id="agF1"></div>
+    <div class="fb" id="agF2" style="display:none"></div>
+    <label class="admchk"><input type="checkbox" id="agPast" onchange="agRender()"> Afficher aussi les évènements passés</label>
+    <div class="hint" id="agCount" style="margin:0 0 6px;"></div>
+    <div id="agEv"></div>
+  </div>
+  <div id="agCal" style="display:none">
+    <button class="agback" onclick="agOpen('home')">‹ Agenda</button>
+    <div class="stitle">🗓️ Calendrier</div>
+    <div class="mch"><button onclick="calMv(-1)" aria-label="Mois précédent">‹</button><span id="calT"></span><button onclick="calMv(1)" aria-label="Mois suivant">›</button></div>
+    <div class="mcg" id="calG"></div>
+    <div class="hint" style="margin-top:8px;">● évènement prévu · ○ sortie club automatique seule</div>
+  </div>
 </div>
 
 <div id="view-bar" class="view">
@@ -580,6 +618,20 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 </div></div>
 
 <!-- MODAL CHOIX DE DISCIPLINE -->
+<div class="mo" id="mPart"><div class="mdl">
+  <button class="mc" onclick="cm('mPart')">×</button><div class="mt2">👥 PARTICIPANTS</div>
+  <div class="imp-note" id="partNom"></div><div id="partBody"></div>
+</div></div>
+
+<div class="mo" id="mAnn"><div class="mdl">
+  <button class="mc" onclick="cm('mAnn')">×</button><div class="mt2">📣 ANNONCER AUX ADHÉRENTS</div>
+  <div class="imp-note">Le texte ci-dessous est prêt. Vous pouvez le modifier, puis l’envoyer dans Messenger (ou WhatsApp, SMS…).</div>
+  <select class="fi" id="annWk" onchange="annBuild()" style="margin-bottom:6px;"><option value="0">Cette semaine</option><option value="1">Semaine suivante</option></select>
+  <textarea id="annTx"></textarea>
+  <button class="bp" style="margin-top:8px;width:100%;" onclick="annShare()">📤 Envoyer / partager</button>
+  <button class="be" style="margin-top:6px;width:100%;padding:9px;" onclick="annCopy()">📋 Copier le texte</button>
+</div></div>
+
 <div class="mo" id="mDisc"><div class="mdl">
   <button class="mc" onclick="cm('mDisc')">×</button><div class="mt2">🎯 MA DISCIPLINE</div>
   <div class="imp-note" id="discNom"></div><div id="discBtns"></div>
@@ -799,7 +851,7 @@ function refreshAll(){
   const a=document.querySelector('.view.active');if(!a)return;
   const name=a.id.replace('view-','');
   if(name==='accueil')rAccueil();
-  if(name==='agenda')agRender();
+  if(name==='agenda'){if(agMode==='list')agRender();else if(agMode==='cal')calRender();}
   if(name==='bar')rBar();
   if(name==='membres')rMembers();
   if(name==='stats')rStats();
@@ -912,14 +964,14 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
-let homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
+let agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
 window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const v=document.getElementById('view-'+name);if(v)v.classList.add('active');
   const nb=document.getElementById('nav'+idx);if(nb)nb.classList.add('active');
   if(name==='accueil')rAccueil();
-  if(name==='agenda')agRender();
+  if(name==='agenda'){agOpen('home');}
   if(name==='bar')rBar();
   if(name==='membres')rMembers();
   if(name==='stats')rStats();
@@ -1014,10 +1066,10 @@ function rBar(){
       if(CU){if(!alrB&&!full)slots+=`<button class="bv2btn" style="margin-top:5px;font-size:10px;padding:5px;width:100%;" onclick="selfRegB('${ds}')">🍺 Je m'inscris comme bénévole</button>`;if(alrB)slots+=`<button class="bd" style="margin-top:5px;font-size:10px;padding:5px;width:100%;" onclick="selfUnregB('${ds}')">Me désinscrire</button>`;}
       if(noB)slots+=`<div class="blink" style="color:var(--O);font-size:9px;margin-top:3px;">⚠️ Aucun bénévole inscrit !</div>`;
     }
-    const admBtns=isAdm()?`<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${isClosed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${isClosed?'🟢 Ouvrir le bar':'🔴 Fermer le bar'}</button></div>`:'';
+    const admBtns=isAdm()?`<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${isClosed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${isClosed?'🟢 Rouvrir le bar':'🔴 Bar fermé ce jour'}</button></div>`:'';
     h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${fer}${fmtL(ds)}</span><span style="font-size:10px;color:${isClosed?'var(--R)':noB?'var(--O)':'var(--V)'};">${isClosed?'🔴 Bar fermé':noB?'⚠️ Bénévoles attendus':'🟢 Bénévoles inscrits'}</span></div>${evChips(ds)}${isClosed?`<div style="font-size:10px;color:var(--R);font-weight:700;">❌ Bar fermé ce jour.</div>`:slots}${admBtns}</div>`;
   }
-  document.getElementById('barDays').innerHTML=h;
+  document.getElementById('barDays').innerHTML=(isAdm()?'<div class="hint" style="margin-bottom:6px;">ℹ️ <b>Bar fermé ce jour</b> : à utiliser quand personne ne tiendra le bar. Les adhérents verront alors « Attention, le bar sera fermé » sur l’accueil. <b>Rouvrir le bar</b> annule ce message.</div>':'')+h;
 }
 window.toggleBS=async ds=>{BSs[ds]=BSs[ds]===false?undefined:false;if(BSs[ds]===undefined)delete BSs[ds];await saveBsData();showT(BSs[ds]===false?'Bar fermé.':'Bar ouvert !');};
 window.openBarEd=ds=>{
@@ -1173,7 +1225,7 @@ function evCard(ev){
   const oui=cntP(ev,'oui'),non=cntP(ev,'non'),ben=cntP(ev,'benev');
   const tot=oui+ben,rep=Object.keys(ev.participations||{}).length,nonRep=Math.max(0,MEs.length-rep);
   let insc='';
-  if(tot>0){const nms=Object.entries(ev.participations||{}).filter(([,v])=>v==='oui'||v==='benev').map(([id])=>getMN(id)+discTag(ev,id));insc=`<div class="ilist"><span style="font-size:9px;color:var(--td);text-transform:uppercase;">Participants : </span>${nms.map(n=>`<span class="iitem">✅ ${n}</span>`).join('')}</div>`;}
+  if(false){const nms=Object.entries(ev.participations||{}).filter(([,v])=>v==='oui'||v==='benev').map(([id])=>getMN(id)+discTag(ev,id));insc=`<div class="ilist"><span style="font-size:9px;color:var(--td);text-transform:uppercase;">Participants : </span>${nms.map(n=>`<span class="iitem">✅ ${n}</span>`).join('')}</div>`;}
   const cr=MEs.find(x=>x.id===ev.createdBy);const crN=cr?(cr.pseudo||(cr.prenom+' '+cr.nom.split(' ')[0])):'?';
   const imgH=ev.image?`<img src="${ev.image}" class="eimg" alt="">`:'';
   const tH=ev.tarif?`<div class="tbadge">💶 ${parseFloat(ev.tarif).toFixed(2)} €/pers.</div>`:(ev.type==='festif'?'<div style="font-size:9px;color:var(--V);font-weight:700;margin-bottom:4px;">✓ Gratuit</div>':'');
@@ -1191,7 +1243,7 @@ function evCard(ev){
     const pp=DORD.filter(d=>cn[d]).map(d=>`${DISC[d].i} ${d} <b>${cn[d]}</b>`);if(sc)pp.push(`sans choix <b>${sc}</b>`);
     dcH=`<div class="dcnt">${pp.join(' · ')}${canMgEv()&&anyE?` · 💶 ≈ ${eur(est)} (tarifs adultes)`:''}</div>`;
   }
-  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="sz"><div class="szi ct"><div class="szn">${rep}</div><div class="szl">Répondants</div></div><div class="szi co"><div class="szn">${tot}</div><div class="szl">Participants</div></div><div class="szi cn"><div class="szn">${non}</div><div class="szl">Absents</div></div><div class="szi ck"><div class="szn">${nonRep}</div><div class="szl">Sans réponse</div></div></div><div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
+  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div><div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
 }
 window.setPart=async(evId,s)=>{
   if(!CU){showT('Connectez-vous !');return;}
@@ -1776,7 +1828,7 @@ window.admRenderBar=()=>{
     if(only&&(closed||n===2))return;
     const s=closed?['🔴 Fermé','var(--R)']:n===2?['✅ Complet','var(--V)']:n===1?['🟠 1 bénévole sur 2','var(--O)']:['⚠️ Aucun bénévole','var(--O)'];
     const who=closed?'':[bd.b1,bd.b2].filter(Boolean).map(id=>admEsc(getMN(id))).join(' &amp; ');
-    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${isFerie(ds)?'🇫🇷 ':''}${fmtL(ds)}</span><span style="font-size:10px;font-weight:700;color:${s[1]};">${s[0]}</span></div>${evChips(ds,true)}${who?`<div style="font-size:10px;margin-bottom:2px;">🍺 ${who}</div>`:''}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${closed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${closed?'🟢 Ouvrir le bar':'🔴 Fermer le bar'}</button></div></div>`;
+    h+=`<div class="bdc"><div class="bdt"><span style="font-size:11px;">${isFerie(ds)?'🇫🇷 ':''}${fmtL(ds)}</span><span style="font-size:10px;font-weight:700;color:${s[1]};">${s[0]}</span></div>${evChips(ds,true)}${who?`<div style="font-size:10px;margin-bottom:2px;">🍺 ${who}</div>`:''}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px;"><button class="be" style="font-size:9px;padding:3px 7px;" onclick="openBarEd('${ds}')">✏️ Gérer bénévoles</button><button class="${closed?'bv2btn':'bd'}" style="font-size:9px;padding:3px 7px;" onclick="toggleBS('${ds}')">${closed?'🟢 Rouvrir le bar':'🔴 Bar fermé ce jour'}</button></div></div>`;
   });
   const list=document.getElementById('admBarList'),sum=document.getElementById('admBarSum');
   if(list)list.innerHTML=h||`<div class="empty"><div class="ei">🍺</div><div>${only?'Toutes les dates sont complètes ou fermées.':'Aucune date de bar.'}</div></div>`;
@@ -1957,7 +2009,7 @@ function shortCard(ev){
   const org=(ev.type==='sportif'&&!isOwn(ev))?` <span class="hdep" style="background:rgba(66,103,178,.15);color:#1e3a8a;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
   const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
-  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${lieuTxt?`<div class="hs">🏁 ${lieuTxt}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${lieuTxt?`<div class="hs">🏁 ${lieuTxt}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a></div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
 }
 function renderHomeBar(T,E){
   const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
@@ -1990,6 +2042,7 @@ function renderHome(){
     }
     adm.innerHTML=h?`<div class="hadm"><div class="hadt">À traiter</div>${h}</div>`:'';
   }
+  const an=document.getElementById('homeAnn');if(an)an.innerHTML=canAnn()?`<button class="hann" onclick="openAnn()">📣 Annoncer la semaine aux adhérents</button>`:'';
   // chips disciplines
   const chips=[['tous','Tous'],['Route','🔵 Route'],['VTT','🟢 VTT'],['Gravel','🟠 Gravel'],['Marche','🥾 Marche']];
   document.getElementById('homeFb').innerHTML=chips.map(([k,l])=>`<button class="hc${homeFilt===k?' active':''}" onclick="homeF('${k}')">${l}</button>`).join('');
@@ -2180,11 +2233,95 @@ window.agRender=agRender;
 window.goEv=id=>{
   const ev=EVs.find(e=>e.id===id);if(!ev)return;
   agType='tous';agSub='tous';agFocus=id;
-  sv('agenda',1);
+  sv('agenda',1);agOpen('list');
   document.getElementById('agQ').value='';document.getElementById('agD').value='';
   document.getElementById('agPast').checked=ev.date<isoL(new Date());
   agRender();
 };
+
+// ═══ PARTICIPANTS (visibles de tous, derrière un bouton) ═══
+const nIns=ev=>Object.values(ev.participations||{}).filter(v=>v==='oui'||v==='benev').length;
+window.showPart=id=>{
+  const ev=EVs.find(e=>e.id===id);if(!ev)return;
+  const P=ev.participations||{};
+  const grp=(k,t)=>{const ids=Object.keys(P).filter(i=>P[i]===k);if(!ids.length)return'';return`<div class="plg"><h4>${t} (${ids.length})</h4><div>${ids.map(i=>hx(getMN(i))+discTag(ev,i)).join('<br>')}</div></div>`;};
+  const rep=Object.keys(P).length,sr=Math.max(0,MEs.length-rep);
+  document.getElementById('partNom').textContent=ev.nom+' — '+fmtS(ev.date);
+  document.getElementById('partBody').innerHTML=(grp('oui','✅ Participants')+grp('benev','🤝 Bénévoles')+grp('nsp','🤔 Peut-être')+grp('non','❌ Absents'))||'<div class="hint">Personne ne s’est encore inscrit.</div>';
+  document.getElementById('partBody').innerHTML+=`<div class="hint" style="margin-top:4px;">${sr} adhérent${sr>1?'s':''} sans réponse</div>`;
+  document.getElementById('mPart').classList.add('open');
+};
+
+// ═══ AGENDA : 3 entrées (recherche, liste, calendrier) ═══
+window.agOpen=m=>{
+  agMode=m;
+  document.getElementById('agHome').style.display=m==='home'?'':'none';
+  document.getElementById('agList').style.display=m==='list'?'':'none';
+  document.getElementById('agCal').style.display=m==='cal'?'':'none';
+  if(m==='list')agRender();
+  if(m==='cal'){const n=new Date();if(!mcY){mcY=n.getFullYear();mcM=n.getMonth();}calRender();}
+  window.scrollTo(0,0);
+};
+window.agGoSearch=()=>{
+  const q=document.getElementById('agQ0').value;
+  agType='tous';agSub='tous';agOpen('list');
+  document.getElementById('agQ').value=q;document.getElementById('agD').value='';agRender();
+};
+window.calMv=d=>{mcM+=d;if(mcM<0){mcM=11;mcY--;}if(mcM>11){mcM=0;mcY++;}calRender();};
+function calRender(){
+  const MO=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  document.getElementById('calT').textContent=MO[mcM]+' '+mcY;
+  const first=new Date(mcY,mcM,1),off=(first.getDay()+6)%7,nd=new Date(mcY,mcM+1,0).getDate(),today=isoL(new Date());
+  const by={};EVs.forEach(e=>{if(!e.date)return;const o=by[e.date]||(by[e.date]={r:0,a:0});if(e.auto&&!e.autoMod)o.a++;else o.r++;});
+  let h=['L','M','M','J','V','S','D'].map(x=>`<div class="cw">${x}</div>`).join('');
+  for(let i=0;i<off;i++)h+='<button class="cv" tabindex="-1" aria-hidden="true"></button>';
+  for(let d=1;d<=nd;d++){
+    const ds=mcY+'-'+String(mcM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0'),o=by[ds];
+    const cl=(o?(o.r?' has':' au'):'')+(ds===today?' td':'');
+    h+=`<button class="${cl.trim()}" onclick="calPick('${ds}')" aria-label="${fmtL(ds)}">${d}${o?'<i></i>':''}</button>`;
+  }
+  document.getElementById('calG').innerHTML=h;
+}
+window.calPick=ds=>{
+  agType='tous';agSub='tous';agOpen('list');
+  document.getElementById('agQ').value='';document.getElementById('agD').value=ds;agRender();
+};
+
+// ═══ ANNONCE DE LA SEMAINE (organisateur / admin / superviseur) ═══
+const canAnn=()=>{if(!CU)return false;if(isAdm())return true;const t=isoL(new Date());return EVs.some(e=>!e.virtual&&!e.auto&&e.createdBy===CU.id&&e.date>=t);};
+window.openAnn=()=>{if(!canAnn())return;document.getElementById('annWk').value='0';annBuild();document.getElementById('mAnn').classList.add('open');};
+const plainT=h=>String(h||'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");
+window.annBuild=()=>{
+  const nx=document.getElementById('annWk').value==='1',now=new Date();
+  const E0=weekEnd(now);let T=isoL(now),E=isoL(E0);
+  if(nx){const a=new Date(E0);a.setDate(a.getDate()+1);const b=new Date(E0);b.setDate(b.getDate()+7);T=isoL(a);E=isoL(b);}
+  const srt=(a,b)=>a.date.localeCompare(b.date)||String(a.heure).localeCompare(String(b.heure));
+  const wk=EVs.filter(e=>e.type==='sportif'&&e.date>=T&&e.date<=E).sort(srt);
+  let t=`🚴 LYS CYCLO — Programme ${nx?'de la semaine prochaine':'de la semaine'} (jusqu’au ${lcf(fmtL(E))})\n`;
+  if(!wk.length)t+='\nPas de sortie prévue.\n';
+  wk.forEach(e=>{
+    const h=/^\d/.test(e.heure||'')?e.heure:'';
+    t+=`\n📅 ${fmtS(e.date).replace(/ \d{4}$/,'')}${h?' à '+h:''}${isFerie(e.date)?' (férié)':''} — ${e.nom}\n`;
+    const v=cityOf(e.lieu);t+=`📍 ${e.lieu||v||'Lieu à confirmer'}\n`;
+    const k=plainT(kmSummary(e));if(k)t+=`${k}\n`;
+    if(e.transport==='voiture')t+='🚗 Véhicule nécessaire\n';
+    if(e.organisateur&&!isOwn(e))t+=`🤝 Organisé par ${e.organisateur}\n`;
+  });
+  const bar=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
+  if(bar.length){t+='\n';bar.forEach(ds=>{
+    const dl=lcf(fmtL(ds)).replace(/ \d{4}$/,''),b=BAs[ds]||{},ids=[b.b1,b.b2].filter(Boolean);
+    if(BSs[ds]===false)t+=`🍺 Bar fermé ce ${dl}.\n`;
+    else if(ids.length)t+=`🍺 Bar ce ${dl} : à votre retour, vous serez accueillis par ${ids.map(fullName).join(' et ')}.\n`;
+    else t+=`🍺 Bar ce ${dl} : il manque des bénévoles — qui peut aider ?\n`;
+  });}
+  const T15=isoL(new Date(now.getFullYear(),now.getMonth(),now.getDate()+15));
+  const soon=EVs.filter(e=>(e.type==='festif'||e.type==='club')&&e.date>=T&&e.date<=T15).sort(srt);
+  if(soon.length){t+='\n🎉 À venir\n';soon.forEach(e=>{t+=`• ${fmtS(e.date).replace(/ \d{4}$/,'')} — ${e.nom}${e.lieu?' ('+cityOf(e.lieu)+')':''}\n`;});}
+  t+=`\n👉 Répondez dans l’application : ${location.origin}${location.pathname}`;
+  document.getElementById('annTx').value=t;
+};
+window.annCopy=async()=>{const v=document.getElementById('annTx').value;try{await navigator.clipboard.writeText(v);showT('Texte copié : collez-le dans Messenger.');}catch(e){const a=document.getElementById('annTx');a.select();try{document.execCommand('copy');showT('Texte copié : collez-le dans Messenger.');}catch(x){showT('Copie impossible : sélectionnez le texte à la main.');}}};
+window.annShare=async()=>{const v=document.getElementById('annTx').value;if(navigator.share){try{await navigator.share({text:v});return;}catch(e){if(e&&e.name==='AbortError')return;}}annCopy();};
 
 </script>
 </body>
