@@ -425,7 +425,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
       <div class="fs"><label class="fl">Pseudo</label><input class="fi" id="iPseudo" placeholder="ex: Jean59"></div>
       <div class="fs"><label class="fl">Mot de passe * (min 6 car.)</label><input class="fi" id="iPwd2" type="password"></div>
       <div class="fs"><label class="fl">Discipline</label>
-        <div class="rg"><div class="ro"><input type="radio" name="iDisc" id="id1" value="Route"><label class="rl" for="id1">🔵 Route</label></div><div class="ro"><input type="radio" name="iDisc" id="id2" value="VTT"><label class="rl" for="id2">🟢 VTT</label></div><div class="ro"><input type="radio" name="iDisc" id="id3" value="Les deux"><label class="rl" for="id3">🚴 Les deux</label></div></div>
+        <div class="rg" data-dbox="iDisc"></div>
       </div>
       <button class="bp" onclick="doRegister()">S'INSCRIRE</button>
     </div>
@@ -511,7 +511,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
     <div class="frow"><div class="fs"><label class="fl">Prénom</label><input class="fi" id="epPr"></div><div class="fs"><label class="fl">Nom</label><input class="fi" id="epNo"></div></div>
     <div class="fs"><label class="fl">Téléphone *</label><input class="fi" id="epTe" type="tel"></div>
     <div class="fs"><label class="fl">Pseudo</label><input class="fi" id="epPs"></div>
-    <div class="fs"><label class="fl">Discipline</label><div class="rg"><div class="ro"><input type="radio" name="epD" id="epd1" value="Route"><label class="rl" for="epd1">🔵 Route</label></div><div class="ro"><input type="radio" name="epD" id="epd2" value="VTT"><label class="rl" for="epd2">🟢 VTT</label></div><div class="ro"><input type="radio" name="epD" id="epd3" value="Les deux"><label class="rl" for="epd3">🚴 Les deux</label></div></div></div>
+    <div class="fs"><label class="fl">Discipline</label><div class="rg" data-dbox="epD"></div></div>
     <div class="sep"></div>
     <div style="font-family:'Barlow Condensed';font-size:12px;font-weight:700;margin-bottom:7px;color:var(--j);">🔑 Changer mot de passe</div>
     <div class="frow"><div class="fs"><label class="fl">Nouveau mot de passe</label><input class="fi" id="epPn" type="password" placeholder="Laisser vide = inchangé"></div><div class="fs"><label class="fl">Confirmer</label><input class="fi" id="epPc" type="password"></div></div>
@@ -699,7 +699,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   <div class="fs"><label class="fl">Téléphone * (06 ou 07)</label><input class="fi" id="nmTe" type="tel" placeholder="0612345678"></div>
   <div class="fs"><label class="fl">Pseudo</label><input class="fi" id="nmPs" placeholder="ex: Jean59"></div>
   <div class="fs"><label class="fl">Rôle</label><select class="fse" id="nmRo"><option value="participant">🚴 Membre</option><option value="admin">👑 Administrateur</option><option id="nmRoSup" value="superviseur">⭐ Superviseur</option></select></div>
-  <div class="fs"><label class="fl">Discipline</label><div class="rg"><div class="ro"><input type="radio" name="nmDi" id="nmd1" value="Route"><label class="rl" for="nmd1">🔵 Route</label></div><div class="ro"><input type="radio" name="nmDi" id="nmd2" value="VTT"><label class="rl" for="nmd2">🟢 VTT</label></div><div class="ro"><input type="radio" name="nmDi" id="nmd3" value="Les deux"><label class="rl" for="nmd3">🚴 Les deux</label></div></div></div>
+  <div class="fs"><label class="fl">Discipline</label><div class="rg" data-dbox="nmDi"></div></div>
   <div class="sms-box">🔑 Login et mot de passe générés automatiquement — affichés à l'écran pour communication au nouveau membre.</div>
   <button class="bp" onclick="createNewMem()">CRÉER LE MEMBRE</button>
 </div></div>
@@ -931,7 +931,7 @@ window.doRegister=async()=>{
   const te=document.getElementById('iTel').value.trim().replace(/\s/g,'');
   const ps=document.getElementById('iPseudo').value.trim();
   const pw=document.getElementById('iPwd2').value.trim();
-  const di=document.querySelector('input[name="iDisc"]:checked')?.value||'Route';
+  const di=discRead('iDisc')||'Route';
   if(!pr||!no){showT('Prénom et Nom requis !');return;}
   if(!te||!/^(06|07)[0-9]{8}$/.test(te)){showT('Téléphone invalide !');return;}
   if(!pw||pw.length<6){showT('Mot de passe minimum 6 caractères !');return;}
@@ -1201,9 +1201,12 @@ function evFml(ev){
   if(ev.type==='sportif')return(ev.disciplines||[]).filter(d=>DISC[d]).map(d=>({d}));
   return[];
 }
+const depOf=(f,p)=>{const a=f&&f.deps?(Array.isArray(f.deps)?f.deps:Object.values(f.deps)):[];return a.find(x=>x&&+x.p===+p)||null;};
+const depTxt=x=>x?[x.h,x.l].filter(Boolean).join(' · '):'';
+const hasDeps=ev=>evFml(ev).some(f=>f.deps&&(Array.isArray(f.deps)?f.deps.length:Object.keys(f.deps).length));
 function fmlLine(f){
   let s=`${DISC[f.d].i} <b>${f.d}</b>`;
-  if(f.parcours)s+=' '+kmTxt(f.parcours)+' km';
+  if(f.parcours){const pk=parseKm(f.parcours);s+=f.deps&&pk.length?' '+pk.map(p=>{const d=depOf(f,p);return p+' km'+(d?` <small>(${hx(depTxt(d))})</small>`:'');}).join(' · '):' '+kmTxt(f.parcours)+' km';}
   if(f.tarif!=null){s+=' · '+eur(f.tarif);if(f.tarifJ!=null)s+=` (${eur(f.tarifJ)} −12 ans)`;}
   if(f.note)s+=` · <i>${hx(f.note)}</i>`;
   return s;
@@ -1284,7 +1287,7 @@ function evCard(ev){
     const pp=DORD.filter(d=>cn[d]).map(d=>`${DISC[d].i} ${d} <b>${cn[d]}</b>`);if(sc)pp.push(`sans choix <b>${sc}</b>`);
     dcH=`<div class="dcnt">${pp.join(' · ')}${canMgEv()&&anyE?` · 💶 ≈ ${eur(est)} (tarifs adultes)`:''}</div>`;
   }
-  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${lgBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
+  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${lgBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
 }
 window.setPart=async(evId,s)=>{
   if(!CU){showT('Connectez-vous !');return;}
@@ -1323,7 +1326,7 @@ function rMembers(){
   document.getElementById('memList').innerHTML=MEs.map(m=>{
     const r=m.role||'participant';const avCls=r==='superviseur'?'avs':r==='admin'?'ava':'avm';
     const avH=m.photo?`<img src="${m.photo}">`:(m.prenom||'?')[0].toUpperCase();
-    return`<div class="cc"><div class="cav ${avCls}">${avH}</div><div style="flex:1;min-width:0;"><div class="cn2">${m.prenom} ${m.nom}</div>${m.pseudo?`<div class="cpd">@${m.pseudo}</div>`:''}<div class="ci">${RL[r]?.l||r}${m.disc?' · '+m.disc:''}</div></div><div class="cacts">${m.tel?`<button class="ib wa" onclick="oWA('${m.tel}')">💬</button><button class="ib ph" onclick="callM('${m.tel}')">📞</button>`:''}</div></div>`;
+    return`<div class="cc"><div class="cav ${avCls}">${avH}</div><div style="flex:1;min-width:0;"><div class="cn2">${m.prenom} ${m.nom}</div>${m.pseudo?`<div class="cpd">@${m.pseudo}</div>`:''}<div class="ci">${RL[r]?.l||r}${m.disc?' · '+discTxt(m.disc):''}</div></div><div class="cacts">${m.tel?`<button class="ib wa" onclick="oWA('${m.tel}')">💬</button><button class="ib ph" onclick="callM('${m.tel}')">📞</button>`:''}</div></div>`;
   }).join('');
 }
 
@@ -1347,13 +1350,13 @@ function rProf(){
   document.getElementById('pPseu').textContent=CU.pseudo?`@${CU.pseudo}`:'Aucun pseudo';
   const rb=document.getElementById('pRole');rb.textContent=RL[r]?.l||r;rb.style.cssText=`background:rgba(128,128,128,.1);color:${RL[r]?.col||'#fff'};border:1px solid ${RL[r]?.col||'#fff'};`;
   document.getElementById('epPr').value=CU.prenom||'';document.getElementById('epNo').value=CU.nom||'';document.getElementById('epTe').value=CU.tel||'';document.getElementById('epPs').value=CU.pseudo||'';
-  const dr=document.querySelector(`input[name="epD"][value="${CU.disc}"]`);if(dr)dr.checked=true;
+  discSet('epD',CU.disc);
   document.getElementById('epPn').value='';document.getElementById('epPc').value='';
 }
 window.saveProf=async()=>{
   const pr=document.getElementById('epPr').value.trim();const no=document.getElementById('epNo').value.trim().toUpperCase();
   const te=document.getElementById('epTe').value.trim().replace(/\s/g,'');const ps=document.getElementById('epPs').value.trim();
-  const di=document.querySelector('input[name="epD"]:checked')?.value||CU.disc;
+  const di=discRead('epD')||CU.disc;
   if(!pr||!no){showT('Prénom et Nom requis !');return;}
   if(!te||!/^(06|07)[0-9]{8}$/.test(te)){showT('Téléphone invalide !');return;}
   const pn=document.getElementById('epPn').value.trim();const pc=document.getElementById('epPc').value.trim();
@@ -1461,14 +1464,14 @@ window.exportMembersExcel=()=>{
 
 window.openNewMem=()=>{
   ['nmPr','nmNo','nmTe','nmPs'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('nmRo').value='participant';document.querySelectorAll('input[name="nmDi"]').forEach(r=>r.checked=false);
+  document.getElementById('nmRo').value='participant';discSet('nmDi','');
   const so=document.getElementById('nmRoSup');if(so)so.style.display=isSup()?'':'none';
   document.getElementById('mNewMem').classList.add('open');
 };
 window.createNewMem=async()=>{
   const pr=document.getElementById('nmPr').value.trim();const no=document.getElementById('nmNo').value.trim().toUpperCase();
   const te=document.getElementById('nmTe').value.trim().replace(/\s/g,'');const ps=document.getElementById('nmPs').value.trim();
-  const ro=document.getElementById('nmRo').value;const di=document.querySelector('input[name="nmDi"]:checked')?.value||'Route';
+  const ro=document.getElementById('nmRo').value;const di=discRead('nmDi')||'Route';
   if(!pr||!no){showT('Prénom et Nom requis !');return;}
   if(!te||!/^(06|07)[0-9]{8}$/.test(te)){showT('Téléphone invalide !');return;}
   if(!isSup()&&ro==='superviseur'){showT('Seul un superviseur peut créer ce rôle !');return;}
@@ -1669,7 +1672,7 @@ function impBuildRow(sheet,line,g){
   const data={type,nom,date:dt.iso,heure:tm.val||'À confirmer',lieu,desc:impTxt(g('desc')),image:null};
   const num=f=>{const s=String(g(f)??'').trim().replace(',','.');if(s==='')return null;const v=parseFloat(s);return isNaN(v)||v<0?null:v;};
   const ta=num('tarif'),tj=num('tarifj');
-  const urlOk=(f,k)=>{const u=String(g(f)??'').trim();if(u){if(/^https?:\/\/\S+$/i.test(u))data[k]=u;else R.warns.push('Lien ignoré (il doit commencer par https://)');}};
+  const urlOk=(f,k)=>{const u=String(g(f)??'').trim();if(u){if(/\.\.\.|…/.test(u))R.warns.push('Lien incomplet (il contient « ... ») : ignoré');else if(/^https?:\/\/\S+$/i.test(u))data[k]=u;else R.warns.push('Lien ignoré (il doit commencer par https://)');}};
   if(type==='sportif'||type==='festif'){
     const dn=impNorm(g('dep'));if(/voiture|vehicule|covoit/.test(dn))data.transport='voiture';else if(/velo/.test(dn))data.transport='velo';
     const bn=impNorm(g('bar'));data.barMode=/ouv|oui/.test(bn)?'ouvert':/ferm|non/.test(bn)?'ferme':'decider';
@@ -1685,6 +1688,7 @@ function impBuildRow(sheet,line,g){
     if(dsm.length===1){
       const f={d:dsm[0]};if(pc)f.parcours=pc;if(ta!=null)f.tarif=ta;if(tj!=null)f.tarifJ=tj;
       const nt=impTxt(g('note'));if(nt)f.note=nt.slice(0,120);
+      {const pk=parseKm(pc);if(pk.length===1&&(tm.val||lieu)){const o={p:pk[0]};if(tm.val)o.h=tm.val;if(lieu)o.l=lieu;f.deps=[o];}}
       R.formules=[f];
     }else if(dsm.length>1){
       R.formules=dsm.map(d=>({d}));
@@ -1712,6 +1716,11 @@ function impFinal(R){
   d.disciplines=ds_of(R,d);
   const ks=R.formules.flatMap(f=>parseKm(f.parcours));
   d.km=ks.length?Math.max(...ks):(R.kmv||0);
+  // départs multiples : heure = la plus tôt, lieu = le plus fréquent ; détails gardés seulement s'ils diffèrent
+  const hs=R.hs||[],times=hs.map(x=>x.h).filter(h=>/^\d/.test(h||'')).sort();if(times.length)d.heure=times[0];
+  const cnt={};hs.forEach(x=>{if(x.l)cnt[x.l]=(cnt[x.l]||0)+1;});const best=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];if(best)d.lieu=best[0];
+  const real=R.formules.some(f=>(f.deps||[]).some(x=>(x.h&&x.h!==d.heure)||(x.l&&x.l!==d.lieu)));
+  R.formules.forEach(f=>{if(!real)delete f.deps;});
 }
 
 function impParse(wb){
@@ -1737,12 +1746,18 @@ function impParse(wb){
   });
   // Regroupement : lignes du même évènement (même date + même nom) avec des disciplines différentes
   const out=[],grp=new Map();
+  const sameKm=(a,b)=>{const x=parseKm(a.parcours),y=parseKm(b.parcours);if(!x.length&&!y.length)return true;return x.some(v=>y.includes(v));};
   rows.forEach(r=>{
+    if(r.data&&!r.hs)r.hs=[{h:r.data.heure,l:r.lieu}];
     if(r.status!=='ok'||!r.data||r.data.type!=='sportif'){out.push(r);return;}
     const k=(r.date||'')+'|'+impNorm(r.nom),t=grp.get(k);
     if(t){
-      const clash=!r.formules.length||r.formules.some(f=>t.formules.some(x=>x.d===f.d));
-      if(!clash){t.formules.push(...r.formules);t.lines.push(r.line);t.warns.push(...r.warns);
+      const clash=!r.formules.length||r.formules.some(f=>t.formules.some(x=>x.d===f.d&&sameKm(f,x)));
+      if(!clash){
+        r.formules.forEach(f=>{const ex=t.formules.find(x=>x.d===f.d);
+          if(ex){ex.parcours=[...new Set([...parseKm(ex.parcours),...parseKm(f.parcours)])].join('/');if(f.deps)ex.deps=[...(ex.deps||[]),...f.deps];if(ex.tarif==null&&f.tarif!=null)ex.tarif=f.tarif;if(ex.tarifJ==null&&f.tarifJ!=null)ex.tarifJ=f.tarifJ;}
+          else t.formules.push(f);});
+        t.lines.push(r.line);t.warns.push(...r.warns);t.hs.push(...r.hs);
         if(t.data.heure==='À confirmer'&&r.data.heure!=='À confirmer')t.data.heure=r.data.heure;
         if(!t.data.desc&&r.data.desc)t.data.desc=r.data.desc;
         t.kmv=Math.max(t.kmv||0,r.kmv||0);return;}
@@ -1895,15 +1910,20 @@ function admAfter(){if(!isAdm())return;admTiles();admRenderBar();admFilterMem();
 // ═══ MULTI-DISCIPLINES : formulaire ═══
 function buildFml(){
   const c=document.getElementById('evFml');if(!c)return;
-  c.innerHTML=DORD.map(d=>`<div class="fml" id="fm-${d}" style="display:none"><div class="fmt">${DISC[d].i} ${d} — parcours &amp; tarifs</div><input class="fi" id="fp-${d}" placeholder="Parcours en km, ex : 28/38/48"><div class="frow"><input class="fi" id="ft-${d}" type="number" min="0" step="0.5" placeholder="Tarif adulte €"><input class="fi" id="fj-${d}" type="number" min="0" step="0.5" placeholder="Tarif −12 ans €"></div><input class="fi" id="fn-${d}" placeholder="Remarque (ex : GPS uniquement)"></div>`).join('');
+  c.innerHTML=DORD.map(d=>`<div class="fml" id="fm-${d}" style="display:none"><div class="fmt">${DISC[d].i} ${d} — parcours &amp; tarifs</div><input class="fi" id="fp-${d}" placeholder="Parcours en km, ex : 28/38/48"><div class="frow"><input class="fi" id="ft-${d}" type="number" min="0" step="0.5" placeholder="Tarif adulte €"><input class="fi" id="fj-${d}" type="number" min="0" step="0.5" placeholder="Tarif −12 ans €"></div><input class="fi" id="fn-${d}" placeholder="Remarque (ex : GPS uniquement)"><textarea class="fta" id="fd-${d}" rows="3" style="min-height:56px;" placeholder="Départs différents selon la distance (facultatif), 1 ligne par distance :&#10;130 ; 07:00 ; Wallers-Arenberg"></textarea></div>`).join('');
 }
 window.onDisc=()=>{DORD.forEach(d=>{const on=document.getElementById(DCB[d])?.checked,b=document.getElementById('fm-'+d);if(b)b.style.display=on?'':'none';});};
+function readDeps(txt){
+  const out=[];String(txt||'').split(/\n/).forEach(line=>{const a=line.split(';').map(x=>x.trim());const k=parseKm(a[0])[0];if(!k)return;const t=impTime(a[1]||'');const o={p:k};if(t.val)o.h=t.val;const l=impTxt(a.slice(2).join(';'));if(l)o.l=l.slice(0,80);if(o.h||o.l)out.push(o);});
+  return out;
+}
 function readFormules(){
   const formules=[],disciplines=[];let km=0;
   DORD.forEach(d=>{
     if(!document.getElementById(DCB[d])?.checked)return;
     disciplines.push(d);
     const f={d},p=kmTxt(document.getElementById('fp-'+d).value);if(p)f.parcours=p;
+    {const pk=parseKm(p),dp=readDeps(document.getElementById('fd-'+d)?.value).filter(x=>pk.includes(x.p));if(dp.length)f.deps=dp;}
     const t=document.getElementById('ft-'+d).value,j=document.getElementById('fj-'+d).value,n=document.getElementById('fn-'+d).value.trim();
     if(t!==''&&!isNaN(parseFloat(t)))f.tarif=Math.max(0,parseFloat(t));
     if(j!==''&&!isNaN(parseFloat(j)))f.tarifJ=Math.max(0,parseFloat(j));
@@ -1918,7 +1938,8 @@ function fillFormules(ev){
   const fm=evFml(ev);
   fm.forEach(f=>{const cb=document.getElementById(DCB[f.d]);if(cb)cb.checked=true;
     const set=(k,v)=>{const el=document.getElementById(k+'-'+f.d);if(el&&v!=null)el.value=v;};
-    set('fp',f.parcours?kmTxt(f.parcours).replace(/\//g,'/'):'');set('ft',f.tarif);set('fj',f.tarifJ);set('fn',f.note);});
+    set('fp',f.parcours?kmTxt(f.parcours).replace(/\//g,'/'):'');set('ft',f.tarif);set('fj',f.tarifJ);set('fn',f.note);
+    const dl=document.getElementById('fd-'+f.d);if(dl)dl.value=(f.deps?(Array.isArray(f.deps)?f.deps:Object.values(f.deps)):[]).map(x=>`${x.p} ; ${x.h||''} ; ${x.l||''}`).join('\n');});
   if((ev.disciplines||[]).includes('Festivité'))document.getElementById('dcF').checked=true;
   if(!(ev.formules&&ev.formules.length)&&ev.km)document.getElementById('evKm').value=ev.km;
   onDisc();
@@ -1932,7 +1953,7 @@ function fillExtras(ev){
 function resetMore(){
   {document.getElementById('evLg').checked=false;document.getElementById('evLgB').value='';document.getElementById('evLgR').checked=true;document.getElementById('evLgP').value='';document.getElementById('evLgT').checked=true;document.getElementById('evLgC').value='6';lgTog();}
   ['evHf','evOrg','evAff','evInsc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  DORD.forEach(d=>['fp','ft','fj','fn'].forEach(k=>{const el=document.getElementById(k+'-'+d);if(el)el.value='';}));
+  DORD.forEach(d=>['fp','ft','fj','fn','fd'].forEach(k=>{const el=document.getElementById(k+'-'+d);if(el)el.value='';}));
   onDisc();
   document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value==='decider'));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===''));
 }
@@ -1944,7 +1965,7 @@ window.pickDisc=evId=>{
   const ev=EVs.find(e=>e.id===evId);if(!ev)return;const o=optsDisc(ev);if(!o.length)return;
   discCtx={id:evId,o};
   document.getElementById('discNom').textContent=ev.nom+' — '+fmtS(ev.date);
-  document.getElementById('discBtns').innerHTML=o.map((x,i)=>`<button class="bp" style="margin:4px 0;" onclick="setDisc(${i})">${DISC[x.d].i} ${x.d}${x.p?' — '+x.p+' km':''}${x.f&&x.f.tarif!=null?' · '+eur(x.f.tarif):''}</button>`).join('')+`<button class="bv2btn" style="width:100%;margin-top:6px;padding:8px;" onclick="setDisc(-1)">🤷 Je choisirai plus tard</button>`;
+  document.getElementById('discBtns').innerHTML=o.map((x,i)=>`<button class="bp" style="margin:4px 0;" onclick="setDisc(${i})">${DISC[x.d].i} ${x.d}${x.p?' — '+x.p+' km':''}${x.f&&x.p&&depOf(x.f,x.p)?' ('+hx(depTxt(depOf(x.f,x.p)))+')':''}${x.f&&x.f.tarif!=null?' · '+eur(x.f.tarif):''}</button>`).join('')+`<button class="bv2btn" style="width:100%;margin-top:6px;padding:8px;" onclick="setDisc(-1)">🤷 Je choisirai plus tard</button>`;
   document.getElementById('mDisc').classList.add('open');
 };
 window.setDisc=async i=>{
@@ -1990,11 +2011,11 @@ function xlRows(list){
   const out=[];
   list.forEach(e=>{
     const fm=evFml(e),hasF=(e.disciplines||[]).includes('Festivité');
-    const mk=f=>[T[e.type]||'',e.nom||'',e.categorie||'',f?f.d:(hasF?'Festivité':''),f&&f.parcours?kmTxt(f.parcours):'',
+    const mk=(f,hh,ll)=>[T[e.type]||'',e.nom||'',e.categorie||'',f?f.d:(hasF?'Festivité':''),f&&f.parcours?kmTxt(f.parcours):'',
       f&&f.tarif!=null?f.tarif:(!f&&e.type==='festif'&&e.tarif?e.tarif:''),f&&f.tarifJ!=null?f.tarifJ:'',f&&f.note?f.note:'',
-      e.date||'',/^\d/.test(e.heure||'')?e.heure:'',e.heureFin||'',e.lieu||'',e.organisateur||'',e.affil||'',e.type==='club'?'':(B[e.barMode]||''),({velo:'Vélo',voiture:'Voiture'})[e.transport]||'',
+      e.date||'',/^\d/.test(hh||e.heure||'')?(hh||e.heure):'',e.heureFin||'',ll||e.lieu||'',e.organisateur||'',e.affil||'',e.type==='club'?'':(B[e.barMode]||''),({velo:'Vélo',voiture:'Voiture'})[e.transport]||'',
       e.linkInsc||'',e.linkFb||'',e.linkGpx||'',e.km||'',e.desc||''];
-    if(fm.length)fm.forEach(f=>out.push(mk(f)));else out.push(mk(null));
+    if(fm.length)fm.forEach(f=>{const pk=parseKm(f.parcours);if(f.deps&&pk.length)pk.forEach(k=>{const x=depOf(f,k);out.push(mk({...f,parcours:String(k)},x&&x.h,x&&x.l));});else out.push(mk(f));});else out.push(mk(null));
   });
   return out;
 }
@@ -2056,7 +2077,7 @@ function shortCard(ev){
   const org=(ev.type==='sportif'&&!isOwn(ev))?` <span class="hdep" style="background:rgba(66,103,178,.15);color:#1e3a8a;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
   const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
-  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${lieuTxt?`<div class="hs">🏁 ${lieuTxt}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgdShow('${ev.id}')">🚗 logistique</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgdShow('${ev.id}')">🚗 logistique</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
 }
 function renderHomeBar(T,E){
   const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
@@ -2351,6 +2372,7 @@ window.annBuild=()=>{
     t+=`\n📅 ${fmtS(e.date).replace(/ \d{4}$/,'')}${h?' à '+h:''}${isFerie(e.date)?' (férié)':''} — ${e.nom}\n`;
     const v=cityOf(e.lieu);t+=`📍 ${e.lieu||v||'Lieu à confirmer'}\n`;
     const k=plainT(kmSummary(e));if(k)t+=`${k}\n`;
+    if(hasDeps(e))evFml(e).forEach(f=>parseKm(f.parcours).forEach(pp=>{const x=depOf(f,pp);if(x)t+=`   • ${f.d} ${pp} km : ${depTxt(x)}\n`;}));
     if(e.transport==='voiture')t+='🚗 Véhicule nécessaire\n';
     if(e.organisateur&&!isOwn(e))t+=`🤝 Organisé par ${e.organisateur}\n`;
     if(e.logi){t+=`🧳 Sortie spéciale : inscrivez-vous dans l’application${e.logi.butoir?' avant le '+fmtS(e.logi.butoir).replace(/ \d{4}$/,''):''} (choix VTT/marche, covoiturage, repas).\n`;}
@@ -2489,6 +2511,14 @@ window.lgdShow=id=>{
   document.getElementById('mLogiD').classList.add('open');
 };
 window.lgdCopy=async()=>{try{await navigator.clipboard.writeText(lgdTxt);showT('Récapitulatif copié.');}catch(e){showT('Copie impossible.');}};
+
+// ═══ PROFIL : plusieurs disciplines (Route, VTT, Gravel, Marche) ═══
+const discList=v=>String(v||'').replace(/Les deux/i,'Route, VTT').split(/[,+\/]/).map(x=>x.trim()).filter(x=>DISC[x]);
+function discTxt(v){const a=discList(v);return a.length?a.join(', '):String(v||'');}
+function discBoxes(){document.querySelectorAll('[data-dbox]').forEach(c=>{const n=c.getAttribute('data-dbox');c.innerHTML=DORD.map((d,i)=>`<div class="ro"><input type="checkbox" name="${n}" id="${n}_${i}" value="${d}"><label class="rl" for="${n}_${i}">${DISC[d].i} ${d}</label></div>`).join('');});}
+function discRead(n){return DORD.filter(d=>document.querySelector(`input[name="${n}"][value="${d}"]`)?.checked).join(', ');}
+function discSet(n,v){const a=discList(v);document.querySelectorAll(`input[name="${n}"]`).forEach(r=>r.checked=a.includes(r.value));}
+discBoxes();
 
 </script>
 </body>
