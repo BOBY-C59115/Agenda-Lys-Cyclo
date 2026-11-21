@@ -400,6 +400,17 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 .lgc{border:1px solid var(--bb);border-radius:8px;padding:6px 8px;margin-bottom:6px;font-size:12px;color:var(--t);background:#fff;line-height:1.55;}
 .lgc h4{font-size:13px;margin-bottom:2px;}
 .lgw{color:var(--R);font-weight:700;}.lgg{color:var(--V);font-weight:700;}
+.lgtabs{display:flex;gap:5px;margin:6px 0 8px;}
+.lgtabs button{flex:1;padding:9px 4px;background:var(--bc);border:2px solid var(--bb);border-radius:8px;color:var(--t);font-weight:700;font-size:12px;cursor:pointer;}
+.lgtabs button.on{border-color:var(--j);background:var(--jg);color:var(--j);}
+#mSortie .mdl{max-width:560px;}
+#mLogi{z-index:300;}
+.vh{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:700;}
+.vb{height:7px;border-radius:4px;background:var(--bb);margin:3px 0 4px;overflow:hidden;}.vb i{display:block;height:100%;background:var(--V);}.vb i.f{background:var(--R);}
+.lgr{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--bb);font-size:12px;color:var(--t);}
+.lgr:last-child{border-bottom:0;}.lgr select{max-width:48%;font-size:11px;padding:4px;border:1px solid var(--bb);border-radius:6px;background:#fff;color:var(--t);}
+.lgr .ib{padding:3px 7px;background:transparent;border:1px solid var(--bb);border-radius:6px;font-size:12px;cursor:pointer;color:var(--t);}
+.lgsm{font-size:10px;color:var(--td);}
 </style>
 </head>
 <body>
@@ -640,23 +651,27 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 
 <!-- MODAL CHOIX DE DISCIPLINE -->
 <div class="mo" id="mLogi"><div class="mdl">
-  <button class="mc" onclick="cm('mLogi')">×</button><div class="mt2">🧳 MA PARTICIPATION</div>
-  <div class="imp-note" id="lgNom"></div>
-  <div class="lgq">Je viens en tant que…</div><div class="lgo" id="lgRole"></div>
+  <button class="mc" onclick="cm('mLogi')">×</button><div class="mt2">🧳 INSCRIPTION</div>
+  <div class="imp-note" id="lgNom"></div><div id="lgWho" style="font-weight:700;color:var(--j);font-size:13px;"></div>
+  <div class="lgq">1️⃣ Je viens en tant que…</div><div class="lgo" id="lgRole"></div>
+  <div id="lgDistW" style="display:none"><div class="lgq">Quelle distance ?</div><div class="lgo" id="lgDist"></div></div>
   <div id="lgArrW" style="display:none"><div class="lgq">J’arrive vers (heure, si après le départ)</div><input class="fi" id="lgArr" type="time"></div>
-  <div class="lgq">🚩 Aller</div><div class="lgo" id="lgAl"></div>
-  <div class="lgq">🏁 Retour</div><div class="lgo" id="lgRe"></div>
-  <div id="lgCondW" style="display:none" class="lgc"><b>🚗 Ma voiture</b>
-    <div class="frow"><div class="fs"><label class="fl">Places passagers (sans moi)</label><input class="fi" id="lgPl" type="number" min="0" value="3"></div><div class="fs"><label class="fl">Places vélos (le mien compris)</label><input class="fi" id="lgPv" type="number" min="0" value="2"></div></div>
-    <label class="admchk" id="lgRemW"><input type="checkbox" id="lgRem"> 🚛 Je prends la remorque (<span id="lgRemC">6</span> vélos)</label></div>
-  <div id="lgRepW"><div class="lgq">🍽️ Repas : nombre de personnes (moi compris, 0 = pas de repas)</div><input class="fi" id="lgRn" type="number" min="0" value="1"></div>
+  <div class="lgq">2️⃣ 🚩 Aller</div><div class="lgo" id="lgAl"></div>
+  <div id="lgCAl" style="display:none" class="lgc"><b>🚗 Mes places à l’aller</b>
+    <div class="frow"><div class="fs"><label class="fl">Passagers (sans moi)</label><input class="fi" id="lgPla" type="number" min="0" value="3"></div><div class="fs"><label class="fl">Vélos (le mien compris)</label><input class="fi" id="lgPva" type="number" min="0" value="2"></div></div></div>
+  <div class="lgq">3️⃣ 🏁 Retour</div><div class="lgo" id="lgRe"></div>
+  <div id="lgCRe" style="display:none" class="lgc"><b>🚗 Mes places au retour</b>
+    <div class="frow"><div class="fs"><label class="fl">Passagers (sans moi)</label><input class="fi" id="lgPlr" type="number" min="0" value="3"></div><div class="fs"><label class="fl">Vélos (le mien compris)</label><input class="fi" id="lgPvr" type="number" min="0" value="2"></div></div></div>
+  <label class="admchk" id="lgRemW" style="display:none"><input type="checkbox" id="lgRem"> 🚛 J’attelle la remorque du club (<span id="lgRemC">6</span> vélos en plus)</label>
+  <div id="lgRepW"><div class="lgq">4️⃣ 🍽️ Repas : nombre de personnes (moi compris, 0 = pas de repas)</div><input class="fi" id="lgRn" type="number" min="0" value="1"></div>
   <button class="bp" style="margin-top:10px;width:100%;" onclick="lgSave()">✅ ENREGISTRER</button>
 </div></div>
 
-<div class="mo" id="mLogiD"><div class="mdl">
-  <button class="mc" onclick="cm('mLogiD')">×</button><div class="mt2">🚗 LOGISTIQUE</div>
-  <div class="imp-note" id="lgdNom"></div><div id="lgdBody"></div>
-  <button class="be" style="margin-top:6px;width:100%;padding:9px;" onclick="lgdCopy()">📋 Copier le récapitulatif</button>
+<div class="mo" id="mSortie"><div class="mdl">
+  <button class="mc" onclick="cm('mSortie')">×</button><div class="mt2">🧳 SORTIE SPÉCIALE</div>
+  <div class="imp-note" id="lgsNom"></div>
+  <div class="lgtabs"><button id="lgt_i" onclick="lgTabGo('i')">👥 Inscrits</button><button id="lgt_v" onclick="lgTabGo('v')">🚗 Voitures</button><button id="lgt_r" onclick="lgTabGo('r')">📊 Récap</button></div>
+  <div id="lgsBody"></div>
 </div></div>
 
 <div class="mo" id="mPart"><div class="mdl">
@@ -1273,7 +1288,7 @@ function evCard(ev){
   const cr=MEs.find(x=>x.id===ev.createdBy);const crN=cr?(cr.pseudo||(cr.prenom+' '+cr.nom.split(' ')[0])):'?';
   const imgH=ev.image?`<img src="${ev.image}" class="eimg" alt="">`:'';
   const tH=ev.tarif?`<div class="tbadge">💶 ${parseFloat(ev.tarif).toFixed(2)} €/pers.</div>`:(ev.type==='festif'?'<div style="font-size:9px;color:var(--V);font-weight:700;margin-bottom:4px;">✓ Gratuit</div>':'');
-  const admH=canMgEv()?`<div class="cact"><button class="be" onclick="openEdit('${ev.id}')">✏️ Modifier</button><button class="bd" onclick="confDelEv('${ev.id}')">🗑 Supprimer</button></div>`:'';
+  const admH=canMgEv()?`<div class="cact"><button class="be" onclick="openEdit('${ev.id}')">✏️ Modifier</button><button class="be" onclick="openDup('${ev.id}')">📄 Dupliquer</button><button class="bd" onclick="confDelEv('${ev.id}')">🗑 Supprimer</button></div>`:'';
   const linksH=(ev.linkFb||ev.linkGpx||ev.linkInsc)?`<div class="evlinks">${ev.linkInsc?`<a href="${ev.linkInsc}" target="_blank" rel="noopener" class="evlink-btn evlink-gpx">📝 S’inscrire en ligne</a>`:''}${ev.linkFb?`<a href="${ev.linkFb}" target="_blank" class="evlink-btn evlink-fb">📘 Facebook</a>`:''}${ev.linkGpx?`<a href="${ev.linkGpx}" target="_blank" class="evlink-btn evlink-gpx">🗺 Trace GPX</a>`:''}</div>`:'';
   const fmL=evFml(ev),ops=optsDisc(ev);
   const fmH=(ev.formules&&ev.formules.length)?`<div class="fmls">${fmL.map(f=>`<div>${fmlLine(f)}</div>`).join('')}</div>`:'';
@@ -1295,7 +1310,7 @@ window.setPart=async(evId,s)=>{
   const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})};
   if(parts[CU.id]===s){delete parts[CU.id];delete choix[CU.id];delete lg[CU.id];}
   else{
-    if(ev.logi&&(s==='oui'||s==='benev')){lgOpen(evId,s);return;}
+    if(ev.logi&&(s==='oui'||s==='benev')){lgOpen(evId,s,CU.id);return;}
     if(s==='oui'){const o=optsDisc(ev);if(o.length>1){pickDisc(evId);return;}if(o.length===1)choix[CU.id]=o[0].p?{d:o[0].d,p:o[0].p}:{d:o[0].d};}
     else delete choix[CU.id];
     if(s==='non'||s==='nsp')delete lg[CU.id];
@@ -1507,6 +1522,7 @@ window.openEdit=evId=>{
   fillExtras(ev);
   document.getElementById('mCreate').classList.add('open');
 };
+window.openDup=evId=>{openEdit(evId);editEvId=null;document.getElementById('mCrtTitle').textContent='DUPLIQUER L’ÉVÉNEMENT';document.getElementById('evSvBtn').textContent='CRÉER LA COPIE';document.getElementById('evDa').value='';if(document.getElementById('evLgB'))document.getElementById('evLgB').value='';showT('Choisissez la nouvelle date.');};
 window.onEvT=()=>{const t=document.querySelector('input[name="evT"]:checked')?.value;document.getElementById('evBody').classList.toggle('v',!!t);document.getElementById('evSpo').classList.toggle('v',t==='sportif');document.getElementById('evFes').classList.toggle('v',t==='festif');document.getElementById('evClub').classList.toggle('v',t==='club');document.getElementById('evLinks').classList.toggle('v',t==='sportif');document.getElementById('evXtra').classList.toggle('v',t==='sportif');};
 window.evIUp=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{evImgD=e.target.result;document.getElementById('evIPr').src=evImgD;document.getElementById('evIPr').style.display='block';document.getElementById('evIZ').style.display='none';document.getElementById('evIDl').style.display='';};r.readAsDataURL(f);};
 window.evIDel=()=>{evImgD=null;document.getElementById('evIPr').src='';document.getElementById('evIPr').style.display='none';document.getElementById('evIZ').style.display='';document.getElementById('evIDl').style.display='none';};
@@ -2077,7 +2093,7 @@ function shortCard(ev){
   const org=(ev.type==='sportif'&&!isOwn(ev))?` <span class="hdep" style="background:rgba(66,103,178,.15);color:#1e3a8a;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
   const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
-  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgdShow('${ev.id}')">🚗 logistique</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgSortie('${ev.id}')">🚗 logistique</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
 }
 function renderHomeBar(T,E){
   const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
@@ -2393,124 +2409,235 @@ window.annBuild=()=>{
 window.annCopy=async()=>{const v=document.getElementById('annTx').value;try{await navigator.clipboard.writeText(v);showT('Texte copié : collez-le dans Messenger.');}catch(e){const a=document.getElementById('annTx');a.select();try{document.execCommand('copy');showT('Texte copié : collez-le dans Messenger.');}catch(x){showT('Copie impossible : sélectionnez le texte à la main.');}}};
 window.annShare=async()=>{const v=document.getElementById('annTx').value;if(navigator.share){try{await navigator.share({text:v});return;}catch(e){if(e&&e.name==='AbortError')return;}}annCopy();};
 
-// ═══ SORTIE SPÉCIALE AVEC LOGISTIQUE (inscriptions, covoiturage, repas) ═══
+// ═══ SORTIE SPÉCIALE AVEC LOGISTIQUE (inscriptions, covoiturage, repas, paiements) ═══
 function lgTog(){const e=document.getElementById('evLgF');if(e)e.style.display=document.getElementById('evLg').checked?'':'none';}
 window.lgTog=lgTog;
-const LG_AR=[['velo','🚴 À vélo depuis le club'],['cond','🚗 Conducteur'],['pass','🪑 Passager'],['seul','➡️ Par mes moyens']];
-const LG_BIKE=r=>r&&DISC[r.role]&&r.role!=='Marche';
-const lgHasBike=r=>LG_BIKE(r)||r.al==='velo';
-const lgDays=b=>{if(!b)return null;const[y,m,d]=b.split('-').map(Number);const t=new Date();const a=new Date(y,m-1,d),n=new Date(t.getFullYear(),t.getMonth(),t.getDate());return Math.round((a-n)/864e5);};
-const lgRows=ev=>Object.entries(ev.logiRep||{}).filter(([id])=>{const v=(ev.participations||{})[id];return v==='oui'||v==='benev';}).map(([id,r])=>({id,n:getMN(id),...r}));
-function lgStat(ev){
-  const R=lgRows(ev),L=ev.logi||{},cap=L.remorqueCap||6;
-  const out={R};
-  out.repas=R.reduce((a,r)=>a+(+r.rn||0),0);
-  [['al','Aller'],['re','Retour']].forEach(([k])=>{
-    const cs=R.filter(r=>r[k]==='cond'),ps=R.filter(r=>r[k]==='pass');
-    const seats=cs.reduce((a,r)=>a+(+r.pl||0),0),rem=cs.filter(r=>r.rem),bikesSup=cs.reduce((a,r)=>a+(+r.pv||0),0)+(L.remorque!==false?rem.length*cap:0);
-    const bikes=R.filter(r=>lgHasBike(r)&&(r[k]==='cond'||r[k]==='pass'));
-    out[k]={cs,ps,seats,rem,bikesSup,bikes,seatMiss:Math.max(0,ps.length-seats),bikeMiss:Math.max(0,bikes.length-bikesSup)};
-  });
-  return out;
+const LG_AR=[['velo','🚴 À vélo depuis le club'],['cond','🚗 Conducteur'],['pass','🪑 Passager'],['seul','➡️ Par mes moyens / pas ce trajet']];
+const lgHasBike=r=>(r.role&&DISC[r.role]&&r.role!=='Marche')||r.al==='velo';
+const lgDays=b=>{if(!b)return null;const[y,m,d]=b.split('-').map(Number);const t=new Date();return Math.round((new Date(y,m-1,d)-new Date(t.getFullYear(),t.getMonth(),t.getDate()))/864e5);};
+const lgOffer=(r,leg,k)=>{const v=r[k+(leg==='al'?'a':'r')];return v!=null?+v||0:(+r[k]||0);};
+const canAssign=ev=>!!CU&&(canMgEv()||ev.createdBy===CU.id);
+const lgOnly=ev=>Object.entries(ev.participations||{}).filter(([,v])=>v==='oui'||v==='benev').map(([id])=>id);
+function lgRows(ev){
+  return lgOnly(ev).map(id=>{const r=(ev.logiRep||{})[id];return r?{id,n:getMN(id),...r}:{id,n:getMN(id),none:true};});
 }
+function lgVeh(R,ev,k){
+  const L=ev.logi||{},cap=L.remorqueCap||6,remOK=L.remorque!==false;
+  const remHolder=(R.find(r=>r.rem&&(r.al==='cond'||r.re==='cond'))||{}).id;
+  const key=k==='al'?'va':'vr';
+  const vs=R.filter(r=>r[k]==='cond').map(r=>({id:r.id,n:r.n,seats:lgOffer(r,k,'pl'),bikes:lgOffer(r,k,'pv')+(remOK&&r.id===remHolder?cap:0),rem:remOK&&r.id===remHolder,own:lgHasBike(r)?1:0,ps:[],role:r.role}));
+  const ps=R.filter(r=>r[k]==='pass');
+  ps.forEach(r=>{const v=vs.find(x=>x.id===r[key]);if(v)v.ps.push(r);});
+  vs.forEach(v=>{v.bUsed=v.own+v.ps.filter(lgHasBike).length;});
+  const unp=ps.filter(r=>!vs.some(x=>x.id===r[key]));
+  const seatsTot=vs.reduce((a,v)=>a+v.seats,0),bikesTot=vs.reduce((a,v)=>a+v.bikes,0);
+  const bikeNeed=R.filter(r=>lgHasBike(r)&&(r[k]==='cond'||r[k]==='pass')).length;
+  return{vs,ps,unp,seatsTot,bikesTot,bikeNeed,seatMiss:Math.max(0,ps.length-seatsTot),bikeMiss:Math.max(0,bikeNeed-bikesTot),vel:R.filter(r=>r[k]==='velo'),remMany:R.filter(r=>r.rem&&(r.al==='cond'||r.re==='cond'))};
+}
+function lgPrice(ev,r){const L=ev.logi||{};const f=evFml(ev).find(x=>x.d===r.role);return(f&&f.tarif!=null?+f.tarif:0);}
+function lgDue(ev,r){const L=ev.logi||{};return lgPrice(ev,r)+(L.repas!==false&&L.repasPrix?(+r.rn||0)*L.repasPrix:0);}
 function lgBar(ev){
   if(!ev.logi)return'';
-  const L=ev.logi,d=lgDays(L.butoir),st=lgStat(ev);
+  const L=ev.logi,d=lgDays(L.butoir),R=lgRows(ev).filter(r=>!r.none);
+  const repas=R.reduce((a,r)=>a+(+r.rn||0),0);
   let b='';
   if(L.butoir)b=d===null?'':d<0?`⏳ Inscriptions closes depuis le ${fmtS(L.butoir)}`:d===0?'⏳ <b>Dernier jour pour s’inscrire !</b>':`⏳ Inscriptions avant le <b>${fmtS(L.butoir)}</b> (encore ${d} jour${d>1?'s':''})`;
-  const my=CU&&ev.logiRep&&ev.logiRep[CU.id],mp=CU&&(ev.participations||{})[CU.id];
-  return`<div class="lgbar">🧳 <b>Sortie spéciale</b>${b?'<br>'+b:''}${L.repas!==false?`<br>🍽️ Repas : <b>${st.repas}</b> personne${st.repas>1?'s':''}${L.repasPrix?' · '+eur(L.repasPrix)+' / pers.':''}`:''}<div class="lgb">${(mp==='oui'||mp==='benev')?`<button onclick="lgOpen('${ev.id}','${mp}')">✏️ ${my?'Modifier ma logistique':'Compléter ma logistique'}</button>`:''}<button onclick="lgdShow('${ev.id}')">🚗 Voir la logistique</button></div>${(mp!=='oui'&&mp!=='benev')?'<div class="hint" style="margin-top:3px;">Touchez « Participe » ou « Bénévole » pour répondre.</div>':''}</div>`;
+  const mp=CU&&(ev.participations||{})[CU.id],my=CU&&ev.logiRep&&ev.logiRep[CU.id];
+  return`<div class="lgbar">🧳 <b>Sortie spéciale</b>${b?'<br>'+b:''}${L.repas!==false?`<br>🍽️ Repas : <b>${repas}</b> personne${repas>1?'s':''}${L.repasPrix?' · '+eur(L.repasPrix)+' / pers.':''}`:''}<div class="lgb"><button onclick="lgSortie('${ev.id}')">🧳 Ouvrir la sortie spéciale</button>${(mp==='oui'||mp==='benev')?`<button onclick="lgOpen('${ev.id}','${mp}','${CU.id}')">✏️ ${my?'Mon inscription':'Compléter mon inscription'}</button>`:''}</div>${(mp!=='oui'&&mp!=='benev')?'<div class="hint" style="margin-top:3px;">Touchez « Participe » ou « Bénévole » pour vous inscrire.</div>':''}</div>`;
 }
+// ----- formulaire d'inscription (pour soi, ou pour un autre : administrateur / organisateur)
 let lgCtx=null;
-window.lgOpen=(evId,s)=>{
-  const ev=EVs.find(e=>e.id===evId);if(!ev||!CU)return;
-  const my=(ev.logiRep&&ev.logiRep[CU.id])||{},L=ev.logi;
-  lgCtx={id:evId,s};
+const lgRadio=(name,arr,c,fn)=>arr.map(([v,l])=>`<label><input type="radio" name="${name}" value="${v}" ${String(v)===String(c)?'checked':''} onchange="${fn}"><span>${l}</span></label>`).join('');
+window.lgOpen=(evId,s,tid)=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!CU)return;tid=tid||CU.id;
+  if(tid!==CU.id&&!canAssign(ev)){showT('Accès refusé.');return;}
+  const my=(ev.logiRep&&ev.logiRep[tid])||{},L=ev.logi;
+  lgCtx={id:evId,s,tid};
   document.getElementById('lgNom').textContent=ev.nom+' — '+fmtS(ev.date);
+  document.getElementById('lgWho').textContent=tid===CU.id?'':'Inscription de : '+fullName(tid);
   const dsc=(ev.disciplines||[]).filter(d=>DISC[d]);
   const roles=dsc.map(d=>[d,DISC[d].i+' '+d]).concat([['benev','🤝 Bénévole accompagnateur'],['repas','🍽️ Seulement le repas']]);
   let cur=my.role||(s==='benev'?'benev':dsc[0]||'benev');if(!roles.some(x=>x[0]===cur))cur='benev';
-  const radio=(name,arr,c,fn)=>arr.map(([v,l])=>`<label><input type="radio" name="${name}" value="${v}" ${v===c?'checked':''} onchange="${fn}"><span>${l}</span></label>`).join('');
-  document.getElementById('lgRole').innerHTML=radio('lgr',roles,cur,'lgUp()');
-  document.getElementById('lgAl').innerHTML=radio('lga',LG_AR,my.al||'',  'lgUp()');
-  document.getElementById('lgRe').innerHTML=radio('lgb',LG_AR,my.re||'','lgUp()');
+  document.getElementById('lgRole').innerHTML=lgRadio('lgr',roles,cur,'lgUp(1)');
+  document.getElementById('lgAl').innerHTML=lgRadio('lga',LG_AR,my.al||'','lgUp()');
+  document.getElementById('lgRe').innerHTML=lgRadio('lgb',LG_AR,my.re||'','lgUp()');
   document.getElementById('lgArr').value=my.arr||'';
-  document.getElementById('lgPl').value=my.pl!=null?my.pl:3;document.getElementById('lgPv').value=my.pv!=null?my.pv:2;
+  const nv=(id,v,d)=>{document.getElementById(id).value=v!=null?v:d;};
+  nv('lgPla',my.pla!=null?my.pla:my.pl,3);nv('lgPva',my.pva!=null?my.pva:my.pv,2);nv('lgPlr',my.plr!=null?my.plr:my.pl,3);nv('lgPvr',my.pvr!=null?my.pvr:my.pv,2);
   document.getElementById('lgRem').checked=!!my.rem;document.getElementById('lgRemC').textContent=L.remorqueCap||6;
-  document.getElementById('lgRemW').style.display=L.remorque!==false?'':'none';
   document.getElementById('lgRepW').style.display=L.repas!==false?'':'none';
-  document.getElementById('lgRn').value=my.rn!=null?my.rn:1;
-  lgUp();document.getElementById('mLogi').classList.add('open');
+  nv('lgRn',my.rn,1);
+  lgCtx.p=my.p!=null?my.p:'';
+  lgUp(1);document.getElementById('mLogi').classList.add('open');
 };
-window.lgUp=()=>{
+window.lgUp=chg=>{
   const g=n=>document.querySelector(`input[name="${n}"]:checked`)?.value||'';
-  const r=g('lgr');document.getElementById('lgArrW').style.display=(r==='benev'||r==='repas')?'':'none';
-  document.getElementById('lgCondW').style.display=(g('lga')==='cond'||g('lgb')==='cond')?'':'none';
+  const ev=EVs.find(e=>e.id===lgCtx.id),r=g('lgr'),al=g('lga'),re=g('lgb');
+  document.getElementById('lgArrW').style.display=(r==='benev'||r==='repas')?'':'none';
+  document.getElementById('lgCAl').style.display=al==='cond'?'':'none';
+  document.getElementById('lgCRe').style.display=re==='cond'?'':'none';
+  document.getElementById('lgRemW').style.display=(ev.logi.remorque!==false&&(al==='cond'||re==='cond'))?'':'none';
+  if(chg){
+    const o=DISC[r]?optsDisc(ev).filter(x=>x.d===r&&x.p):[];
+    if(o.length>1){document.getElementById('lgDistW').style.display='';
+      document.getElementById('lgDist').innerHTML=lgRadio('lgp',o.map(x=>{const d=depOf(x.f,x.p);return[x.p,x.p+' km'+(d?' <small>('+hx(depTxt(d))+')</small>':'')+(x.f.tarif!=null?' · '+eur(x.f.tarif):'')];}).concat([['','🤷 À choisir plus tard']]),String(lgCtx.p),'');}
+    else{document.getElementById('lgDistW').style.display='none';document.getElementById('lgDist').innerHTML='';}
+  }
 };
 window.lgSave=async()=>{
   if(!CU||!lgCtx)return;
-  const ev=EVs.find(e=>e.id===lgCtx.id);if(!ev)return;
+  const ev=EVs.find(e=>e.id===lgCtx.id);if(!ev)return;const tid=lgCtx.tid;
   const g=n=>document.querySelector(`input[name="${n}"]:checked`)?.value||'';
   const role=g('lgr'),al=g('lga'),re=g('lgb');
-  if(!role){showT('Choisissez votre rôle.');return;}
+  if(!role){showT('Choisissez le rôle.');return;}
   if(!al||!re){showT('Précisez l’aller et le retour.');return;}
   const num=(id,d)=>{const v=parseInt(document.getElementById(id).value);return isNaN(v)||v<0?d:v;};
+  const old=(ev.logiRep&&ev.logiRep[tid])||{};
   const rec={role,al,re,rn:ev.logi.repas!==false?num('lgRn',1):0};
+  const pv=g('lgp');if(DISC[role]&&pv!=='')rec.p=parseFloat(pv);
   if(role==='benev'||role==='repas'){const a=document.getElementById('lgArr').value;if(a)rec.arr=a;}
-  if(al==='cond'||re==='cond'){rec.pl=num('lgPl',0);rec.pv=num('lgPv',0);if(ev.logi.remorque!==false&&document.getElementById('lgRem').checked)rec.rem=true;}
+  if(al==='cond'){rec.pla=num('lgPla',0);rec.pva=num('lgPva',0);}
+  if(re==='cond'){rec.plr=num('lgPlr',0);rec.pvr=num('lgPvr',0);}
+  if((al==='cond'||re==='cond')&&ev.logi.remorque!==false&&document.getElementById('lgRem').checked)rec.rem=true;
+  if(al==='pass'&&old.va)rec.va=old.va;if(re==='pass'&&old.vr)rec.vr=old.vr;
+  if(old.pay)rec.pay=old.pay;
   const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})};
   const isD=!!DISC[role];
-  parts[CU.id]=isD?'oui':'benev';
-  if(isD)choix[CU.id]={d:role};else delete choix[CU.id];
-  lg[CU.id]=rec;
+  parts[tid]=isD?'oui':'benev';
+  if(isD)choix[tid]=rec.p?{d:role,p:rec.p}:{d:role};else delete choix[tid];
+  lg[tid]=rec;
   cm('mLogi');
   await evWrite(ev,{participations:parts,choix:Object.keys(choix).length?choix:null,logiRep:lg});
-  showT('Réponse enregistrée !');
+  showT('Inscription enregistrée !');
 };
-let lgdTxt='';
-window.lgdShow=id=>{
-  const ev=EVs.find(e=>e.id===id);if(!ev||!ev.logi)return;
-  const L=ev.logi,st=lgStat(ev),R=st.R,fm=evFml(ev),tar=d=>{const f=fm.find(x=>x.d===d);return f&&f.tarif!=null?f.tarif:null;};
-  const dsc=(ev.disciplines||[]).filter(d=>DISC[d]);
-  let h='',t=`🧳 ${ev.nom} — ${fmtS(ev.date)}\n`;
-  const dd=lgDays(L.butoir);
-  if(L.butoir){const m=dd<0?`Inscriptions closes depuis le ${fmtS(L.butoir)}`:`Date limite : ${fmtS(L.butoir)}${dd===0?' (aujourd’hui)':' (encore '+dd+' j)'}`;h+=`<div class="lgc ${dd!==null&&dd<=3&&dd>=0?'lgw':''}">⏳ ${m}</div>`;t+=m+'\n';}
-  // inscriptions
-  let cost=0,any=false;
-  h+='<div class="lgc"><h4>📝 Inscriptions à faire</h4>';t+='\nINSCRIPTIONS\n';
-  dsc.forEach(d=>{const x=R.filter(r=>r.role===d);if(!x.length&&d!=='VTT'&&d!=='Marche')return;const p=tar(d);if(p!=null&&x.length){cost+=p*x.length;any=true;}
-    h+=`<div>${DISC[d].i} <b>${d}</b> : ${x.length}${p!=null?' × '+eur(p):''}${x.length?' — '+x.map(r=>hx(r.n)).join(', '):''}</div>`;t+=`${d} : ${x.length}${x.length?' — '+x.map(r=>r.n).join(', '):''}\n`;});
-  if(any){h+=`<div><b>Total estimé : ${eur(cost)}</b> (tarifs adultes)</div>`;t+=`Total estimé : ${eur(cost)}\n`;}
-  h+='</div>';
-  // repas
-  if(L.repas!==false){
-    const late=R.filter(r=>(r.role==='benev'||r.role==='repas')&&r.arr);
-    h+=`<div class="lgc"><h4>🍽️ Repas : ${st.repas} personne${st.repas>1?'s':''}</h4>${L.repasPrix?`<div>${eur(L.repasPrix)} / pers. → ${eur(L.repasPrix*st.repas)}</div>`:''}${late.length?`<div>Arrivées après le départ : ${late.map(r=>hx(r.n)+' ('+r.arr+')').join(', ')}</div>`:''}</div>`;
-    t+=`\nREPAS : ${st.repas} personne(s)\n`;if(late.length)t+='Arrivées tardives : '+late.map(r=>r.n+' ('+r.arr+')').join(', ')+'\n';
-  }
-  // transport
-  [['al','🚩 Aller'],['re','🏁 Retour']].forEach(([k,lab])=>{
-    const o=st[k];
-    h+=`<div class="lgc"><h4>${lab}</h4>`;t+=`\n${lab.replace(/^\S+ /,'').toUpperCase()}\n`;
-    const vel=R.filter(r=>r[k]==='velo');
-    if(vel.length){h+=`<div>🚴 À vélo : ${vel.map(r=>hx(r.n)).join(', ')}</div>`;t+='À vélo : '+vel.map(r=>r.n).join(', ')+'\n';}
-    o.cs.forEach(r=>{h+=`<div>🚗 <b>${hx(r.n)}</b> — ${r.pl||0} place${(r.pl||0)>1?'s':''}, ${r.pv||0} vélo${(r.pv||0)>1?'s':''}${r.rem?' · 🚛 remorque ('+(L.remorqueCap||6)+' vélos)':''}</div>`;t+=`Voiture ${r.n} : ${r.pl||0} places, ${r.pv||0} vélos${r.rem?', remorque':''}\n`;});
-    if(!o.cs.length){h+='<div>Aucun conducteur pour le moment.</div>';t+='Aucun conducteur.\n';}
-    if(o.ps.length){h+=`<div>🪑 Passagers : ${o.ps.map(r=>hx(r.n)).join(', ')}</div>`;t+='Passagers : '+o.ps.map(r=>r.n).join(', ')+'\n';}
-    const sOk=!o.seatMiss,bOk=!o.bikeMiss;
-    h+=`<div class="${sOk?'lgg':'lgw'}">${sOk?'✅':'⚠️'} Places : ${o.ps.length} demandée${o.ps.length>1?'s':''} / ${o.seats} offerte${o.seats>1?'s':''}${sOk?'':' — il manque '+o.seatMiss+' place'+(o.seatMiss>1?'s':'')}</div>`;
-    h+=`<div class="${bOk?'lgg':'lgw'}">${bOk?'✅':'⚠️'} Vélos à transporter : ${o.bikes.length} / ${o.bikesSup} emplacement${o.bikesSup>1?'s':''}${bOk?'':' — il manque '+o.bikeMiss+' emplacement'+(o.bikeMiss>1?'s':'')}</div>`;
-    t+=`Places : ${o.ps.length}/${o.seats}${sOk?'':' (manque '+o.seatMiss+')'} — Vélos : ${o.bikes.length}/${o.bikesSup}${bOk?'':' (manque '+o.bikeMiss+')'}\n`;
-    if(L.remorque!==false&&o.bikes.length>0&&!o.rem.length){h+='<div class="lgw">⚠️ Personne ne prend la remorque.</div>';t+='⚠️ Personne ne prend la remorque.\n';}
-    h+='</div>';
+// ----- écran de la sortie spéciale
+let lgEvId=null,lgTab='i';
+window.lgSortie=(id,tab)=>{lgEvId=id;lgTab=tab||'i';lgRender();document.getElementById('mSortie').classList.add('open');};
+window.lgdShow=window.lgSortie;
+window.lgTabGo=t=>{lgTab=t;lgRender();};
+function lgLive(){if(lgEvId&&document.getElementById('mSortie')&&document.getElementById('mSortie').classList.contains('open'))lgRender();}
+const _rb0=rebuildEVs;rebuildEVs=function(){_rb0.apply(this,arguments);lgLive();};
+function lgPatch(ev,fn){const lg=JSON.parse(JSON.stringify(ev.logiRep||{}));fn(lg);return evWrite(ev,{logiRep:Object.keys(lg).length?lg:null});}
+window.lgAssign=(evId,pid,leg,vid)=>{const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;lgPatch(ev,lg=>{const k=leg==='al'?'va':'vr';if(lg[pid]){if(vid)lg[pid][k]=vid;else delete lg[pid][k];}});};
+window.lgAuto=async evId=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;
+  let n=0;
+  await lgPatch(ev,lg=>{
+    ['al','re'].forEach(k=>{
+      const R=lgRows({...ev,logiRep:lg}).filter(r=>!r.none),V=lgVeh(R,ev,k),key=k==='al'?'va':'vr',oth=k==='al'?'vr':'va';
+      V.unp.slice().sort((a,b)=>(lgHasBike(b)?1:0)-(lgHasBike(a)?1:0)).forEach(r=>{
+        const bike=lgHasBike(r);
+        const ok=V.vs.filter(v=>v.seats-v.ps.length>0&&(!bike||v.bikes-v.bUsed>0));
+        if(!ok.length)return;
+        const v=ok.find(x=>x.id===r[oth])||ok.sort((a,b)=>(b.seats-b.ps.length)-(a.seats-a.ps.length))[0];
+        lg[r.id][key]=v.id;v.ps.push(r);if(bike)v.bUsed++;n++;
+      });
+    });
   });
-  const nr=Math.max(0,MEs.length-Object.keys(ev.participations||{}).length);
-  document.getElementById('lgdNom').textContent=ev.nom+' — '+fmtS(ev.date);
-  document.getElementById('lgdBody').innerHTML=h+`<div class="hint">${R.length} réponse${R.length>1?'s':''} logistique · ${nr} adhérent${nr>1?'s':''} sans réponse</div>`;
-  lgdTxt=t;
-  document.getElementById('mLogiD').classList.add('open');
+  showT(n?`${n} placement${n>1?'s':''} proposé${n>1?'s':''} — corrigez si besoin.`:'Rien à placer (ou plus de place).');
 };
-window.lgdCopy=async()=>{try{await navigator.clipboard.writeText(lgdTxt);showT('Récapitulatif copié.');}catch(e){showT('Copie impossible.');}};
+window.lgPay=(evId,pid,on)=>{const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;lgPatch(ev,lg=>{if(lg[pid]){if(on)lg[pid].pay=isoL(new Date());else delete lg[pid].pay;}});};
+window.lgDel=(evId,pid)=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!(canAssign(ev)||pid===CU.id))return;
+  conf('RETIRER L’INSCRIPTION',fullName(pid)+' sera retiré(e) de cette sortie.',async()=>{
+    const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})};
+    delete parts[pid];delete choix[pid];delete lg[pid];
+    Object.values(lg).forEach(r=>{if(r.va===pid)delete r.va;if(r.vr===pid)delete r.vr;});
+    await evWrite(ev,{participations:parts,choix:Object.keys(choix).length?choix:null,logiRep:Object.keys(lg).length?lg:null});showT('Inscription retirée.');});
+};
+window.lgAddSel=evId=>{const v=document.getElementById('lgAddM').value;if(!v){showT('Choisissez un adhérent.');return;}const ev=EVs.find(e=>e.id===evId);lgOpen(evId,'oui',v);};
+const lgTag=r=>{if(r.none)return'<span class="lgsm">⚠️ logistique à compléter</span>';const nm={benev:'🤝 Bénévole',repas:'🍽️ Repas seul'};return DISC[r.role]?`${DISC[r.role].i} ${r.role}${r.p?' '+r.p+' km':''}`:(nm[r.role]||'');};
+const lgIc={velo:'🚴',cond:'🚗',pass:'🪑',seul:'➡️'};
+function lgRender(){
+  const ev=EVs.find(e=>e.id===lgEvId);if(!ev||!ev.logi){cm('mSortie');return;}
+  ['i','v','r'].forEach(t=>document.getElementById('lgt_'+t).classList.toggle('on',t===lgTab));
+  document.getElementById('lgsNom').textContent=ev.nom+' — '+fmtS(ev.date)+(ev.lieu?' · '+ev.lieu:'');
+  const L=ev.logi,R=lgRows(ev),RR=R.filter(r=>!r.none),adm=canAssign(ev),dd=lgDays(L.butoir);
+  let h='';
+  if(L.butoir)h+=`<div class="lgc ${dd!==null&&dd>=0&&dd<=3?'lgw':''}">⏳ ${dd<0?'Inscriptions closes depuis le '+fmtS(L.butoir):'Date limite : '+fmtS(L.butoir)+(dd===0?' (aujourd’hui)':' (encore '+dd+' j)')}</div>`;
+  if(lgTab==='i'){
+    const mp=CU&&(ev.participations||{})[CU.id];
+    h+=`<div class="lgb" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">${CU&&mp!=='oui'&&mp!=='benev'?`<button class="bp" style="flex:1;" onclick="lgOpen('${ev.id}','oui','${CU.id}')">✅ Je m’inscris</button>`:''}</div>`;
+    if(adm)h+=`<div class="lgc"><b>➕ Inscrire quelqu’un</b><div class="frow" style="margin-top:4px;"><select class="fi" id="lgAddM"><option value="">— adhérent —</option>${MEs.slice().sort((a,b)=>String(a.nom).localeCompare(String(b.nom))).filter(m=>!lgOnly(ev).includes(m.id)).map(m=>`<option value="${hx(m.id)}">${hx(m.nom+' '+m.prenom)}</option>`).join('')}</select><button class="bp" style="flex:0 0 auto;padding:8px 12px;" onclick="lgAddSel('${ev.id}')">OK</button></div></div>`;
+    h+=`<div class="lgc"><h4>👥 ${R.length} inscrit${R.length>1?'s':''}</h4>`+(R.length?R.map(r=>{
+      const trs=r.none?'':`${lgIc[r.al]||''}→ ${lgIc[r.re]||''}←${r.rn?' · 🍽️'+r.rn:''}${r.arr?' · ⏰'+r.arr:''}`;
+      const due=r.none?0:lgDue(ev,r);
+      return`<div class="lgr"><span><b>${hx(r.n)}</b> ${lgTag(r)}<br><span class="lgsm">${trs}${adm&&due?` · ${eur(due)}${r.pay?' ✅ payé le '+fmtS(r.pay):' ⏳ à payer'}`:''}</span></span><span style="white-space:nowrap">${adm&&due?`<button class="ib" title="Paiement" onclick="lgPay('${ev.id}','${r.id}',${r.pay?'false':'true'})">${r.pay?'↩️':'💶'}</button> `:''}${(adm||r.id===(CU&&CU.id))?`<button class="ib" onclick="lgOpen('${ev.id}','oui','${r.id}')">✏️</button> <button class="ib" onclick="lgDel('${ev.id}','${r.id}')">🗑</button>`:''}</span></div>`;}).join(''):'<div class="hint">Personne pour le moment.</div>')+'</div>';
+  }
+  if(lgTab==='v'){
+    if(adm)h+=`<button class="bp" style="width:100%;margin-bottom:6px;" onclick="lgAuto('${ev.id}')">🪄 Répartir automatiquement</button>`;
+    [['al','🚩 Aller'],['re','🏁 Retour']].forEach(([k,lab])=>{
+      const V=lgVeh(RR,ev,k),key=k==='al'?'va':'vr';
+      h+=`<div class="lgc"><h4>${lab}</h4>`;
+      if(!V.vs.length)h+='<div class="hint">Aucun véhicule déclaré pour ce trajet.</div>';
+      V.vs.forEach(v=>{
+        const rs=v.seats-v.ps.length,rb=v.bikes-v.bUsed,over=rs<0||rb<0;
+        const sel=r=>adm?`<select onchange="lgAssign('${ev.id}','${r.id}','${k}',this.value)"><option value="">— retirer —</option>${V.vs.map(x=>`<option value="${hx(x.id)}" ${x.id===v.id?'selected':''}>${hx(x.n)}</option>`).join('')}</select>`:'';
+        h+=`<div class="lgc" style="border-color:${over?'var(--R)':'var(--bb)'}"><div class="vh"><span>🚗 ${hx(v.n)}${v.rem?' 🚛':''}</span><span class="${over?'lgw':'lgsm'}">${v.ps.length}/${v.seats} pl. · ${v.bUsed}/${v.bikes} vélos</span></div><div class="vb"><i class="${over?'f':''}" style="width:${Math.min(100,v.seats?v.ps.length/v.seats*100:0)}%"></i></div>${v.ps.map(r=>`<div class="lgr"><span>🪑 ${hx(r.n)}${lgHasBike(r)?' 🚲':''}</span>${sel(r)}</div>`).join('')||'<div class="lgsm">Personne pour l’instant.</div>'}</div>`;
+      });
+      if(V.unp.length)h+=`<div class="lgc" style="border-color:var(--R)"><b class="lgw">⚠️ Sans place (${V.unp.length})</b>${V.unp.map(r=>`<div class="lgr"><span>🪑 ${hx(r.n)}${lgHasBike(r)?' 🚲':''}</span>${adm&&V.vs.length?`<select onchange="lgAssign('${ev.id}','${r.id}','${k}',this.value)"><option value="">— placer —</option>${V.vs.map(x=>`<option value="${hx(x.id)}">${hx(x.n)} (${x.seats-x.ps.length} pl.)</option>`).join('')}</select>`:''}</div>`).join('')}</div>`;
+      if(V.vel.length)h+=`<div class="lgsm">🚴 À vélo : ${V.vel.map(r=>hx(r.n)).join(', ')}</div>`;
+      const sOk=!V.seatMiss,bOk=!V.bikeMiss;
+      h+=`<div class="${sOk?'lgg':'lgw'}">${sOk?'✅':'⚠️'} Places : ${V.ps.length} demandée${V.ps.length>1?'s':''} / ${V.seatsTot} offerte${V.seatsTot>1?'s':''}${sOk?'':' — manque '+V.seatMiss}</div><div class="${bOk?'lgg':'lgw'}">${bOk?'✅':'⚠️'} Vélos : ${V.bikeNeed} / ${V.bikesTot} emplacement${V.bikesTot>1?'s':''}${bOk?'':' — manque '+V.bikeMiss}</div>`;
+      if(L.remorque!==false&&V.bikeNeed>0&&!V.vs.some(v=>v.rem))h+='<div class="lgw">⚠️ Personne n’attelle la remorque.</div>';
+      if(V.remMany.length>1)h+=`<div class="lgw">⚠️ Une seule remorque : ${V.remMany.map(r=>hx(r.n)).join(', ')} l’ont cochée (seule la première compte).</div>`;
+      h+='</div>';
+    });
+  }
+  if(lgTab==='r'){h+=lgRecap(ev,RR,adm);}
+  document.getElementById('lgsBody').innerHTML=h;
+}
+function lgRecap(ev,RR,adm){
+  const L=ev.logi,dsc=(ev.disciplines||[]).filter(d=>DISC[d]);
+  let h='<div class="lgc"><h4>📝 Inscriptions à faire</h4>';let cost=0;
+  dsc.forEach(d=>{const x=RR.filter(r=>r.role===d);const f=evFml(ev).find(y=>y.d===d);const pr=f&&f.tarif!=null?f.tarif:null;
+    if(!x.length&&d!=='VTT'&&d!=='Marche')return;if(pr!=null)cost+=pr*x.length;
+    const byP={};x.forEach(r=>{const k=r.p?r.p+' km':'distance ?';(byP[k]=byP[k]||[]).push(r);});
+    h+=`<div>${DISC[d].i} <b>${d}</b> : ${x.length}${pr!=null?' × '+eur(pr):''}</div>`+Object.entries(byP).map(([k,a])=>`<div class="lgsm">&nbsp;&nbsp;${k} : ${a.map(r=>hx(r.n)).join(', ')}</div>`).join('');});
+  h+=cost?`<div><b>Total inscriptions : ${eur(cost)}</b></div>`:'';h+='</div>';
+  if(L.repas!==false){const rn=RR.reduce((a,r)=>a+(+r.rn||0),0),late=RR.filter(r=>(r.role==='benev'||r.role==='repas')&&r.arr);
+    h+=`<div class="lgc"><h4>🍽️ Repas : ${rn} personne${rn>1?'s':''}</h4>${L.repasPrix?`<div>${eur(L.repasPrix)} / pers. → ${eur(L.repasPrix*rn)}</div>`:''}${late.length?`<div class="lgsm">Arrivées après le départ : ${late.map(r=>hx(r.n)+' ('+r.arr+')').join(', ')}</div>`:''}</div>`;}
+  if(adm){const due=RR.reduce((a,r)=>a+lgDue(ev,r),0),paid=RR.filter(r=>r.pay).reduce((a,r)=>a+lgDue(ev,r),0);
+    h+=`<div class="lgc"><h4>💶 Paiements</h4><div>Dû : <b>${eur(due)}</b> · Encaissé : <b>${eur(paid)}</b> · Reste : <b class="${due-paid>0?'lgw':'lgg'}">${eur(due-paid)}</b></div></div>`;}
+  [['al','Aller'],['re','Retour']].forEach(([k,lab])=>{const V=lgVeh(RR,ev,k);
+    h+=`<div class="lgc"><h4>${k==='al'?'🚩':'🏁'} ${lab}</h4><div class="${V.seatMiss?'lgw':'lgg'}">${V.seatMiss?'⚠️':'✅'} Places : ${V.ps.length} / ${V.seatsTot} (solde ${V.seatsTot-V.ps.length})</div><div class="${V.bikeMiss?'lgw':'lgg'}">${V.bikeMiss?'⚠️':'✅'} Vélos : ${V.bikeNeed} / ${V.bikesTot} (solde ${V.bikesTot-V.bikeNeed})</div>${V.unp.length?`<div class="lgw">${V.unp.length} personne${V.unp.length>1?'s':''} sans place</div>`:''}</div>`;});
+  const nr=Math.max(0,MEs.length-Object.keys(ev.participations||{}).length);
+  h+=`<div class="hint">${nr} adhérent${nr>1?'s':''} sans réponse</div><button class="be" style="margin-top:6px;width:100%;padding:9px;" onclick="lgCopy('${ev.id}')">📋 Copier le récapitulatif</button>`;
+  if(adm)h+=`<button class="bp" style="margin-top:6px;width:100%;" onclick="lgExport('${ev.id}')">📥 Exporter en Excel (suivi d’inscription)</button>`;
+  return h;
+}
+function lgText(ev){
+  const RR=lgRows(ev).filter(r=>!r.none),L=ev.logi;let t=`🧳 ${ev.nom} — ${fmtS(ev.date)}\n`;
+  if(L.butoir)t+=`Date limite : ${fmtS(L.butoir)}\n`;
+  t+='\nINSCRITS\n';(ev.disciplines||[]).filter(d=>DISC[d]).forEach(d=>{const x=RR.filter(r=>r.role===d);t+=`${d} : ${x.length}${x.length?' — '+x.map(r=>r.n+(r.p?' ('+r.p+' km)':'')).join(', '):''}\n`;});
+  if(L.repas!==false)t+=`\nREPAS : ${RR.reduce((a,r)=>a+(+r.rn||0),0)} personne(s)\n`;
+  [['al','ALLER'],['re','RETOUR']].forEach(([k,lab])=>{const V=lgVeh(RR,ev,k);t+=`\n${lab}\n`;
+    V.vs.forEach(v=>{t+=`🚗 ${v.n}${v.rem?' (remorque)':''} ${v.ps.length}/${v.seats} pl., ${v.bUsed}/${v.bikes} vélos${v.ps.length?' : '+v.ps.map(r=>r.n).join(', '):''}\n`;});
+    if(V.vel.length)t+='🚴 À vélo : '+V.vel.map(r=>r.n).join(', ')+'\n';
+    if(V.unp.length)t+='⚠️ Sans place : '+V.unp.map(r=>r.n).join(', ')+'\n';
+    t+=`Places ${V.ps.length}/${V.seatsTot} · Vélos ${V.bikeNeed}/${V.bikesTot}\n`;});
+  return t;
+}
+window.lgCopy=async id=>{const ev=EVs.find(e=>e.id===id);if(!ev)return;try{await navigator.clipboard.writeText(lgText(ev));showT('Récapitulatif copié.');}catch(e){showT('Copie impossible.');}};
+window.lgExport=async id=>{
+  const ev=EVs.find(e=>e.id===id);if(!ev||!canAssign(ev))return;
+  try{
+    const L=ev.logi,RR=lgRows(ev),f=n=>evFml(ev).find(x=>x.d===n);
+    const head=['Nb','Prénom','Nom','Adresse','Code postal','Ville','TEL','MAIL','Date naissance','Participe','Discipline','Distance (km)','Prix inscription','Repas nb','Tarif repas','Total dû','Payé le','BESOIN PLACE H/F ALLER','BESOIN PLACE VELO ALLER','BESOIN PLACE H/F RETOUR','BESOIN PLACE VELO RETOUR','Je prends ma voiture','Places H/F dispo ALLER','Places VELO dispo ALLER','Places H/F dispo RETOUR','Places VELO dispo RETOUR','Remorque','Véhicule aller','Véhicule retour','Arrivée'];
+    const rows=RR.map((r,i)=>{const m=MEs.find(x=>x.id===r.id)||{},c=!r.none;const nm=id=>id?fullName(id):'';
+      return[i+1,m.prenom||'',m.nom||'',' ','','',m.tel||'','','',(ev.participations[r.id]==='benev'?'Bénévole':'OUI'),c&&DISC[r.role]?r.role:(c?(r.role==='repas'?'Repas seul':'Bénévole'):''),c&&r.p?r.p:'',c?lgPrice(ev,r):'',c?r.rn||0:'',L.repasPrix||'',c?lgDue(ev,r):'',c&&r.pay?r.pay:'',
+        c&&r.al==='pass'?1:0,c&&lgHasBike(r)&&(r.al==='pass'||r.al==='cond')?1:0,c&&r.re==='pass'?1:0,c&&lgHasBike(r)&&(r.re==='pass'||r.re==='cond')?1:0,
+        c&&(r.al==='cond'||r.re==='cond')?'OUI':'NON',c&&r.al==='cond'?lgOffer(r,'al','pl'):0,c&&r.al==='cond'?lgOffer(r,'al','pv'):0,c&&r.re==='cond'?lgOffer(r,'re','pl'):0,c&&r.re==='cond'?lgOffer(r,'re','pv'):0,
+        c&&r.rem?'OUI':'',nm(r.va),nm(r.vr),r.arr||''];});
+    const tot=['','','','','','','','','','','','','','','','','Nb de places'];
+    const V1=lgVeh(RR.filter(r=>!r.none),ev,'al'),V2=lgVeh(RR.filter(r=>!r.none),ev,'re');
+    const bal=['','','','','','','','','','','','','','','','','Solde (offert − besoin)','',V1.seatsTot-V1.ps.length,V1.bikesTot-V1.bikeNeed,V2.seatsTot-V2.ps.length,V2.bikesTot-V2.bikeNeed];
+    const vo=[['Trajet','Véhicule (conducteur)','Remorque','Places','Vélos','Passagers']];
+    [['al','Aller'],['re','Retour']].forEach(([k,lab])=>{const V=lgVeh(RR.filter(r=>!r.none),ev,k);V.vs.forEach(v=>vo.push([lab,v.n,v.rem?'OUI':'',`${v.ps.length}/${v.seats}`,`${v.bUsed}/${v.bikes}`,v.ps.map(r=>r.n).join(', ')]));if(V.unp.length)vo.push([lab,'SANS PLACE','','','',V.unp.map(r=>r.n).join(', ')]);});
+    await xlDownload([['PARTICIPANTS',[['Inscription '+ev.nom+' '+ev.date.slice(0,4)],head,...rows,[],bal],[5,12,18,22,10,14,13,24,13,10,12,10,10,8,9,9,12,9,9,9,9,10,9,9,9,9,9,18,18,9]],['VOITURES',vo,[10,26,10,8,8,50]]],'Suivi_inscription_'+ev.nom.replace(/[^A-Za-z0-9]+/g,'-').slice(0,30)+'_'+ev.date+'.xlsx');
+    showT('Export Excel prêt.');
+  }catch(e){console.error(e);showT('Export impossible (connexion Internet nécessaire).');}
+};
 
 // ═══ PROFIL : plusieurs disciplines (Route, VTT, Gravel, Marche) ═══
 const discList=v=>String(v||'').replace(/Les deux/i,'Route, VTT').split(/[,+\/]/).map(x=>x.trim()).filter(x=>DISC[x]);
