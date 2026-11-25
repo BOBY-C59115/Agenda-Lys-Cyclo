@@ -558,7 +558,13 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   <div id="admSecE" class="admsec" style="display:none">
     <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>📅 Gestion des évènements</span></div>
   <div class="asec" id="admCfgSec"><div class="ast" style="color:var(--P);"><span>🏠 Sorties club automatiques</span></div><div class="imp-note" style="margin-top:0;">Chaque dimanche et jour férié, l'Agenda propose « Sortie club Route » et « Sortie club VTT ». Réglez ici l'heure et la distance selon la saison. Chaque sortie reste modifiable ou supprimable individuellement depuis l'Agenda.</div><div id="admCfg"></div></div>
-  <div class="asec"><div class="ast" style="color:var(--P);"><span>📋 Événements</span><span style="display:flex;gap:4px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openImport()">📥 Importer</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportEvents()">📤 Exporter</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportModel()">📄 Modèle</button></span></div><div id="admEv"></div></div>
+  <div class="asec"><div class="ast" style="color:var(--P);"><span>📋 Événements</span><span style="display:flex;gap:4px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openImport()">📥 Importer</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportEvents()">📤 Exporter</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportModel()">📄 Modèle</button></span></div><div class="agsearch"><input class="fi" id="aeQ" type="search" placeholder="🔎 Mot-clé : nom, lieu, discipline…" oninput="admEvRender()" autocomplete="off">
+      <div class="frow" style="margin-top:5px;align-items:center;"><div class="fs" style="margin:0;"><input class="fi" id="aeM" type="month" onchange="admEvRender()" aria-label="Filtrer par mois"></div><button class="be" style="flex:0 0 auto;" onclick="aeClear()">✕ Effacer</button></div></div>
+      <div class="fb" id="aeF"></div>
+      <label class="admchk"><input type="checkbox" id="aePast" onchange="admEvRender()"> Afficher aussi les évènements passés</label>
+      <div class="hint" id="aeCount" style="margin:0 0 4px;"></div>
+      <div id="admEv"></div>
+      <div id="aeBulk" style="display:none;margin-top:8px;"><button class="be" style="padding:7px 10px;" onclick="aeAll()">☑️ Tout cocher</button> <button class="bd" style="padding:7px 10px;" onclick="aeDelSel()" id="aeDelB">🗑 Supprimer la sélection</button></div></div>
   </div>
   <div id="admSecB" class="admsec" style="display:none">
     <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>🍺 Gestion du bar</span></div>
@@ -1046,7 +1052,7 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
-let agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
+let aeType='tous',aeSel=new Set(),agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
 window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
@@ -1448,9 +1454,7 @@ function rAdmin(){
   });
   memHtml += '</tbody></table></div>';
   document.getElementById('admMem').innerHTML = memHtml;
-  document.getElementById('admEv').innerHTML=EVs.some(e=>!e.virtual)?
-    EVs.filter(e=>!e.virtual).sort((a,b)=>a.date.localeCompare(b.date)).map(ev=>`<div style="display:flex;align-items:center;gap:5px;padding:4px 0;border-bottom:1px solid var(--bb);"><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:10px;">${ev.nom}</div><div style="font-size:9px;color:var(--td);">${fmtS(ev.date)} · ${ev.type}</div></div><button class="be" style="padding:2px 6px;font-size:9px;" onclick="openEdit('${ev.id}')">✏️</button><button class="bd" style="padding:2px 6px;font-size:9px;" onclick="confDelEv('${ev.id}')">🗑</button></div>`).join(''):
-    '<div style="font-size:10px;color:var(--td);">Aucun événement.</div>';
+  admEvRender();
   admAfter();
 }
 window.openEdM=mid=>{
@@ -2858,6 +2862,44 @@ window.rsExport=async id=>{
     await xlDownload([['CONVIVES',cv,[5,14,18,11,16,26,7,22,8]],['PAIEMENTS',pa,[24,10,9,9,9]],['SYNTHÈSE',sy,[22,10]]],'Reservations_'+ev.nom.replace(/[^A-Za-z0-9]+/g,'-').slice(0,30)+'_'+ev.date+'.xlsx');
     showT('Export Excel prêt.');
   }catch(e){console.error(e);showT('Export impossible (connexion Internet nécessaire).');}
+};
+
+// ═══ ADMINISTRATION › ÉVÈNEMENTS : filtres, mois, mots-clés, sélection multiple ═══
+window.aeSet=t=>{aeType=t;admEvRender();};
+window.aeClear=()=>{document.getElementById('aeQ').value='';document.getElementById('aeM').value='';document.getElementById('aePast').checked=false;aeType='tous';admEvRender();};
+function aeList(){
+  const q=document.getElementById('aeQ').value,m=document.getElementById('aeM').value,past=document.getElementById('aePast').checked,today=isoL(new Date());
+  let f=EVs.filter(e=>!e.virtual);
+  if(aeType!=='tous')f=f.filter(e=>e.type===aeType);
+  if(m)f=f.filter(e=>String(e.date).startsWith(m));
+  else if(!q.trim()&&!past)f=f.filter(e=>e.date>=today);
+  let approx=false;
+  if(q.trim()){const r=agSearch(f,q);f=r.list;approx=r.approx;}
+  if(!approx)f.sort((a,b)=>a.date.localeCompare(b.date)||String(a.heure).localeCompare(String(b.heure)));
+  return{f,approx,q,m,past};
+}
+function admEvRender(){
+  const host=document.getElementById('admEv');if(!host)return;
+  const all=EVs.filter(e=>!e.virtual);
+  const n=t=>t==='tous'?all.length:all.filter(e=>e.type===t).length;
+  document.getElementById('aeF').innerHTML=[['tous','Tout'],['sportif','🚴 Sportif'],['festif','🎉 Festif'],['club','🛠️ Vie du club']].map(([k,l])=>`<button class="hc${aeType===k?' active':''}" onclick="aeSet('${k}')">${l} (${n(k)})</button>`).join('');
+  const {f,approx,q,m,past}=aeList();
+  aeSel=new Set([...aeSel].filter(id=>all.some(e=>e.id===id)));
+  document.getElementById('aeCount').textContent=all.length?(approx?`Aucun résultat exact — approchants (${f.length})`:`${f.length} évènement${f.length>1?'s':''}`+(m||q.trim()||past?'':' à venir')+(aeSel.size?` · ${aeSel.size} sélectionné${aeSel.size>1?'s':''}`:'')):'';
+  const ic={sportif:'🚴',festif:'🎉',club:'🛠️'};
+  host.innerHTML=f.length?f.map(ev=>{const dsc=(ev.disciplines||[]).filter(d=>DISC[d]).map(d=>DISC[d].i).join('');
+    return`<div style="display:flex;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid var(--bb);"><input type="checkbox" ${aeSel.has(ev.id)?'checked':''} onchange="aeTog('${ev.id}',this.checked)" aria-label="Sélectionner" style="width:18px;height:18px;flex:0 0 auto;"><div style="flex:1;min-width:0;"><div style="font-weight:700;font-size:11px;">${hx(ev.nom)}</div><div style="font-size:10px;color:var(--td);">${fmtS(ev.date)} · ${ic[ev.type]||''} ${dsc}${ev.lieu?' · '+hx(cityOf(ev.lieu)):''}${ev.auto?' · auto':''}</div></div><button class="be" style="padding:4px 8px;font-size:11px;" onclick="openEdit('${ev.id}')">✏️</button><button class="be" style="padding:4px 8px;font-size:11px;" onclick="openDup('${ev.id}')" title="Dupliquer">📄</button><button class="bd" style="padding:4px 8px;font-size:11px;" onclick="confDelEv('${ev.id}')">🗑</button></div>`;}).join(''):`<div style="font-size:11px;color:var(--td);padding:6px 0;">${all.length?'Aucun évènement ne correspond.':'Aucun événement.'}</div>`;
+  document.getElementById('aeBulk').style.display=f.length?'':'none';
+  document.getElementById('aeDelB').textContent='🗑 Supprimer la sélection'+(aeSel.size?' ('+aeSel.size+')':'');
+}
+window.admEvRender=admEvRender;
+window.aeTog=(id,on)=>{if(on)aeSel.add(id);else aeSel.delete(id);admEvRender();};
+window.aeAll=()=>{const {f}=aeList();const allOn=f.every(e=>aeSel.has(e.id));f.forEach(e=>allOn?aeSel.delete(e.id):aeSel.add(e.id));admEvRender();};
+window.aeDelSel=()=>{
+  if(!isAdm())return;const ids=[...aeSel];if(!ids.length){showT('Cochez d’abord des évènements.');return;}
+  conf('SUPPRIMER LA SÉLECTION',`Supprimer ${ids.length} évènement${ids.length>1?'s':''} ? Cette action est définitive.`,async()=>{
+    for(const id of ids){const ev=EVs.find(e=>e.id===id);if(!ev)continue;if(ev.auto)await autoTomb(ev);else await remove(ref(db,'evenements/'+id));}
+    aeSel.clear();showT(ids.length+' évènement'+(ids.length>1?'s':'')+' supprimé'+(ids.length>1?'s':'')+'.');});
 };
 
 </script>
