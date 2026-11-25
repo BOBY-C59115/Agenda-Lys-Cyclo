@@ -411,6 +411,10 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 .lgr:last-child{border-bottom:0;}.lgr select{max-width:48%;font-size:11px;padding:4px;border:1px solid var(--bb);border-radius:6px;background:#fff;color:var(--t);}
 .lgr .ib{padding:3px 7px;background:transparent;border:1px solid var(--bb);border-radius:6px;font-size:12px;cursor:pointer;color:var(--t);}
 .lgsm{font-size:10px;color:var(--td);}
+.chip2{display:inline-block;font-size:10px;font-weight:700;border-radius:10px;padding:1px 7px;border:1px solid var(--bb);color:var(--t);}
+.chip2.g{border-color:var(--V);color:var(--V);}.chip2.o{border-color:var(--O);color:var(--t);}.chip2.r{border-color:var(--R);color:var(--R);}
+.rsl .fi{margin-bottom:5px;}
+#mResaF{z-index:300;}
 </style>
 </head>
 <body>
@@ -600,6 +604,16 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
         </div>
       </div>
     </div>
+    <div class="ts" id="evRsB"><div class="lgbox"><label class="admchk"><input type="checkbox" id="evRs" onchange="rsTog()"> 🍽️ Réservation repas <span class="hint">(plats, tables, paiements)</span></label>
+      <div id="evRsF" style="display:none">
+        <div class="fs"><label class="fl">⏳ Date limite de réservation</label><input class="fi" id="evRsB2" type="date"></div>
+        <div class="frow"><div class="fs"><label class="fl">Tarif adulte (€)</label><input class="fi" id="evRsTA" type="number" min="0" step="0.5" value="0"></div><div class="fs"><label class="fl">Tarif enfant (€)</label><input class="fi" id="evRsTE" type="number" min="0" step="0.5" value="0"></div></div>
+        <label class="admchk"><input type="checkbox" id="evRsG"> Repas des adhérents pris en charge par le club (0 €)</label>
+        <div class="frow"><div class="fs"><label class="fl">Coût traiteur adulte (€, interne)</label><input class="fi" id="evRsCA" type="number" min="0" step="0.5"></div><div class="fs"><label class="fl">Coût traiteur enfant (€)</label><input class="fi" id="evRsCE" type="number" min="0" step="0.5"></div></div>
+        <div class="fs"><label class="fl">Plats au choix (séparés par des virgules)</label><input class="fi" id="evRsP" value="Viande, Poisson"></div>
+        <div class="fs"><label class="fl">Plat des enfants</label><input class="fi" id="evRsPE" value="Menu enfant"></div>
+        <div class="frow"><div class="fs"><label class="fl">Nombre de tables (0 = sans plan)</label><input class="fi" id="evRsNT" type="number" min="0" value="0"></div><div class="fs"><label class="fl">Min / table</label><input class="fi" id="evRsMi" type="number" min="1" value="8"></div><div class="fs"><label class="fl">Max / table</label><input class="fi" id="evRsMa" type="number" min="1" value="12"></div></div>
+      </div></div></div>
     <div class="ts" id="evLinks">
       <div class="fs"><label class="fl">🔗 Lien Facebook / réseau social (optionnel)</label><input class="fi" id="evLinkFb" type="url" placeholder="https://facebook.com/evenement/..."></div>
       <div class="fs"><label class="fl">🗺 Lien trace GPX / Komoot / Garmin (optionnel)</label><input class="fi" id="evLinkGpx" type="url" placeholder="https://www.komoot.com/tour/... ou lien GPX"></div>
@@ -672,6 +686,18 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   <div class="imp-note" id="lgsNom"></div>
   <div class="lgtabs"><button id="lgt_i" onclick="lgTabGo('i')">👥 Inscrits</button><button id="lgt_v" onclick="lgTabGo('v')">🚗 Voitures</button><button id="lgt_r" onclick="lgTabGo('r')">📊 Récap</button></div>
   <div id="lgsBody"></div>
+</div></div>
+
+<div class="mo" id="mResaF"><div class="mdl">
+  <button class="mc" onclick="cm('mResaF')">×</button><div class="mt2">🍽️ MA RÉSERVATION</div>
+  <div class="imp-note" id="rfNom"></div><div id="rfBody"></div>
+</div></div>
+
+<div class="mo" id="mResa"><div class="mdl">
+  <button class="mc" onclick="cm('mResa')">×</button><div class="mt2">🍽️ RÉSERVATION</div>
+  <div class="imp-note" id="rsNom"></div>
+  <div class="lgtabs"><button id="rst_m" onclick="rsTabGo('m')">🧾 Ma réservation</button><button id="rst_t" onclick="rsTabGo('t')">🪑 Tables</button><button id="rst_o" onclick="rsTabGo('o')">👑 Organisation</button></div>
+  <div id="rsBody"></div>
 </div></div>
 
 <div class="mo" id="mPart"><div class="mdl">
@@ -1302,21 +1328,22 @@ function evCard(ev){
     const pp=DORD.filter(d=>cn[d]).map(d=>`${DISC[d].i} ${d} <b>${cn[d]}</b>`);if(sc)pp.push(`sans choix <b>${sc}</b>`);
     dcH=`<div class="dcnt">${pp.join(' · ')}${canMgEv()&&anyE?` · 💶 ≈ ${eur(est)} (tarifs adultes)`:''}</div>`;
   }
-  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${lgBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
+  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${lgBar(ev)}${rsBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
 }
 window.setPart=async(evId,s)=>{
   if(!CU){showT('Connectez-vous !');return;}
   const ev=EVs.find(e=>e.id===evId);if(!ev)return;
-  const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})};
-  if(parts[CU.id]===s){delete parts[CU.id];delete choix[CU.id];delete lg[CU.id];}
+  const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})},rs={...(ev.resaRep||{})};
+  if(parts[CU.id]===s){delete parts[CU.id];delete choix[CU.id];delete lg[CU.id];delete rs[CU.id];}
   else{
     if(ev.logi&&(s==='oui'||s==='benev')){lgOpen(evId,s,CU.id);return;}
+    if(ev.resa&&s==='oui'){rsOpen(evId,CU.id);return;}
     if(s==='oui'){const o=optsDisc(ev);if(o.length>1){pickDisc(evId);return;}if(o.length===1)choix[CU.id]=o[0].p?{d:o[0].d,p:o[0].p}:{d:o[0].d};}
     else delete choix[CU.id];
-    if(s==='non'||s==='nsp')delete lg[CU.id];
+    if(s==='non'||s==='nsp'){delete lg[CU.id];delete rs[CU.id];}
     parts[CU.id]=s;
   }
-  const pt={participations:parts,choix:Object.keys(choix).length?choix:null};if(ev.logi)pt.logiRep=Object.keys(lg).length?lg:null;
+  const pt={participations:parts,choix:Object.keys(choix).length?choix:null};if(ev.logi)pt.logiRep=Object.keys(lg).length?lg:null;if(ev.resa)pt.resaRep=Object.keys(rs).length?rs:null;
   await evWrite(ev,pt);
   showT('Réponse enregistrée !');
 };
@@ -1523,7 +1550,7 @@ window.openEdit=evId=>{
   document.getElementById('mCreate').classList.add('open');
 };
 window.openDup=evId=>{openEdit(evId);editEvId=null;document.getElementById('mCrtTitle').textContent='DUPLIQUER L’ÉVÉNEMENT';document.getElementById('evSvBtn').textContent='CRÉER LA COPIE';document.getElementById('evDa').value='';if(document.getElementById('evLgB'))document.getElementById('evLgB').value='';showT('Choisissez la nouvelle date.');};
-window.onEvT=()=>{const t=document.querySelector('input[name="evT"]:checked')?.value;document.getElementById('evBody').classList.toggle('v',!!t);document.getElementById('evSpo').classList.toggle('v',t==='sportif');document.getElementById('evFes').classList.toggle('v',t==='festif');document.getElementById('evClub').classList.toggle('v',t==='club');document.getElementById('evLinks').classList.toggle('v',t==='sportif');document.getElementById('evXtra').classList.toggle('v',t==='sportif');};
+window.onEvT=()=>{const t=document.querySelector('input[name="evT"]:checked')?.value;document.getElementById('evBody').classList.toggle('v',!!t);document.getElementById('evSpo').classList.toggle('v',t==='sportif');document.getElementById('evFes').classList.toggle('v',t==='festif');document.getElementById('evClub').classList.toggle('v',t==='club');document.getElementById('evLinks').classList.toggle('v',t==='sportif');document.getElementById('evRsB').classList.toggle('v',t==='festif'||t==='club');document.getElementById('evXtra').classList.toggle('v',t==='sportif');};
 window.evIUp=inp=>{const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{evImgD=e.target.result;document.getElementById('evIPr').src=evImgD;document.getElementById('evIPr').style.display='block';document.getElementById('evIZ').style.display='none';document.getElementById('evIDl').style.display='';};r.readAsDataURL(f);};
 window.evIDel=()=>{evImgD=null;document.getElementById('evIPr').src='';document.getElementById('evIPr').style.display='none';document.getElementById('evIZ').style.display='';document.getElementById('evIDl').style.display='none';};
 window.saveEv=async()=>{
@@ -1537,6 +1564,7 @@ window.saveEv=async()=>{
   }
   if(t==='sportif'){data.heureFin=document.getElementById('evHf').value||null;data.organisateur=document.getElementById('evOrg').value.trim()||null;data.affil=document.getElementById('evAff').value.trim()||null;const li2=document.getElementById('evInsc').value.trim();if(li2&&!/^https?:\/\/\S+$/i.test(li2)){showT('Lien d’inscription : il doit commencer par https://');return;}data.linkInsc=li2||null;}
   data.logi=(t==='sportif'&&document.getElementById('evLg').checked)?{butoir:document.getElementById('evLgB').value||null,repas:document.getElementById('evLgR').checked,repasPrix:parseFloat(document.getElementById('evLgP').value)||null,remorque:document.getElementById('evLgT').checked,remorqueCap:parseInt(document.getElementById('evLgC').value)||6}:null;
+  {const nf=id=>parseFloat(document.getElementById(id).value),pl=document.getElementById('evRsP').value.split(',').map(x=>x.trim()).filter(Boolean);data.resa=((t==='festif'||t==='club')&&document.getElementById('evRs').checked)?{butoir:document.getElementById('evRsB2').value||null,tarifAdulte:nf('evRsTA')||0,tarifEnfant:nf('evRsTE')||0,adhGratuit:document.getElementById('evRsG').checked,coutAdulte:nf('evRsCA')||0,coutEnfant:nf('evRsCE')||0,plats:pl.length?pl:['Viande','Poisson'],platEnfant:document.getElementById('evRsPE').value.trim()||'Menu enfant',nbTables:parseInt(document.getElementById('evRsNT').value)||0,tMin:parseInt(document.getElementById('evRsMi').value)||1,tMax:parseInt(document.getElementById('evRsMa').value)||12}:null;}
   data.barMode=document.querySelector('input[name="evBar"]:checked')?.value||null;data.transport=document.querySelector('input[name="evTr"]:checked')?.value||null;
   if(t==='festif'){const tf=parseFloat(document.getElementById('evTa').value);if(!isNaN(tf)&&tf>0)data.tarif=tf;}
   if(t==='club'){data.categorie=document.querySelector('input[name="evClubCat"]:checked')?.value||'Autre';}
@@ -1963,10 +1991,12 @@ function fillFormules(ev){
 function fillExtras(ev){
   const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
   s('evHf',ev.heureFin);s('evOrg',ev.organisateur);s('evAff',ev.affil);s('evInsc',ev.linkInsc);
+  {const Q=ev.resa,v=(id,x,d)=>{document.getElementById(id).value=x!=null?x:d;};document.getElementById('evRs').checked=!!Q;v('evRsB2',Q&&Q.butoir,'');v('evRsTA',Q&&Q.tarifAdulte,0);v('evRsTE',Q&&Q.tarifEnfant,0);document.getElementById('evRsG').checked=!!(Q&&Q.adhGratuit);v('evRsCA',Q&&Q.coutAdulte,'');v('evRsCE',Q&&Q.coutEnfant,'');v('evRsP',Q&&(Q.plats||[]).join(', '),'Viande, Poisson');v('evRsPE',Q&&Q.platEnfant,'Menu enfant');v('evRsNT',Q&&Q.nbTables,0);v('evRsMi',Q&&Q.tMin,8);v('evRsMa',Q&&Q.tMax,12);rsTog();}
   {const L=ev.logi;document.getElementById('evLg').checked=!!L;s('evLgB',L&&L.butoir);document.getElementById('evLgR').checked=L?L.repas!==false:true;s('evLgP',L&&L.repasPrix);document.getElementById('evLgT').checked=L?L.remorque!==false:true;s('evLgC',(L&&L.remorqueCap)||6);lgTog();}
   document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value===ev.barMode));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===(ev.transport||'')));
 }
 function resetMore(){
+  {document.getElementById('evRs').checked=false;document.getElementById('evRsB2').value='';document.getElementById('evRsTA').value='0';document.getElementById('evRsTE').value='0';document.getElementById('evRsG').checked=false;document.getElementById('evRsCA').value='';document.getElementById('evRsCE').value='';document.getElementById('evRsP').value='Viande, Poisson';document.getElementById('evRsPE').value='Menu enfant';document.getElementById('evRsNT').value='0';document.getElementById('evRsMi').value='8';document.getElementById('evRsMa').value='12';rsTog();}
   {document.getElementById('evLg').checked=false;document.getElementById('evLgB').value='';document.getElementById('evLgR').checked=true;document.getElementById('evLgP').value='';document.getElementById('evLgT').checked=true;document.getElementById('evLgC').value='6';lgTog();}
   ['evHf','evOrg','evAff','evInsc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   DORD.forEach(d=>['fp','ft','fj','fn','fd'].forEach(k=>{const el=document.getElementById(k+'-'+d);if(el)el.value='';}));
@@ -2093,7 +2123,7 @@ function shortCard(ev){
   const org=(ev.type==='sportif'&&!isOwn(ev))?` <span class="hdep" style="background:rgba(66,103,178,.15);color:#1e3a8a;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
   const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
-  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgSortie('${ev.id}')">🚗 logistique</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgSortie('${ev.id}')">🚗 logistique</a>`:''}${ev.resa?` · <a onclick="rsScreen('${ev.id}')">🍽️ réserver</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
 }
 function renderHomeBar(T,E){
   const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
@@ -2402,7 +2432,7 @@ window.annBuild=()=>{
   });}
   const T15=isoL(new Date(now.getFullYear(),now.getMonth(),now.getDate()+15));
   const soon=EVs.filter(e=>(e.type==='festif'||e.type==='club')&&e.date>=T&&e.date<=T15).sort(srt);
-  if(soon.length){t+='\n🎉 À venir\n';soon.forEach(e=>{t+=`• ${fmtS(e.date).replace(/ \d{4}$/,'')} — ${e.nom}${e.lieu?' ('+cityOf(e.lieu)+')':''}\n`;});}
+  if(soon.length){t+='\n🎉 À venir\n';soon.forEach(e=>{t+=`• ${fmtS(e.date).replace(/ \d{4}$/,'')} — ${e.nom}${e.lieu?' ('+cityOf(e.lieu)+')':''}${e.resa?' — 🍽️ réservation'+(e.resa.butoir?' avant le '+fmtS(e.resa.butoir).replace(/ \d{4}$/,''):'')+' dans l’application':''}\n`;});}
   t+=`\n👉 Répondez dans l’application : ${location.origin}${location.pathname}`;
   document.getElementById('annTx').value=t;
 };
@@ -2646,6 +2676,189 @@ function discBoxes(){document.querySelectorAll('[data-dbox]').forEach(c=>{const 
 function discRead(n){return DORD.filter(d=>document.querySelector(`input[name="${n}"][value="${d}"]`)?.checked).join(', ');}
 function discSet(n,v){const a=discList(v);document.querySelectorAll(`input[name="${n}"]`).forEach(r=>r.checked=a.includes(r.value));}
 discBoxes();
+
+// ═══ RÉSERVATION REPAS (évènements festifs / vie du club) ═══
+function rsTog(){const e=document.getElementById('evRsF');if(e)e.style.display=document.getElementById('evRs').checked?'':'none';}
+window.rsTog=rsTog;
+const rsPlats=ev=>(ev.resa&&Array.isArray(ev.resa.plats)&&ev.resa.plats.length)?ev.resa.plats:Object.values((ev.resa||{}).plats||{}).length?Object.values(ev.resa.plats):['Viande','Poisson'];
+const rsNm=l=>l.cat==='adh'&&l.mid?fullName(l.mid):(String(l.prenom||'').trim()+' '+String(l.nom||'').trim().toUpperCase()).trim();
+const rsPrice=(ev,l)=>{const R=ev.resa||{};return l.cat==='enfant'?+R.tarifEnfant||0:(l.cat==='adh'&&R.adhGratuit)?0:+R.tarifAdulte||0;};
+function rsLines(ev){const out=[];Object.entries(ev.resaRep||{}).forEach(([o,r])=>Object.entries(r.lines||{}).forEach(([lid,l])=>out.push({lid,owner:o,...l})));return out;}
+const rsPaid=(ev,o)=>Object.values(((ev.resaRep||{})[o]||{}).pay||{}).reduce((a,p)=>a+(+p.montant||0),0);
+const rsDue=(ev,o)=>rsLines(ev).filter(l=>l.owner===o).reduce((a,l)=>a+rsPrice(ev,l),0);
+const rsOpenNow=ev=>{const b=ev.resa&&ev.resa.butoir;return!b||isoL(new Date())<=b;};
+function rsBar(ev){
+  if(!ev.resa)return'';
+  const R=ev.resa,d=lgDays(R.butoir),L=rsLines(ev),mine=CU?L.filter(l=>l.owner===CU.id).length:0;
+  const t=[];
+  if(R.butoir)t.push(d<0?`⏳ Réservations closes depuis le ${fmtS(R.butoir)}`:d===0?'⏳ <b>Dernier jour pour réserver !</b>':`⏳ Réservation avant le <b>${fmtS(R.butoir)}</b> (encore ${d} jour${d>1?'s':''})`);
+  t.push(`🍽️ <b>${L.length}</b> convive${L.length>1?'s':''}${(+R.tarifAdulte)?' · '+eur(R.tarifAdulte)+' / adulte':''}${(+R.tarifEnfant)?' · '+eur(R.tarifEnfant)+' / enfant':''}${R.adhGratuit?' · adhérents offerts':''}`);
+  return`<div class="lgbar">🍽️ <b>Repas</b><br>${t.join('<br>')}<div class="lgb"><button onclick="rsScreen('${ev.id}')">🍽️ Ouvrir la réservation</button>${CU?`<button onclick="rsOpen('${ev.id}','${CU.id}')">${mine?'✏️ Ma réservation ('+mine+')':'➕ Je réserve'}</button>`:''}</div></div>`;
+}
+// ----- formulaire de réservation
+let rsCtx=null;
+window.rsOpen=(evId,owner)=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!CU)return;owner=owner||CU.id;
+  if(owner!==CU.id&&!canAssign(ev)){showT('Accès refusé.');return;}
+  if(!rsOpenNow(ev)&&!canAssign(ev)){showT('Les réservations sont closes.');return;}
+  const old=rsLines(ev).filter(l=>l.owner===owner).sort((a,b)=>String(a.lid).localeCompare(b.lid));
+  const lines=old.length?old.map(l=>({...l})):[{cat:'adh',mid:owner,prenom:'',nom:'',plat:'',note:''}];
+  rsCtx={id:evId,owner,lines,had:old.length>0};
+  document.getElementById('rfNom').textContent=ev.nom+' — '+fmtS(ev.date)+(owner!==CU.id?' · pour '+fullName(owner):'');
+  rsFormDraw();document.getElementById('mResaF').classList.add('open');
+};
+window.rsSet=(i,k,v,redraw)=>{const L=rsCtx.lines[i];L[k]=v;if(k==='cat'){if(v==='enfant')L.plat='';if(v==='adh'&&!L.mid)L.mid='';}if(redraw)rsFormDraw();else rsTotUp();};
+window.rsAdd=()=>{rsCtx.lines.push({cat:'adulte',prenom:'',nom:(rsCtx.lines.find(l=>l.cat!=='adh')||{}).nom||'',plat:'',note:''});rsFormDraw();};
+window.rsRm=i=>{rsCtx.lines.splice(i,1);rsFormDraw();};
+function rsTotUp(){const ev=EVs.find(e=>e.id===rsCtx.id);const t=rsCtx.lines.reduce((a,l)=>a+rsPrice(ev,l),0);const e=document.getElementById('rfTot');if(e)e.textContent=rsE(t);rsCtx.lines.forEach((l,i)=>{const b=document.getElementById('rfP'+i);if(b)b.textContent=eur(rsPrice(ev,l));});}
+function rsFormDraw(){
+  const ev=EVs.find(e=>e.id===rsCtx.id),R=ev.resa,pl=rsPlats(ev);
+  const mem=MEs.slice().sort((a,b)=>String(a.nom).localeCompare(String(b.nom)));
+  let h='<div class="rsl">';
+  rsCtx.lines.forEach((L,i)=>{
+    h+=`<div class="lgc"><div class="vh"><span>${i===0?'👤':'👥'} Personne ${i+1}</span><button class="ib lgr" style="border:1px solid var(--bb);border-radius:6px;background:transparent;color:var(--t);padding:2px 8px;" onclick="rsRm(${i})">🗑</button></div>
+    <select class="fi" onchange="rsSet(${i},'cat',this.value,1)"><option value="adh" ${L.cat==='adh'?'selected':''}>Adhérent du club</option><option value="adulte" ${L.cat==='adulte'?'selected':''}>Invité adulte</option><option value="enfant" ${L.cat==='enfant'?'selected':''}>Enfant</option></select>
+    ${L.cat==='adh'?`<select class="fi" onchange="rsSet(${i},'mid',this.value,1)"><option value="">— adhérent —</option>${mem.map(m=>`<option value="${hx(m.id)}" ${m.id===L.mid?'selected':''}>${hx(m.nom+' '+m.prenom)}</option>`).join('')}</select>`:`<div class="frow"><div class="fs"><input class="fi" placeholder="Prénom" value="${hx(L.prenom||'')}" oninput="rsSet(${i},'prenom',this.value)"></div><div class="fs"><input class="fi" placeholder="Nom" value="${hx(L.nom||'')}" oninput="rsSet(${i},'nom',this.value)"></div></div>`}
+    ${L.cat==='enfant'?`<div class="fi" style="opacity:.75">🧒 ${hx(R.platEnfant||'Menu enfant')}</div>`:`<select class="fi" onchange="rsSet(${i},'plat',this.value)"><option value="">— plat à choisir —</option>${pl.map(x=>`<option value="${hx(x)}" ${x===L.plat?'selected':''}>${hx(x)}</option>`).join('')}</select>`}
+    <input class="fi" placeholder="Allergie / régime particulier (facultatif)" maxlength="80" value="${hx(L.note||'')}" oninput="rsSet(${i},'note',this.value)">
+    <div class="vh"><span class="lgsm">${L.cat==='adh'&&R.adhGratuit?'Pris en charge par le club':''}</span><b id="rfP${i}"></b></div></div>`;
+  });
+  h+=`</div><button class="be" style="width:100%;padding:9px;margin-bottom:8px;" onclick="rsAdd()">➕ Ajouter une personne</button>
+  <div class="lgc"><div class="vh"><span>Total à régler</span><b id="rfTot" style="font-size:18px;color:var(--j)"></b></div></div>
+  <button class="bp" style="width:100%;" onclick="rsSave()">✅ VALIDER LA RÉSERVATION</button>${rsCtx.had?`<button class="bd" style="width:100%;margin-top:6px;padding:9px;" onclick="rsCancelAll()">🗑 Annuler toute la réservation</button>`:''}`;
+  document.getElementById('rfBody').innerHTML=h;rsTotUp();
+}
+async function rsWrite(ev,owner,lines){
+  const parts={...(ev.participations||{})},rr={...(ev.resaRep||{})};
+  if(lines.length){const o={};lines.forEach((l,i)=>{const lid=l.lid||('l'+Date.now().toString(36)+i);const x={cat:l.cat,plat:l.plat||'',note:l.note||''};if(l.cat==='adh')x.mid=l.mid;else{x.prenom=l.prenom;x.nom=l.nom;}if(l.table)x.table=l.table;o[lid]=x;});rr[owner]={...(rr[owner]||{}),lines:o};parts[owner]='oui';}
+  else{delete rr[owner];delete parts[owner];}
+  await evWrite(ev,{participations:parts,resaRep:Object.keys(rr).length?rr:null});
+}
+window.rsSave=async()=>{
+  const ev=EVs.find(e=>e.id===rsCtx.id);if(!ev)return;
+  const Ls=rsCtx.lines;
+  for(const L of Ls){if(L.cat==='adh'){if(!L.mid){showT('Choisissez l’adhérent.');return;}}else if(!String(L.prenom||'').trim()||!String(L.nom||'').trim()){showT('Prénom et nom de chaque personne.');return;}}
+  const mids=Ls.filter(l=>l.cat==='adh').map(l=>l.mid);
+  if(new Set(mids).size<mids.length){showT('Un adhérent est saisi deux fois.');return;}
+  const other=rsLines(ev).find(l=>l.owner!==rsCtx.owner&&l.cat==='adh'&&mids.includes(l.mid));
+  if(other){showT(fullName(other.mid)+' est déjà inscrit(e) via '+fullName(other.owner)+'.');return;}
+  cm('mResaF');await rsWrite(ev,rsCtx.owner,Ls);showT('Réservation enregistrée !');
+};
+window.rsCancelAll=()=>{const ev=EVs.find(e=>e.id===rsCtx.id),o=rsCtx.owner;conf('ANNULER LA RÉSERVATION','Toutes les personnes de cette réservation seront retirées.',async()=>{cm('mResaF');await rsWrite(ev,o,[]);showT('Réservation annulée.');});};
+// ----- écran
+let rsEvId=null,rsTab='m';
+window.rsScreen=(id,tab)=>{rsEvId=id;rsTab=tab||'m';rsRender();document.getElementById('mResa').classList.add('open');};
+window.rsTabGo=t=>{rsTab=t;rsRender();};
+function rsLive(){if(rsEvId&&document.getElementById('mResa')&&document.getElementById('mResa').classList.contains('open'))rsRender();}
+const _rb1=rebuildEVs;rebuildEVs=function(){_rb1.apply(this,arguments);rsLive();};
+const rsE=n=>(Math.round(n*100)/100).toLocaleString('fr-FR',{maximumFractionDigits:2})+' €';
+const rsIc=(ev,l)=>l.cat==='enfant'?'🧒':(l.plat?'🍽️':'❔');
+const rsPl=(ev,l)=>l.cat==='enfant'?(ev.resa.platEnfant||'Menu enfant'):(l.plat||'plat ?');
+function rsTables(ev){const R=ev.resa,m={};rsLines(ev).forEach(l=>{if(l.table)(m[l.table]=m[l.table]||[]).push(l);});return m;}
+function rsTState(ev,k){const R=ev.resa;if(k>R.tMax)return['r','Surchargée'];if(k===R.tMax)return['g','Complète'];if(k<R.tMin)return['o','À compléter (min '+R.tMin+')'];return['g','OK'];}
+window.rsJoin=(evId,n)=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!CU)return;
+  const mine=rsLines(ev).filter(l=>l.owner===CU.id);if(!mine.length){showT('Réservez d’abord vos places.');return;}
+  if(n){const k=rsLines(ev).filter(l=>l.table===n&&l.owner!==CU.id).length;if(k+mine.length>ev.resa.tMax){showT('Pas assez de places à cette table.');return;}}
+  const rr=JSON.parse(JSON.stringify(ev.resaRep||{}));Object.values(rr[CU.id].lines).forEach(l=>{if(n)l.table=n;else delete l.table;});
+  evWrite(ev,{resaRep:rr});showT(n?'Table '+n+' choisie.':'Table retirée.');
+};
+window.rsAssign=(evId,owner,lid,n)=>{const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;const rr=JSON.parse(JSON.stringify(ev.resaRep||{}));const l=rr[owner]&&rr[owner].lines[lid];if(!l)return;if(+n)l.table=+n;else delete l.table;evWrite(ev,{resaRep:rr});};
+window.rsAuto=async evId=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;const R=ev.resa;if(!R.nbTables){showT('Aucune table définie.');return;}
+  const rr=JSON.parse(JSON.stringify(ev.resaRep||{})),cnt={};for(let i=1;i<=R.nbTables;i++)cnt[i]=0;
+  Object.values(rr).forEach(r=>Object.values(r.lines||{}).forEach(l=>{if(l.table&&cnt[l.table]!=null)cnt[l.table]++;}));
+  const groups=Object.entries(rr).map(([o,r])=>({o,ls:Object.values(r.lines||{}).filter(l=>!l.table||cnt[l.table]==null)})).filter(g=>g.ls.length).sort((a,b)=>b.ls.length-a.ls.length);
+  let n=0;
+  groups.forEach(g=>{
+    let rest=g.ls.slice();
+    while(rest.length){
+      const fit=Object.keys(cnt).map(Number).filter(t=>R.tMax-cnt[t]>=rest.length).sort((a,b)=>(cnt[b]>0)-(cnt[a]>0)||cnt[b]-cnt[a]||a-b)[0];
+      const t=fit||Object.keys(cnt).map(Number).filter(t=>cnt[t]<R.tMax).sort((a,b)=>cnt[b]-cnt[a]||a-b)[0];
+      if(!t)break;
+      const take=rest.splice(0,Math.max(1,Math.min(rest.length,R.tMax-cnt[t])));take.forEach(l=>{l.table=t;cnt[t]++;n++;});
+    }
+  });
+  await evWrite(ev,{resaRep:rr});showT(n?n+' personne'+(n>1?'s':'')+' placée'+(n>1?'s':'')+' — corrigez si besoin.':'Rien à placer.');
+};
+window.rsPay=(evId,owner)=>{const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;const rr=JSON.parse(JSON.stringify(ev.resaRep||{}));if(!rr[owner])return;const due=rsDue(ev,owner),paid=rsPaid(ev,owner);if(paid>=due&&paid>0)delete rr[owner].pay;else rr[owner].pay={['p'+Date.now().toString(36)]:{date:isoL(new Date()),montant:Math.round((due-paid)*100)/100}};evWrite(ev,{resaRep:rr});};
+window.rsDel=(evId,owner)=>{const ev=EVs.find(e=>e.id===evId);if(!ev||!canAssign(ev))return;conf('RETIRER LA RÉSERVATION','La réservation de '+fullName(owner)+' sera supprimée.',async()=>{await rsWrite(ev,owner,[]);showT('Réservation retirée.');});};
+window.rsAddSel=evId=>{const v=document.getElementById('rsAddM').value;if(!v){showT('Choisissez un adhérent.');return;}rsOpen(evId,v);};
+function rsRender(){
+  const ev=EVs.find(e=>e.id===rsEvId);if(!ev||!ev.resa){cm('mResa');return;}
+  const R=ev.resa,adm=canAssign(ev),L=rsLines(ev);
+  if(!adm&&rsTab==='o')rsTab='m';
+  document.getElementById('rst_o').style.display=adm?'':'none';
+  ['m','t','o'].forEach(t=>document.getElementById('rst_'+t).classList.toggle('on',t===rsTab));
+  document.getElementById('rsNom').textContent=ev.nom+' — '+fmtS(ev.date)+(ev.lieu?' · '+ev.lieu:'');
+  const d=lgDays(R.butoir);let h='';
+  if(R.butoir)h+=`<div class="lgc ${d!==null&&d>=0&&d<=3?'lgw':''}">⏳ ${d<0?'Réservations closes depuis le '+fmtS(R.butoir):'Réservation avant le '+fmtS(R.butoir)+(d===0?' (aujourd’hui)':' (encore '+d+' j)')}</div>`;
+  if(rsTab==='m'){
+    const mine=CU?L.filter(l=>l.owner===CU.id):[];
+    h+=`<div class="lgc"><span class="chip2">🍽️ ${eur(R.tarifAdulte||0)} / adulte</span> <span class="chip2">🧒 ${eur(R.tarifEnfant||0)} / enfant</span>${R.adhGratuit?' <span class="chip2 g">Adhérents offerts</span>':''}<div class="lgsm" style="margin-top:3px;">Plats : ${rsPlats(ev).map(hx).join(' · ')}</div></div>`;
+    if(mine.length){
+      const due=rsDue(ev,CU.id),paid=rsPaid(ev,CU.id);
+      h+=`<div class="lgc"><h4>🧾 Ma réservation (${mine.length})</h4>${mine.map(l=>`<div class="lgr"><span><b>${hx(rsNm(l))}</b><br><span class="lgsm">${rsIc(ev,l)} ${hx(rsPl(ev,l))}${l.note?' · ⚠️ '+hx(l.note):''}${l.table?' · Table '+l.table:''}</span></span><b>${eur(rsPrice(ev,l))}</b></div>`).join('')}<div class="vh" style="margin-top:4px;"><span>Total</span><b>${rsE(due)}</b></div>${due>0?`<div class="${paid>=due?'lgg':'lgw'}">${paid>=due?'✅ Réglé':'⏳ À régler : '+rsE(due-paid)}</div>`:''}</div>`;
+    }else h+='<div class="hint" style="margin:6px 0;">Vous n’avez pas encore réservé.</div>';
+    if(CU&&(rsOpenNow(ev)||adm))h+=`<button class="bp" style="width:100%;" onclick="rsOpen('${ev.id}','${CU.id}')">${mine.length?'✏️ Modifier ma réservation':'➕ Réserver'}</button>`;
+    if(mine.length&&R.nbTables)h+=`<button class="be" style="width:100%;margin-top:6px;padding:9px;" onclick="rsTabGo('t')">🪑 Choisir ma table</button>`;
+  }
+  if(rsTab==='t'){
+    if(!R.nbTables)h+='<div class="hint">Pas de plan de table pour cet évènement.</div>';
+    else{
+      const bt=rsTables(ev),un=L.filter(l=>!l.table||l.table>R.nbTables),mineHas=n=>CU&&(bt[n]||[]).some(l=>l.owner===CU.id),mineAny=CU&&L.some(l=>l.owner===CU.id);
+      h+=`<div class="lgc"><b>${L.length}</b> inscrit${L.length>1?'s':''} · <b>${Object.keys(bt).length}</b> table${Object.keys(bt).length>1?'s':''} ouverte${Object.keys(bt).length>1?'s':''} · <b>${un.length}</b> à placer</div>`;
+      if(adm)h+=`<button class="bp" style="width:100%;margin-bottom:6px;" onclick="rsAuto('${ev.id}')">🪄 Répartir automatiquement</button>`;
+      const sel=l=>adm?`<select onchange="rsAssign('${ev.id}','${l.owner}','${l.lid}',this.value)"><option value="0">— sans table —</option>${Array.from({length:R.nbTables},(_,i)=>`<option value="${i+1}" ${l.table===i+1?'selected':''}>Table ${i+1}</option>`).join('')}</select>`:'';
+      for(let n=1;n<=R.nbTables;n++){
+        const ls=bt[n]||[];if(!ls.length&&!(mineAny&&CU))continue;
+        const [c,lab]=rsTState(ev,ls.length),free=R.tMax-ls.length;
+        h+=`<div class="lgc" style="border-color:${c==='r'?'var(--R)':'var(--bb)'}"><div class="vh"><span>Table ${n}</span><span><span class="chip2 ${c}">${ls.length}/${R.tMax}</span> <span class="chip2 ${c}">${lab}</span></span></div>${ls.map(l=>`<div class="lgr" ${CU&&l.owner===CU.id?'style="font-weight:700"':''}><span>${hx(rsNm(l))}</span><span>${rsIc(ev,l)} ${sel(l)}</span></div>`).join('')}${(mineAny&&!mineHas(n)&&free>0&&rsOpenNow(ev))?`<button class="be" style="width:100%;margin-top:5px;padding:7px;" onclick="rsJoin('${ev.id}',${n})">Rejoindre cette table</button>`:''}${mineHas(n)&&rsOpenNow(ev)?`<button class="be" style="width:100%;margin-top:5px;padding:7px;" onclick="rsJoin('${ev.id}',0)">Quitter la table</button>`:''}</div>`;
+      }
+      if(un.length)h+=`<div class="lgc" style="border-color:var(--O)"><b>Pas encore de table (${un.length})</b>${un.map(l=>`<div class="lgr"><span>${hx(rsNm(l))}</span><span>${rsIc(ev,l)} ${sel(l)}</span></div>`).join('')}</div>`;
+    }
+  }
+  if(rsTab==='o')h+=rsOrg(ev,L);
+  document.getElementById('rsBody').innerHTML=h;
+}
+function rsStats(ev,L){
+  const R=ev.resa,pl=rsPlats(ev),s={total:L.length,adh:0,adu:0,enf:0,pl:{},sansPlat:0,sansTable:0,notes:[]};pl.forEach(x=>s.pl[x]=0);
+  L.forEach(l=>{if(l.cat==='enfant')s.enf++;else if(l.cat==='adh')s.adh++;else s.adu++;if(l.cat!=='enfant'){if(l.plat&&s.pl[l.plat]!=null)s.pl[l.plat]++;else s.sansPlat++;}if(!l.table)s.sansTable++;if(l.note)s.notes.push(rsNm(l)+' : '+l.note);});
+  const owners=Object.keys(ev.resaRep||{});
+  s.due=owners.reduce((a,o)=>a+rsDue(ev,o),0);s.paid=owners.reduce((a,o)=>a+Math.min(rsPaid(ev,o),rsDue(ev,o)||rsPaid(ev,o)),0);
+  s.cost=(s.adh+s.adu)*(+R.coutAdulte||0)+s.enf*(+R.coutEnfant||0);
+  return s;
+}
+function rsOrg(ev,L){
+  const R=ev.resa,s=rsStats(ev,L),owners=Object.keys(ev.resaRep||{});
+  let h=`<div class="lgc"><h4>📊 Synthèse</h4><div><b>${s.total}</b> convives : ${s.adh} adhérent${s.adh>1?'s':''} · ${s.adu} adulte${s.adu>1?'s':''} · ${s.enf} enfant${s.enf>1?'s':''}</div>${Object.entries(s.pl).map(([k,v])=>`<div>🍽️ ${hx(k)} : <b>${v}</b></div>`).join('')}<div>🧒 ${hx(R.platEnfant||'Menu enfant')} : <b>${s.enf}</b></div>${s.sansPlat?`<div class="lgw">❔ Plat non choisi : ${s.sansPlat}</div>`:''}${R.nbTables?`<div class="${s.sansTable?'lgw':'lgg'}">${s.sansTable?'⚠️':'✅'} Sans table : ${s.sansTable}</div>`:''}</div>`;
+  if(s.notes.length)h+=`<div class="lgc"><h4>⚠️ Allergies / régimes</h4>${s.notes.map(x=>`<div>${hx(x)}</div>`).join('')}</div>`;
+  h+=`<div class="lgc"><h4>💶 Finances</h4><div>Dû : <b>${rsE(s.due)}</b> · Encaissé : <b>${rsE(s.paid)}</b> · Reste : <b class="${s.due-s.paid>0?'lgw':'lgg'}">${rsE(s.due-s.paid)}</b></div>${s.cost?`<div class="lgsm">Coût traiteur : ${rsE(s.cost)} · pris en charge par le club : ${rsE(Math.max(0,s.cost-s.due))}</div>`:''}</div>`;
+  h+=`<div class="lgc"><b>➕ Inscrire quelqu’un</b><div class="frow" style="margin-top:4px;"><select class="fi" id="rsAddM"><option value="">— adhérent —</option>${MEs.slice().sort((a,b)=>String(a.nom).localeCompare(String(b.nom))).filter(m=>!owners.includes(m.id)).map(m=>`<option value="${hx(m.id)}">${hx(m.nom+' '+m.prenom)}</option>`).join('')}</select><button class="bp" style="flex:0 0 auto;padding:8px 12px;" onclick="rsAddSel('${ev.id}')">OK</button></div></div>`;
+  h+=`<div class="lgc"><h4>🧾 Réservations (${owners.length})</h4>`+(owners.length?owners.map(o=>{const n=L.filter(l=>l.owner===o).length,due=rsDue(ev,o),paid=rsPaid(ev,o);return`<div class="lgr"><span><b>${hx(fullName(o))}</b> · ${n} pers.<br><span class="lgsm">${due?rsE(due)+(paid>=due?' ✅ réglé':' ⏳ reste '+rsE(due-paid)):'gratuit'}</span></span><span style="white-space:nowrap">${due?`<button class="ib" onclick="rsPay('${ev.id}','${o}')">${paid>=due?'↩️':'💶'}</button> `:''}<button class="ib" onclick="rsOpen('${ev.id}','${o}')">✏️</button> <button class="ib" onclick="rsDel('${ev.id}','${o}')">🗑</button></span></div>`;}).join(''):'<div class="hint">Aucune réservation.</div>')+'</div>';
+  h+=`<div class="lgb" style="display:flex;gap:6px;"><button class="be" style="flex:1;padding:9px;" onclick="rsCopy('${ev.id}')">📋 Copier (traiteur)</button><button class="bp" style="flex:1;" onclick="rsExport('${ev.id}')">📥 Excel</button></div>`;
+  return h;
+}
+function rsText(ev){
+  const R=ev.resa,L=rsLines(ev),s=rsStats(ev,L);let t=`🍽️ ${ev.nom} — ${fmtS(ev.date)}\n${s.total} convives (${s.adh} adhérents, ${s.adu} adultes, ${s.enf} enfants)\n\nPLATS\n`;
+  Object.entries(s.pl).forEach(([k,v])=>t+=`${k} : ${v}\n`);t+=`${R.platEnfant||'Menu enfant'} : ${s.enf}\n`;if(s.sansPlat)t+=`Plat non choisi : ${s.sansPlat}\n`;
+  if(s.notes.length)t+='\nALLERGIES / RÉGIMES\n'+s.notes.join('\n')+'\n';
+  if(R.nbTables){const bt=rsTables(ev);t+='\nTABLES\n';Object.keys(bt).map(Number).sort((a,b)=>a-b).forEach(n=>t+=`Table ${n} (${bt[n].length}) : ${bt[n].map(rsNm).join(', ')}\n`);if(s.sansTable)t+=`Sans table : ${s.sansTable}\n`;}
+  return t;
+}
+window.rsCopy=async id=>{const ev=EVs.find(e=>e.id===id);if(!ev)return;try{await navigator.clipboard.writeText(rsText(ev));showT('Récapitulatif copié.');}catch(e){showT('Copie impossible.');}};
+window.rsExport=async id=>{
+  const ev=EVs.find(e=>e.id===id);if(!ev||!canAssign(ev))return;
+  try{
+    const L=rsLines(ev).sort((a,b)=>(a.table||999)-(b.table||999)||rsNm(a).localeCompare(rsNm(b))),s=rsStats(ev,L);
+    const cv=[['Nb','Prénom','Nom','Catégorie','Plat','Allergie / régime','Table','Réservé par','Prix']];
+    L.forEach((l,i)=>{const m=l.cat==='adh'?(MEs.find(x=>x.id===l.mid)||{}):null;cv.push([i+1,m?m.prenom:l.prenom,m?m.nom:l.nom,l.cat==='enfant'?'Enfant':(l.cat==='adh'?'Adhérent':'Adulte'),rsPl(ev,l),l.note||'',l.table||'',fullName(l.owner),rsPrice(ev,l)]);});
+    const pa=[['Réservant','Personnes','Dû','Payé','Reste']];Object.keys(ev.resaRep||{}).forEach(o=>pa.push([fullName(o),L.filter(l=>l.owner===o).length,rsDue(ev,o),rsPaid(ev,o),rsDue(ev,o)-rsPaid(ev,o)]));
+    const sy=[['Convives',s.total],['Adhérents',s.adh],['Adultes',s.adu],['Enfants',s.enf],...Object.entries(s.pl).map(([k,v])=>['Plat '+k,v]),['Plat enfant',s.enf],['Plat non choisi',s.sansPlat],['Sans table',s.sansTable],['Dû',s.due],['Encaissé',s.paid],['Coût traiteur',s.cost]];
+    await xlDownload([['CONVIVES',cv,[5,14,18,11,16,26,7,22,8]],['PAIEMENTS',pa,[24,10,9,9,9]],['SYNTHÈSE',sy,[22,10]]],'Reservations_'+ev.nom.replace(/[^A-Za-z0-9]+/g,'-').slice(0,30)+'_'+ev.date+'.xlsx');
+    showT('Export Excel prêt.');
+  }catch(e){console.error(e);showT('Export impossible (connexion Internet nécessaire).');}
+};
 
 </script>
 </body>
