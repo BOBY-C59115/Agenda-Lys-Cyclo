@@ -2849,7 +2849,7 @@ function lgRecap(ev,RR,adm){
   if(L.repas!==false){const rn=RR.reduce((a,r)=>a+(+r.rn||0),0),late=RR.filter(r=>(r.role==='benev'||r.role==='repas')&&r.arr);
     h+=`<div class="lgc"><h4>🍽️ Repas : ${rn} personne${rn>1?'s':''}</h4>${L.repasPrix?`<div>${eur(L.repasPrix)} / pers. → ${eur(L.repasPrix*rn)}</div>`:''}${late.length?`<div class="lgsm">Arrivées après le départ : ${late.map(r=>hx(r.n)+' ('+r.arr+')').join(', ')}</div>`:''}</div>`;}
   if(adm){const due=RR.reduce((a,r)=>a+lgDue(ev,r),0),paid=RR.filter(r=>r.pay).reduce((a,r)=>a+lgDue(ev,r),0);
-    h+=`<div class="lgc"><h4>💶 Paiements</h4><div>Dû : <b>${eur(due)}</b> · Encaissé : <b>${eur(paid)}</b> · Reste : <b class="${due-paid>0?'lgw':'lgg'}">${eur(due-paid)}</b></div></div>`;}
+    h+=`<div class="lgc"><h4>💶 Paiements</h4><div>Dû : <b>${rsE(due)}</b> · Encaissé : <b>${rsE(paid)}</b> · Reste : <b class="${due-paid>0?'lgw':'lgg'}">${rsE(due-paid)}</b></div></div>`;}
   [['al','Aller'],['re','Retour']].forEach(([k,lab])=>{const V=lgVeh(RR,ev,k);
     h+=`<div class="lgc"><h4>${k==='al'?'🚩':'🏁'} ${lab}</h4><div class="${V.seatMiss?'lgw':'lgg'}">${V.seatMiss?'⚠️':'✅'} Places : ${V.pn} / ${V.seatsTot} (solde ${V.seatsTot-V.pn})</div><div class="${V.bikeMiss?'lgw':'lgg'}">${V.bikeMiss?'⚠️':'✅'} Vélos : ${V.bikeNeed} / ${V.bikesTot} (solde ${V.bikesTot-V.bikeNeed})</div>${V.unp.length?`<div class="lgw">${V.unp.length} personne${V.unp.length>1?'s':''} sans place</div>`:''}</div>`;});
   const nr=Math.max(0,MEs.length-Object.keys(ev.participations||{}).length);
