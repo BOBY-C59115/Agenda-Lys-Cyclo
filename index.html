@@ -407,6 +407,19 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 #mLogi{z-index:300;}
 #mAcc{z-index:310;}
 #mSpec,#mSpecR{z-index:300;}
+#mWiz{z-index:290;}
+.spco{display:flex;gap:8px;align-items:flex-start;border:1px solid #cfe0ee;border-radius:10px;padding:8px;margin-bottom:6px;cursor:pointer;}
+.spco small{color:var(--td);font-size:10px;line-height:1.35;}
+.spcban{background:linear-gradient(135deg,#fff4cc,#ffe39a);color:#4a3600;border:1px solid #e0b93a;border-radius:10px;padding:8px 10px;margin:6px 0;font-size:11px;line-height:1.45;}
+.spcban .spct{font-weight:800;font-size:12px;letter-spacing:.3px;}
+.spcb{display:block;width:100%;margin-top:7px;padding:11px;border:0;border-radius:9px;background:#7a5500;color:#fff;font-weight:800;font-size:13px;cursor:pointer;}
+.wst{border:1px solid #cfe0ee;border-radius:10px;padding:8px 10px;margin-bottom:7px;}
+.wst.off{opacity:.55;}
+.wst.ok{border-color:#2e9b57;background:rgba(46,155,87,.07);}
+.wst h4{margin:0 0 2px;font-size:13px;}
+.wst .wd{font-size:11px;color:var(--td);margin-bottom:5px;}
+.wst button{padding:8px 10px;border-radius:8px;border:0;background:var(--ac,#2b7bb9);color:#fff;font-weight:700;font-size:12px;cursor:pointer;margin:2px 4px 2px 0;}
+.wst button.alt{background:#e8eef4;color:#244;}
 .sptb{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0;}
 .sptb td,.sptb th{border-bottom:1px solid #d5e3ee;padding:4px;text-align:center;}
 .sptb td:first-child,.sptb th:first-child{text-align:left;}
@@ -641,6 +654,9 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
       <div class="fs"><label class="fl">🏢 Organisateur <span class="hint">(vide = Lys Cyclo)</span></label><input class="fi" id="evOrg" placeholder="ex : Les Renards des Sables" maxlength="80"></div>
       <div class="frow"><div class="fs"><label class="fl">Affiliation</label><input class="fi" id="evAff" placeholder="ex : FFCT" maxlength="80"></div><div class="fs"><label class="fl">Heure de fin</label><input class="fi" id="evHf" type="time"></div></div>
       <div class="fs"><label class="fl">📝 Lien d’inscription en ligne (optionnel)</label><input class="fi" id="evInsc" type="url" placeholder="https://..."></div>
+      <div class="fs"><label class="fl">Type de sortie</label>
+        <label class="spco"><input type="radio" name="evSpc" value="0" checked onchange="spcMode()"><span><b>🚴 Sortie classique</b><br><small>On part directement à vélo ou en voiture. Pas de réservation particulière.</small></span></label>
+        <label class="spco"><input type="radio" name="evSpc" value="1" onchange="spcMode()"><span><b>⭐ Sortie spéciale</b><br><small>Demande une <b>logistique</b> (covoiturage, remorque) et une <b>réservation</b> : inscription avant une date limite, repas, nuit, ravitos…</small></span></label></div>
       <div class="lgbox"><label class="admchk"><input type="checkbox" id="evSp" onchange="spTog()"> 🗓️ Programme détaillé <span class="hint">(ravitos, repas, hébergement, petit-déjeuner…)</span></label>
         <div id="evSpF" style="display:none">
           <div class="fs"><label class="fl">⏳ Date limite d’inscription au programme</label><input class="fi" id="evSpB" type="date"></div>
@@ -994,6 +1010,7 @@ window.doLogin=async()=>{
   document.getElementById('screenApp').classList.add('show');
   applyRoleUI();sv('accueil',0);
   showT('Bonjour '+CU.prenom+' ! 👋');
+  setTimeout(()=>{try{tryDeep();}catch(e){}},300);
 };
 
 window.doRegister=async()=>{
@@ -1077,6 +1094,7 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
 let spE=[],spEvId=null,spWho=null,spP=[],spRId=null;
+let wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
 let aeType='tous',aeSel=new Set(),agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
 window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1359,7 +1377,7 @@ function evCard(ev){
     const pp=DORD.filter(d=>cn[d]).map(d=>`${DISC[d].i} ${d} <b>${cn[d]}</b>`);if(sc)pp.push(`sans choix <b>${sc}</b>`);
     dcH=`<div class="dcnt">${pp.join(' · ')}${canMgEv()&&anyE?` · 💶 ≈ ${eur(est)} (tarifs adultes)`:''}</div>`;
   }
-  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${rdvMi(ev)}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${accTot(ev)?` <span style="color:var(--td)">+ ${accTot(ev)} accompagnant${accTot(ev)>1?'s':''}</span>`:''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${my==='oui'?`<button class="accb" onclick="accOpen('${ev.id}')">➕ Accompagnants${accOf(ev,CU.id).length?' ('+accOf(ev,CU.id).length+')':''} — conjoint, enfants, amis…</button>`:''}${lgBar(ev)}${spBar(ev)}${rsBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
+  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${spcBan(ev)}${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${rdvMi(ev)}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${accTot(ev)?` <span style="color:var(--td)">+ ${accTot(ev)} accompagnant${accTot(ev)>1?'s':''}</span>`:''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button><button onclick="shareEv('${ev.id}')" aria-label="Partager">🔗</button></div>${my==='oui'?`<button class="accb" onclick="accOpen('${ev.id}')">➕ Accompagnants${accOf(ev,CU.id).length?' ('+accOf(ev,CU.id).length+')':''} — conjoint, enfants, amis…</button>`:''}${lgBar(ev)}${spBar(ev)}${rsBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
 }
 window.setPart=async(evId,s)=>{
   if(!CU){showT('Connectez-vous !');return;}
@@ -2027,7 +2045,7 @@ function fillExtras(ev){
   s('evHf',ev.heureFin);s('evRdL',ev.rdvLieu);s('evRdH',ev.rdvHeure);ncCheck();spLoad(ev);s('evOrg',ev.organisateur);s('evAff',ev.affil);s('evInsc',ev.linkInsc);
   {const Q=ev.resa,v=(id,x,d)=>{document.getElementById(id).value=x!=null?x:d;};document.getElementById('evRs').checked=!!Q;v('evRsB2',Q&&Q.butoir,'');v('evRsTA',Q&&Q.tarifAdulte,0);v('evRsTE',Q&&Q.tarifEnfant,0);document.getElementById('evRsG').checked=!!(Q&&Q.adhGratuit);v('evRsCA',Q&&Q.coutAdulte,'');v('evRsCE',Q&&Q.coutEnfant,'');v('evRsP',Q&&(Q.plats||[]).join(', '),'Viande, Poisson');v('evRsPE',Q&&Q.platEnfant,'Menu enfant');v('evRsNT',Q&&Q.nbTables,0);v('evRsMi',Q&&Q.tMin,8);v('evRsMa',Q&&Q.tMax,12);rsTog();}
   {const L=ev.logi;document.getElementById('evLg').checked=!!L;s('evLgB',L&&L.butoir);document.getElementById('evLgR').checked=L?L.repas!==false:true;s('evLgP',L&&L.repasPrix);document.getElementById('evLgT').checked=L?L.remorque!==false:true;s('evLgC',(L&&L.remorqueCap)||6);lgTog();}
-  document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value===ev.barMode));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===(ev.transport||'')));
+  document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value===ev.barMode));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===(ev.transport||'')));spcLoad(ev);
 }
 function resetMore(){
   {document.getElementById('evRs').checked=false;document.getElementById('evRsB2').value='';document.getElementById('evRsTA').value='0';document.getElementById('evRsTE').value='0';document.getElementById('evRsG').checked=false;document.getElementById('evRsCA').value='';document.getElementById('evRsCE').value='';document.getElementById('evRsP').value='Viande, Poisson';document.getElementById('evRsPE').value='Menu enfant';document.getElementById('evRsNT').value='0';document.getElementById('evRsMi').value='8';document.getElementById('evRsMa').value='12';rsTog();}
@@ -2035,7 +2053,7 @@ function resetMore(){
   spLoad(null);['evHf','evOrg','evAff','evInsc','evRdL','evRdH'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   DORD.forEach(d=>['fp','ft','fj','fn','fd'].forEach(k=>{const el=document.getElementById(k+'-'+d);if(el)el.value='';}));
   onDisc();
-  document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value==='decider'));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===''));
+  document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value==='decider'));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===''));spcLoad(null);
 }
 
 // ═══ MULTI-DISCIPLINES : choix de discipline par les membres ═══
@@ -2157,7 +2175,7 @@ function shortCard(ev){
   const org=(ev.type==='sportif'&&!isOwn(ev))?` <span class="hdep" style="background:rgba(66,103,178,.15);color:#1e3a8a;">🤝 ${hx(ev.organisateur)}</span>`:'';
   const lieuTxt=ev.lieu&&ev.lieu.trim()!==ville?hx(ev.lieu):'';
   const ks=kmSummary(ev),mine=(my==='oui')?discTag(ev,CU.id):'';
-  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgSortie('${ev.id}')">🚗 logistique</a>`:''}${ev.resa?` · <a onclick="rsScreen('${ev.id}')">🍽️ réserver</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
+  return`<div class="hcard" id="h-${ev.id}"><div class="hd">${fmtS(ev.date)}${heure?' · '+(hasDeps(ev)?'dès ':'')+heure:''}${isFerie(ev.date)?' · 🇫🇷 férié':''}${cat||typ?' · <span class="hcat">'+(cat||typ)+'</span>':''}</div><div class="ht">${hx(ev.nom)}</div><div class="hv">📍 ${hx(ville)||'Lieu à confirmer'}${trChip(ev)}${isSpc(ev)?'<span class="hdep">⭐ Spéciale</span>':''}${org}</div>${(lieuTxt||hasDeps(ev))?`<div class="hs">🏁 ${lieuTxt}${hasDeps(ev)?(lieuTxt?' · ':'')+'départs selon la distance':''}</div>`:''}${ks?`<div class="hk">${ks}${mine?' · 🎯'+mine:''}</div>`:''}<div class="hpl">👥 <a onclick="showPart('${ev.id}')">${nIns(ev)} inscrit${nIns(ev)>1?'s':''} · voir les participants</a>${ev.logi?` · <a onclick="lgSortie('${ev.id}')">🚗 logistique</a>`:''}${ev.resa?` · <a onclick="rsScreen('${ev.id}')">🍽️ réserver</a>`:''}</div><div class="hpp"><button class="${my==='oui'?'on-o':''}" onclick="setPart('${ev.id}','oui')">✅ Je participe</button><button class="${my==='non'?'on-n':''}" onclick="setPart('${ev.id}','non')">❌ Absent</button><button class="${my==='nsp'?'on-k':''}" onclick="setPart('${ev.id}','nsp')">🤔 Peut-être</button><button class="${my==='benev'?'on-b':''}" onclick="setPart('${ev.id}','benev')">🤝 Bénévole</button><button class="hmore" onclick="goEv('${ev.id}')" aria-label="Voir le détail">Détail ›</button></div></div>`;
 }
 function renderHomeBar(T,E){
   const days=nextBarDays(40).filter(ds=>ds>=T&&ds<=E);
@@ -2395,6 +2413,83 @@ window.goEv=id=>{
 // ═══ PARTICIPANTS (visibles de tous, derrière un bouton) ═══
 const nIns=ev=>Object.values(ev.participations||{}).filter(v=>v==='oui'||v==='benev').length;
 
+
+// ═══ SORTIE SPÉCIALE : choix clair, bandeau, parcours « Mon inscription », lien direct ═══
+const isSpc=ev=>!!(ev&&(ev.logi||(ev.spec&&(ev.spec.etapes||[]).length)));
+function spcMode(){
+  const on=(document.querySelector('input[name="evSpc"]:checked')||{}).value==='1';
+  document.querySelectorAll('#evXtra .lgbox').forEach(b=>b.style.display=on?'':'none');
+  if(!on){document.getElementById('evLg').checked=false;document.getElementById('evSp').checked=false;}
+  else if(!document.getElementById('evLg').checked&&!document.getElementById('evSp').checked)document.getElementById('evLg').checked=true;
+  lgTog();spTog();
+}
+window.spcMode=spcMode;
+function spcLoad(ev){
+  const v=ev&&isSpc(ev)?'1':'0';const r=document.querySelector('input[name="evSpc"][value="'+v+'"]');if(r)r.checked=true;spcMode();
+}
+function spcBut(ev){return[ev.logi&&ev.logi.butoir,ev.spec&&ev.spec.butoir].filter(Boolean).sort()[0]||null;}
+function spcBan(ev){
+  if(!isSpc(ev))return'';
+  const b=spcBut(ev),d=lgDays(b);
+  const when=b?(d===null?'':d<0?` · inscriptions closes depuis le ${fmtS(b)}`:d===0?' · <b>dernier jour pour s’inscrire !</b>':` · inscription avant le <b>${fmtS(b)}</b>`):'';
+  const mp=CU&&(ev.participations||{})[CU.id],done=mp==='oui'||mp==='benev';
+  return`<div class="spcban"><div class="spct">⭐ SORTIE SPÉCIALE${when}</div><div>Pour y participer, il faut <b>s’inscrire</b> : transport${ev.logi&&ev.logi.repas!==false?', repas':''}${ev.spec?', étapes (repas, nuit…)':''}. Cela demande une <b>logistique</b>${ev.spec?' et une <b>réservation</b>':''} particulière.</div>${CU?`<button class="spcb" onclick="wizOpen('${ev.id}')">${done?'✏️ Voir / modifier mon inscription':'✍️ Je m’inscris à cette sortie spéciale'}</button>`:''}</div>`;
+}
+function wizEnsure(){
+  if(document.getElementById('mWiz'))return;
+  const d=document.createElement('div');d.className='mo';d.id='mWiz';
+  d.innerHTML=`<div class="mdl"><button class="mc" onclick="cm('mWiz')">×</button><div class="mt2">⭐ MON INSCRIPTION</div><div class="imp-note" id="wizNom"></div><div id="wizBody"></div></div>`;
+  document.body.appendChild(d);
+}
+window.wizOpen=id=>{if(!CU){showT('Connectez-vous !');return;}wizEnsure();wizId=id;wizRender();document.getElementById('mWiz').classList.add('open');};
+function wizRender(){
+  const ev=EVs.find(e=>e.id===wizId);if(!ev||!CU)return;
+  const my=(ev.participations||{})[CU.id]||'',ok=my==='oui'||my==='benev';
+  const lr=ev.logiRep&&ev.logiRep[CU.id],sr=(ev.specRep||{})[CU.id],na=accOf(ev,CU.id).length;
+  const b=spcBut(ev),d=lgDays(b);
+  document.getElementById('wizNom').innerHTML=hx(ev.nom)+' — '+fmtS(ev.date)+(b?`<br>⏳ Inscription avant le <b>${fmtS(b)}</b>${d!==null&&d>=0?' (encore '+d+' jour'+(d>1?'s':'')+')':d<0?' — <b>clôturée</b>':''}`:'');
+  const AR=Object.fromEntries(LG_AR);
+  const st=(n,t,desc,done,btns,off)=>`<div class="wst ${done?'ok':''} ${off?'off':''}"><h4>${done?'✅':n} ${t}</h4><div class="wd">${desc}</div>${off?'<div class="wd">À faire après l’étape 1.</div>':btns}</div>`;
+  let h='',n=1;
+  h+=st('1️⃣','Je viens ?',my==='oui'?'Vous participez.':my==='benev'?'Vous venez comme bénévole.':my==='non'?'Vous avez indiqué ne pas venir.':my==='nsp'?'Vous avez répondu « peut-être ».':'Dites-nous si vous venez.',ok,
+    ok?`<button class="alt" onclick="setPart('${ev.id}','non')">❌ Finalement je ne viens pas</button>`:`<button onclick="setPart('${ev.id}','oui')">✅ Je viens</button><button class="alt" onclick="setPart('${ev.id}','benev')">🤝 Je viens aider</button><button class="alt" onclick="setPart('${ev.id}','non')">❌ Je ne viens pas</button>`,false);
+  n=2;
+  if(ev.logi){
+    const dsc=lr?`${lr.role&&lr.role!=='benev'&&lr.role!=='repas'?'<b>'+hx(lr.role)+(lr.p?' '+hx(lr.p)+' km':'')+'</b> · ':''}Aller : <b>${hx(AR[lr.al]||'—')}</b> · Retour : <b>${hx(AR[lr.re]||'—')}</b>${lr.rn?' · '+lr.rn+' repas':''}`:'Votre discipline, votre transport (vélo, conducteur, passager) et vos repas.';
+    h+=st(n+'️⃣','Discipline, transport et repas',dsc,!!lr,`<button onclick="lgOpen('${ev.id}','${my==='benev'?'benev':'oui'}','${CU.id}')">${lr?'✏️ Modifier':'➡️ Je choisis'}</button>`,!ok);n++;
+  }
+  if(ev.spec&&(ev.spec.etapes||[]).length){
+    const E=ev.spec.etapes,mine=(sr&&sr.et)||[];
+    const dsc=mine.length?E.filter(e=>mine.includes(e.id)).map(e=>spIc(e.k)+' '+spLb(e.k)).join(' · ')+(na?` · + ${na} accompagnant${na>1?'s':''}`:''):'Ravitos, repas, nuit, petit-déjeuner… vous pouvez y ajouter vos accompagnants.';
+    h+=st(n+'️⃣','Étapes, repas et nuit',dsc,mine.length>0,`<button onclick="spOpen('${ev.id}')">${mine.length?'✏️ Modifier':'➡️ Je choisis'}</button>`,!ok);n++;
+  }else{
+    h+=st(n+'️⃣','Accompagnants (facultatif)',na?`${na} accompagnant${na>1?'s':''}`:'Conjoint, enfants, amis…',na>0,`<button class="alt" onclick="accOpen('${ev.id}')">${na?'✏️ Modifier':'➕ Ajouter'}</button>`,!ok);n++;
+  }
+  let tot=0;
+  if(lr)tot+=lgDue(ev,lr);
+  if(ev.spec&&sr)tot+=[{t:'a',e:sr.et||[]},...accOf(ev,CU.id)].reduce((t,x)=>t+spCost(ev.spec.etapes,x),0);
+  h+=`<div style="text-align:right;margin:8px 0;font-size:13px;">${tot>0?'💶 Total estimé : <b>'+rsE(tot)+'</b><div class="wd">Le règlement se fait auprès de l’organisateur.</div>':''}</div><button class="bp" onclick="cm('mWiz')">TERMINÉ</button>`;
+  document.getElementById('wizBody').innerHTML=h;
+}
+function wizLive(){if(wizId&&document.getElementById('mWiz')&&document.getElementById('mWiz').classList.contains('open'))wizRender();}
+// Lien direct vers un évènement
+window.shareEv=async id=>{
+  const ev=EVs.find(e=>e.id===id);if(!ev)return;
+  const url=location.origin+location.pathname+'#evt='+encodeURIComponent(id);
+  const text=`${isSpc(ev)?'⭐ Sortie spéciale — ':'📅 '}${ev.nom} — ${fmtL(ev.date)}${ev.heure?' à '+ev.heure.replace(':','h'):''}${ev.lieu?' · '+ev.lieu:''}. Inscris-toi ici :`;
+  if(navigator.share){try{await navigator.share({title:ev.nom,text,url});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+  try{await navigator.clipboard.writeText(text+' '+url);showT('Message et lien copiés 📋');}catch(e){prompt('Copiez ce message :',text+' '+url);}
+};
+function tryDeep(){
+  if(!deepId||!CU||!EVs.length)return;
+  const ev=EVs.find(e=>e.id===deepId);
+  if(!ev){if(++deepTry>=3){deepId=null;showT('Évènement introuvable (supprimé ou lien ancien).');try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}}return;}
+  const id=deepId;deepId=null;try{history.replaceState(null,'',location.pathname+location.search);}catch(e){}
+  goEv(id);
+  if(isSpc(ev))setTimeout(()=>wizOpen(id),500);
+}
+window.tryDeep=tryDeep;
+const _rb3=rebuildEVs;rebuildEVs=function(){_rb3.apply(this,arguments);wizLive();tryDeep();};
 
 // ═══ SORTIE SPÉCIALE : PROGRAMME DÉTAILLÉ (ravitos, repas, hébergement…) ═══
 const SP_K={ravito:['🍌','Ravitaillement'],dej:['🍽️','Déjeuner'],din:['🍷','Dîner'],nuit:['🛏️','Hébergement'],pdj:['☕','Petit-déjeuner'],autre:['📍','Étape']};
