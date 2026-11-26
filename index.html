@@ -405,6 +405,19 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
 .lgtabs button.on{border-color:var(--j);background:var(--jg);color:var(--j);}
 #mSortie .mdl{max-width:560px;}
 #mLogi{z-index:300;}
+#mAcc{z-index:310;}
+#mSpec,#mSpecR{z-index:300;}
+.sptb{width:100%;border-collapse:collapse;font-size:11px;margin:6px 0;}
+.sptb td,.sptb th{border-bottom:1px solid #d5e3ee;padding:4px;text-align:center;}
+.sptb td:first-child,.sptb th:first-child{text-align:left;}
+.sprow{border:1px solid #cfe0ee;border-radius:8px;padding:6px;margin-bottom:6px;}
+.sprow .fi{margin-bottom:3px;}
+.spbar{background:var(--card2,#eef6fc);border-radius:10px;padding:8px 10px;margin:6px 0;font-size:11px;line-height:1.5;}
+.spwarn{color:var(--R);font-weight:700;}
+.accl{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 8px;border:1px solid var(--bd,#cfe0ee);border-radius:8px;margin-bottom:4px;font-size:12px;}
+.accl button{border:0;background:none;color:var(--R);font-size:15px;cursor:pointer;}
+.accb{display:block;margin:0 0 6px;padding:7px 10px;width:100%;border:1px dashed var(--ac,#2b7bb9);background:none;border-radius:8px;font-size:11px;color:var(--ac,#2b7bb9);cursor:pointer;}
+.paccs{font-size:10px;color:var(--td);margin:1px 0 3px 10px;}
 .vh{display:flex;justify-content:space-between;align-items:center;gap:6px;font-weight:700;}
 .vb{height:7px;border-radius:4px;background:var(--bb);margin:3px 0 4px;overflow:hidden;}.vb i{display:block;height:100%;background:var(--V);}.vb i.f{background:var(--R);}
 .lgr{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid var(--bb);font-size:12px;color:var(--t);}
@@ -628,6 +641,14 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
       <div class="fs"><label class="fl">🏢 Organisateur <span class="hint">(vide = Lys Cyclo)</span></label><input class="fi" id="evOrg" placeholder="ex : Les Renards des Sables" maxlength="80"></div>
       <div class="frow"><div class="fs"><label class="fl">Affiliation</label><input class="fi" id="evAff" placeholder="ex : FFCT" maxlength="80"></div><div class="fs"><label class="fl">Heure de fin</label><input class="fi" id="evHf" type="time"></div></div>
       <div class="fs"><label class="fl">📝 Lien d’inscription en ligne (optionnel)</label><input class="fi" id="evInsc" type="url" placeholder="https://..."></div>
+      <div class="lgbox"><label class="admchk"><input type="checkbox" id="evSp" onchange="spTog()"> 🗓️ Programme détaillé <span class="hint">(ravitos, repas, hébergement, petit-déjeuner…)</span></label>
+        <div id="evSpF" style="display:none">
+          <div class="fs"><label class="fl">⏳ Date limite d’inscription au programme</label><input class="fi" id="evSpB" type="date"></div>
+          <div id="evSpL"></div>
+          <div class="hint">Ajouter une étape :</div>
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin:4px 0;"><button type="button" class="be" onclick="spAdd('ravito')">🍌 Ravito</button><button type="button" class="be" onclick="spAdd('dej')">🍽️ Déjeuner</button><button type="button" class="be" onclick="spAdd('din')">🍷 Dîner</button><button type="button" class="be" onclick="spAdd('nuit')">🛏️ Nuit</button><button type="button" class="be" onclick="spAdd('pdj')">☕ Petit-déj</button><button type="button" class="be" onclick="spAdd('autre')">📍 Autre</button></div>
+          <div class="hint">Les prix restent modifiables à tout moment (Modifier l’évènement).</div>
+        </div></div>
       <div class="lgbox"><label class="admchk"><input type="checkbox" id="evLg" onchange="lgTog()"> 🧳 Sortie spéciale avec logistique <span class="hint">(inscriptions, covoiturage, repas)</span></label>
         <div id="evLgF" style="display:none">
           <div class="fs"><label class="fl">⏳ Date limite d’inscription</label><input class="fi" id="evLgB" type="date"></div>
@@ -637,8 +658,11 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
           <div class="fs"><label class="fl">Capacité de la remorque (vélos)</label><input class="fi" id="evLgC" type="number" min="1" value="6"></div>
         </div></div>
     </div>
-    <div class="frow"><div class="fs"><label class="fl">Date *</label><input class="fi" id="evDa" type="date"></div><div class="fs"><label class="fl">Heure départ</label><input class="fi" id="evHe" type="time" value="09:00"></div></div>
-    <div class="fs"><label class="fl">Lieu *</label><input class="fi" id="evLi" placeholder="Place du Général de Gaulle, Lys-lez-Lannoy"></div>
+    <div class="frow"><div class="fs"><label class="fl">Date *</label><input class="fi" id="evDa" type="date"></div><div class="fs"><label class="fl">Heure de l'activité</label><input class="fi" id="evHe" type="time" value="09:00"></div></div>
+    <div class="fs"><label class="fl">Lieu de l'activité *</label><input class="fi" id="evLi" list="lxList" onfocus="lxFill()" oninput="ncCheck()" placeholder="Place du Général de Gaulle, Lys-lez-Lannoy"></div>
+    <div class="hint" id="evNoCar" style="display:none;margin:-4px 0 6px;"></div>
+    <div class="fs"><label class="fl">🚩 RDV du club (seulement s'il est différent)</label><div class="frow"><div class="fs"><input class="fi" id="evRdL" list="lxList" onfocus="lxFill()" placeholder="ex : Parking Cholles, Lys-lez-Lannoy"></div><div class="fs"><input class="fi" id="evRdH" type="time"></div></div><div class="hint">Ex. : RDV Parking Cholles à 6h30 · activité à Leers à 7h30.</div></div>
+    <datalist id="lxList"></datalist>
     <div class="fs"><label class="fl">🚗 Déplacement</label><div class="rg"><div class="ro"><input type="radio" name="evTr" id="et_0" value=""><label class="rl" for="et_0">Non précisé</label></div><div class="ro"><input type="radio" name="evTr" id="et_v" value="velo"><label class="rl" for="et_v">🚴 À vélo</label></div><div class="ro"><input type="radio" name="evTr" id="et_c" value="voiture"><label class="rl" for="et_c">🚗 Véhicule</label></div></div><div class="hint">Précisez si un véhicule est nécessaire pour se rendre au départ.</div></div>
     <div class="fs"><label class="fl">🍺 Bar du club ce jour-là</label><div class="rg"><div class="ro"><input type="radio" name="evBar" id="eb1" value="decider"><label class="rl" for="eb1">❓ À décider</label></div><div class="ro"><input type="radio" name="evBar" id="eb2" value="ouvert"><label class="rl" for="eb2">🟢 Ouvert</label></div><div class="ro"><input type="radio" name="evBar" id="eb3" value="ferme"><label class="rl" for="eb3">🔴 Fermé</label></div></div><div class="hint">Simple information pour l’agenda du bar : rien n’est modifié automatiquement.</div></div>
     <div class="fs"><label class="fl">Image événement</label><div class="iuz" id="evIZ"><span style="font-size:18px;">🖼</span><span style="font-size:10px;color:var(--td);">Touchez pour choisir une photo</span><input type="file" accept="image/*" onchange="evIUp(this)"></div><img id="evIPr" class="iprev" src="" alt=""><button id="evIDl" onclick="evIDel()" style="display:none;margin-top:3px;" class="bs">✕ Supprimer</button></div>
@@ -1052,6 +1076,7 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
+let spE=[],spEvId=null,spWho=null,spP=[],spRId=null;
 let aeType='tous',aeSel=new Set(),agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
 window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1334,22 +1359,26 @@ function evCard(ev){
     const pp=DORD.filter(d=>cn[d]).map(d=>`${DISC[d].i} ${d} <b>${cn[d]}</b>`);if(sc)pp.push(`sans choix <b>${sc}</b>`);
     dcH=`<div class="dcnt">${pp.join(' · ')}${canMgEv()&&anyE?` · 💶 ≈ ${eur(est)} (tarifs adultes)`:''}</div>`;
   }
-  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${lgBar(ev)}${rsBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
+  return`<div class="card" id="c-${ev.id}">${imgH}<div class="ch"><div class="etitle">${ev.nom}</div><div class="bdgs">${bdgsFor(ev)}</div></div>${tH}${fmH}<div class="emeta"><span class="mi">📅 ${fmtS(ev.date)}</span><span class="mi">🕐 ${hasDeps(ev)&&/^\d/.test(ev.heure||'')?'dès ':''}${ev.heure}${ev.heureFin?' – '+ev.heureFin:''}</span><span class="mi">📍 ${ev.lieu}</span>${ev.km&&!fmH?`<span class="mi">📏 ${ev.km} km</span>`:''}${ev.categorie?`<span class="mi">📂 ${ev.categorie}</span>`:''}${orgH}${rdvMi(ev)}${trMi(ev)}</div>${linksH}<div class="ecreat">${ev.auto&&!ev.autoMod?'🔁 Sortie club automatique (dimanches et jours fériés)':`📝 Créé le ${fmtS(ev.createdAt)} par <b>${crN}</b>`}</div>${ev.desc?`<div style="font-size:10px;color:var(--td);margin-bottom:6px;line-height:1.4;">${ev.desc}</div>`:''}<div class="pcount"><span>✅ <b>${tot}</b> participant${tot>1?'s':''}${accTot(ev)?` <span style="color:var(--td)">+ ${accTot(ev)} accompagnant${accTot(ev)>1?'s':''}</span>`:''}${non?` · ❌ ${non} absent${non>1?'s':''}`:''}</span><button onclick="showPart('${ev.id}')">👥 Voir les participants</button></div>${my==='oui'?`<button class="accb" onclick="accOpen('${ev.id}')">➕ Accompagnants${accOf(ev,CU.id).length?' ('+accOf(ev,CU.id).length+')':''} — conjoint, enfants, amis…</button>`:''}${lgBar(ev)}${spBar(ev)}${rsBar(ev)}<div class="pp"><button class="pb ${my==='oui'?'pbo':''}" onclick="setPart('${ev.id}','oui')">✅<br>Participe</button><button class="pb ${my==='non'?'pbn':''}" onclick="setPart('${ev.id}','non')">❌<br>Absent</button><button class="pb ${my==='nsp'?'pbk':''}" onclick="setPart('${ev.id}','nsp')">🤔<br>Ne sait pas</button><button class="pb ${my==='benev'?'pbb':''}" onclick="setPart('${ev.id}','benev')">🤝<br>Bénévole</button></div>${myDiscH}${dcH}${insc}${barH(ev)}${admH}</div>`;
 }
 window.setPart=async(evId,s)=>{
   if(!CU){showT('Connectez-vous !');return;}
   const ev=EVs.find(e=>e.id===evId);if(!ev)return;
-  const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})},rs={...(ev.resaRep||{})};
-  if(parts[CU.id]===s){delete parts[CU.id];delete choix[CU.id];delete lg[CU.id];delete rs[CU.id];}
+  const parts={...(ev.participations||{})},choix={...(ev.choix||{})},lg={...(ev.logiRep||{})},rs={...(ev.resaRep||{})},ac={...(ev.acc||{})},sp={...(ev.specRep||{})};
+  if(parts[CU.id]===s){delete ac[CU.id];delete sp[CU.id];delete parts[CU.id];delete choix[CU.id];delete lg[CU.id];delete rs[CU.id];}
   else{
     if(ev.logi&&(s==='oui'||s==='benev')){lgOpen(evId,s,CU.id);return;}
     if(ev.resa&&s==='oui'){rsOpen(evId,CU.id);return;}
     if(s==='oui'){const o=optsDisc(ev);if(o.length>1){pickDisc(evId);return;}if(o.length===1)choix[CU.id]=o[0].p?{d:o[0].d,p:o[0].p}:{d:o[0].d};}
     else delete choix[CU.id];
+    if(s!=='oui')delete ac[CU.id];
+    if(s==='non'||s==='nsp')delete sp[CU.id];
     if(s==='non'||s==='nsp'){delete lg[CU.id];delete rs[CU.id];}
     parts[CU.id]=s;
   }
   const pt={participations:parts,choix:Object.keys(choix).length?choix:null};if(ev.logi)pt.logiRep=Object.keys(lg).length?lg:null;if(ev.resa)pt.resaRep=Object.keys(rs).length?rs:null;
+  if(ev.acc)pt.acc=Object.keys(ac).length?ac:null;
+  if(ev.specRep)pt.specRep=Object.keys(sp).length?sp:null;
   await evWrite(ev,pt);
   showT('Réponse enregistrée !');
 };
@@ -1561,15 +1590,16 @@ window.saveEv=async()=>{
   const t=document.querySelector('input[name="evT"]:checked')?.value;const nom=document.getElementById('evNom').value.trim();const da=document.getElementById('evDa').value;const he=document.getElementById('evHe').value;const li=document.getElementById('evLi').value.trim();const de=document.getElementById('evDe').value.trim();
   if(!t||!nom||!da||!li){showT('Remplissez les champs requis !');return;}
   const td=isoL(new Date());
-  const data={type:t,nom,date:da,heure:he,lieu:li,desc:de,image:evImgD||null,createdBy:CU.id,createdAt:td};
+  const data={type:t,nom,date:da,heure:he,lieu:li,rdvLieu:document.getElementById('evRdL').value.trim()||null,rdvHeure:document.getElementById('evRdH').value||null,desc:de,image:evImgD||null,createdBy:CU.id,createdAt:td};
   if(t==='sportif'){data.categorie=document.querySelector('input[name="evCat"]:checked')?.value||null;const sp=readFormules();if(!sp.disciplines.length){showT('Choisissez au moins une discipline !');return;}data.disciplines=sp.disciplines;data.km=sp.km;data.formules=sp.formules.length?sp.formules:null;
     const lfb=document.getElementById('evLinkFb').value.trim();data.linkFb=lfb||null;
     const lgpx=document.getElementById('evLinkGpx').value.trim();data.linkGpx=lgpx||null;
   }
   if(t==='sportif'){data.heureFin=document.getElementById('evHf').value||null;data.organisateur=document.getElementById('evOrg').value.trim()||null;data.affil=document.getElementById('evAff').value.trim()||null;const li2=document.getElementById('evInsc').value.trim();if(li2&&!/^https?:\/\/\S+$/i.test(li2)){showT('Lien d’inscription : il doit commencer par https://');return;}data.linkInsc=li2||null;}
+  data.spec=null;if(t==='sportif'&&document.getElementById('evSp').checked){spSync();if(spE.length)data.spec={butoir:document.getElementById('evSpB').value||null,etapes:spE.map(e=>({id:e.id,k:e.k,lieu:e.lieu||null,heure:e.heure||null,pa:e.pa,pe:e.pe,cap:e.cap,note:e.note||null}))};}
   data.logi=(t==='sportif'&&document.getElementById('evLg').checked)?{butoir:document.getElementById('evLgB').value||null,repas:document.getElementById('evLgR').checked,repasPrix:parseFloat(document.getElementById('evLgP').value)||null,remorque:document.getElementById('evLgT').checked,remorqueCap:parseInt(document.getElementById('evLgC').value)||6}:null;
   {const nf=id=>parseFloat(document.getElementById(id).value),pl=document.getElementById('evRsP').value.split(',').map(x=>x.trim()).filter(Boolean);data.resa=((t==='festif'||t==='club')&&document.getElementById('evRs').checked)?{butoir:document.getElementById('evRsB2').value||null,tarifAdulte:nf('evRsTA')||0,tarifEnfant:nf('evRsTE')||0,adhGratuit:document.getElementById('evRsG').checked,coutAdulte:nf('evRsCA')||0,coutEnfant:nf('evRsCE')||0,plats:pl.length?pl:['Viande','Poisson'],platEnfant:document.getElementById('evRsPE').value.trim()||'Menu enfant',nbTables:parseInt(document.getElementById('evRsNT').value)||0,tMin:parseInt(document.getElementById('evRsMi').value)||1,tMax:parseInt(document.getElementById('evRsMa').value)||12}:null;}
-  data.barMode=document.querySelector('input[name="evBar"]:checked')?.value||null;data.transport=document.querySelector('input[name="evTr"]:checked')?.value||null;
+  data.barMode=document.querySelector('input[name="evBar"]:checked')?.value||null;data.transport=document.querySelector('input[name="evTr"]:checked')?.value||null;if(!data.transport&&isNoCar(li))data.transport='velo';
   if(t==='festif'){const tf=parseFloat(document.getElementById('evTa').value);if(!isNaN(tf)&&tf>0)data.tarif=tf;}
   if(t==='club'){data.categorie=document.querySelector('input[name="evClubCat"]:checked')?.value||'Autre';}
   if(!editEvId&&t==='sportif'&&!autoOk){
@@ -1994,7 +2024,7 @@ function fillFormules(ev){
 }
 function fillExtras(ev){
   const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
-  s('evHf',ev.heureFin);s('evOrg',ev.organisateur);s('evAff',ev.affil);s('evInsc',ev.linkInsc);
+  s('evHf',ev.heureFin);s('evRdL',ev.rdvLieu);s('evRdH',ev.rdvHeure);ncCheck();spLoad(ev);s('evOrg',ev.organisateur);s('evAff',ev.affil);s('evInsc',ev.linkInsc);
   {const Q=ev.resa,v=(id,x,d)=>{document.getElementById(id).value=x!=null?x:d;};document.getElementById('evRs').checked=!!Q;v('evRsB2',Q&&Q.butoir,'');v('evRsTA',Q&&Q.tarifAdulte,0);v('evRsTE',Q&&Q.tarifEnfant,0);document.getElementById('evRsG').checked=!!(Q&&Q.adhGratuit);v('evRsCA',Q&&Q.coutAdulte,'');v('evRsCE',Q&&Q.coutEnfant,'');v('evRsP',Q&&(Q.plats||[]).join(', '),'Viande, Poisson');v('evRsPE',Q&&Q.platEnfant,'Menu enfant');v('evRsNT',Q&&Q.nbTables,0);v('evRsMi',Q&&Q.tMin,8);v('evRsMa',Q&&Q.tMax,12);rsTog();}
   {const L=ev.logi;document.getElementById('evLg').checked=!!L;s('evLgB',L&&L.butoir);document.getElementById('evLgR').checked=L?L.repas!==false:true;s('evLgP',L&&L.repasPrix);document.getElementById('evLgT').checked=L?L.remorque!==false:true;s('evLgC',(L&&L.remorqueCap)||6);lgTog();}
   document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value===ev.barMode));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===(ev.transport||'')));
@@ -2002,7 +2032,7 @@ function fillExtras(ev){
 function resetMore(){
   {document.getElementById('evRs').checked=false;document.getElementById('evRsB2').value='';document.getElementById('evRsTA').value='0';document.getElementById('evRsTE').value='0';document.getElementById('evRsG').checked=false;document.getElementById('evRsCA').value='';document.getElementById('evRsCE').value='';document.getElementById('evRsP').value='Viande, Poisson';document.getElementById('evRsPE').value='Menu enfant';document.getElementById('evRsNT').value='0';document.getElementById('evRsMi').value='8';document.getElementById('evRsMa').value='12';rsTog();}
   {document.getElementById('evLg').checked=false;document.getElementById('evLgB').value='';document.getElementById('evLgR').checked=true;document.getElementById('evLgP').value='';document.getElementById('evLgT').checked=true;document.getElementById('evLgC').value='6';lgTog();}
-  ['evHf','evOrg','evAff','evInsc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  spLoad(null);['evHf','evOrg','evAff','evInsc','evRdL','evRdH'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   DORD.forEach(d=>['fp','ft','fj','fn','fd'].forEach(k=>{const el=document.getElementById(k+'-'+d);if(el)el.value='';}));
   onDisc();
   document.querySelectorAll('input[name="evBar"]').forEach(r=>r.checked=(r.value==='decider'));document.querySelectorAll('input[name="evTr"]').forEach(r=>r.checked=(r.value===''));
@@ -2198,7 +2228,7 @@ const trChip=ev=>ev.transport==='voiture'?'<span class="hdep">🚗 Véhicule né
 const trMi=ev=>ev.transport==='voiture'?'<span class="mi">🚗 Véhicule nécessaire</span>':ev.transport==='velo'?'<span class="mi">🚴 Départ à vélo</span>':'';
 
 // ═══ SORTIES CLUB AUTOMATIQUES (dimanches et jours fériés) ═══
-const CFG_DEF={actif:true,lieu:'Lys-lez-Lannoy',vtt:{actif:true,hiv:50,autre:70},route:{actif:true,hiv:65,autre:80},heures:{printemps:'08:30',ete:'08:00',hiver:'09:00'},debutEte:'06-21',debutAutomne:'09-23',debutPrintemps:'03-21'};
+const CFG_DEF={actif:true,lieu:'Lys-lez-Lannoy',vtt:{actif:true,hiv:50,autre:70},route:{actif:true,hiv:65,autre:80},heures:{printemps:'08:30',ete:'08:00',hiver:'09:00'},debutEte:'06-21',debutAutomne:'09-23',debutPrintemps:'03-21',villesSansVoiture:["Allennes-les-Marais", "Annœullin", "Anstaing", "Armentières", "Aubers", "Baisieux", "Bauvin", "Beaucamps-Ligny", "Bois-Grenier", "Bondues", "Bousbecque", "Bouvines", "Capinghem", "Carnin", "Chéreng", "Comines", "Croix", "Deûlémont", "Don", "Emmerin", "Englos", "Ennetières-en-Weppes", "Erquinghem-le-Sec", "Erquinghem-Lys", "Escobecques", "Faches-Thumesnil", "Forest-sur-Marque", "Fournes-en-Weppes", "Frelinghien", "Fretin", "Fromelles", "Gruson", "Hallennes-lez-Haubourdin", "Halluin", "Hantay", "Haubourdin", "Hem", "Herlies", "Houplin-Ancoisne", "Houplines", "Illies", "La Bassée", "La Chapelle-d'Armentières", "La Madeleine", "Lambersart", "Lannoy", "Le Maisnil", "Leers", "Lesquin", "Lezennes", "Lille", "Linselles", "Lompret", "Loos", "Lys-lez-Lannoy", "Marcq-en-Barœul", "Marquette-lez-Lille", "Marquillies", "Mons-en-Barœul", "Mouvaux", "Neuville-en-Ferrain", "Noyelles-lès-Seclin", "Pérenchies", "Péronne-en-Mélantois", "Prémesques", "Provin", "Quesnoy-sur-Deûle", "Radinghem-en-Weppes", "Ronchin", "Roncq", "Roubaix", "Sailly-lez-Lannoy", "Sainghin-en-Mélantois", "Sainghin-en-Weppes", "Saint-André-lez-Lille", "Salomé", "Santes", "Seclin", "Sequedin", "Templemars", "Toufflers", "Tourcoing", "Tressin", "Vendeville", "Verlinghem", "Villeneuve-d'Ascq", "Wambrechies", "Warneton", "Wasquehal", "Wattignies", "Wattrelos", "Wavrin", "Wervicq-Sud", "Wicres", "Willems"],lieuxConnus:['CLUB-HOUSE, Lys-lez-Lannoy','Parking Cholles, Lys-lez-Lannoy','Salle Desmulliez, Marcq-en-Barœul']};
 function cfgGet(){const c=CFG||{};return{...CFG_DEF,...c,vtt:{...CFG_DEF.vtt,...(c.vtt||{})},route:{...CFG_DEF.route,...(c.route||{})},heures:{...CFG_DEF.heures,...(c.heures||{})}};}
 function lastSunday(y,m){const d=new Date(y,m+1,0);d.setDate(d.getDate()-d.getDay());return d;}
 function mmdd(s,def){const m=String(s||def).match(/^(\d{1,2})-(\d{1,2})$/);return m?String(m[1]).padStart(2,'0')+'-'+String(m[2]).padStart(2,'0'):def;}
@@ -2271,6 +2301,8 @@ function admRenderCfg(force){
   <div class="hint">Printemps : du changement d'heure de mars au début de l'été · Été : jusqu'au changement d'heure d'octobre · Automne-hiver : du changement d'heure d'octobre à celui de mars.</div>
   <div class="fl" style="margin-top:6px;">Dates charnières (JJ/MM)</div>
   <div class="frow"><div class="fs"><label class="fl">Début de l'été</label><input class="fi" id="cf-de" value="${dmFmt(c.debutEte)}" maxlength="5"></div><div class="fs"><label class="fl">Début automne-hiver</label><input class="fi" id="cf-da" value="${dmFmt(c.debutAutomne)}" maxlength="5"></div><div class="fs"><label class="fl">Fin automne-hiver</label><input class="fi" id="cf-dp" value="${dmFmt(c.debutPrintemps)}" maxlength="5"></div></div>
+  <div class="fl" style="margin-top:10px;">🚴 Communes sans voiture (séparées par des virgules ou une par ligne)</div><textarea class="fta" id="cf-villes" rows="5">${hx((c.villesSansVoiture||[]).join(', '))}</textarea><div class="hint">Si le lieu d'une activité est dans cette liste, l'appli suppose un départ à vélo. Liste vide = liste d'origine (Métropole Européenne de Lille).</div>
+  <div class="fl">📌 Lieux de RDV habituels (un par ligne, ex : Parking Cholles, Lys-lez-Lannoy)</div><textarea class="fta" id="cf-lieux" rows="3">${hx((c.lieuxConnus||[]).join('\n'))}</textarea>
   <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><button class="bp" style="flex:1;min-width:130px;" onclick="admSaveCfg()">ENREGISTRER</button><button class="bv2btn" onclick="admRenderCfg(true)">↩ Valeurs d'origine</button><button class="bv2btn" onclick="admRestoreAuto()">♻️ Restaurer les sorties supprimées</button></div>`;
 }
 window.admRenderCfg=admRenderCfg;
@@ -2282,6 +2314,9 @@ window.admSaveCfg=async()=>{
   const o={actif:document.getElementById('cf-actif').checked,lieu:v('cf-lieu')||'Lys-lez-Lannoy',
     vtt:{actif:document.getElementById('cf-von').checked,hiv:n('cf-vh'),autre:n('cf-va')},route:{actif:document.getElementById('cf-ron').checked,hiv:n('cf-rh'),autre:n('cf-ra')},
     heures:{printemps:tm('cf-hp'),ete:tm('cf-he'),hiver:tm('cf-hh')},debutEte:dm('cf-de'),debutAutomne:dm('cf-da'),debutPrintemps:dm('cf-dp')};
+  {const sp=(t,re)=>{const seen=new Set(),out=[];String(t||'').split(re).map(x=>x.trim()).filter(Boolean).forEach(x=>{const k=nrm(x);if(!seen.has(k)){seen.add(k);out.push(x);}});return out;};
+   const vl=sp(document.getElementById('cf-villes').value,/[,;\n]+/),ll=sp(document.getElementById('cf-lieux').value,/\n+/);
+   if(vl.length)o.villesSansVoiture=vl;if(ll.length)o.lieuxConnus=ll;}
   if([o.vtt.hiv,o.vtt.autre,o.route.hiv,o.route.autre].includes(null)){showT('Distances : nombres entre 0 et 300.');return;}
   if(Object.values(o.heures).includes(null)){showT('Heures : format HH:MM.');return;}
   if(!o.debutEte||!o.debutAutomne||!o.debutPrintemps){showT('Dates : format JJ/MM (ex : 21/06).');return;}
@@ -2359,12 +2394,193 @@ window.goEv=id=>{
 
 // ═══ PARTICIPANTS (visibles de tous, derrière un bouton) ═══
 const nIns=ev=>Object.values(ev.participations||{}).filter(v=>v==='oui'||v==='benev').length;
+
+
+// ═══ SORTIE SPÉCIALE : PROGRAMME DÉTAILLÉ (ravitos, repas, hébergement…) ═══
+const SP_K={ravito:['🍌','Ravitaillement'],dej:['🍽️','Déjeuner'],din:['🍷','Dîner'],nuit:['🛏️','Hébergement'],pdj:['☕','Petit-déjeuner'],autre:['📍','Étape']};
+const spIc=k=>(SP_K[k]||SP_K.autre)[0],spLb=k=>(SP_K[k]||SP_K.autre)[1];
+const spNum=v=>{const x=parseFloat(v);return isNaN(x)||x<0?null:x;};
+const spCost=(E,p)=>(p.e||[]).reduce((t,id)=>{const e=E.find(x=>x.id===id);if(!e)return t;const v=(p.t==='e'&&e.pe!=null)?e.pe:(e.pa||0);return t+(+v||0);},0);
+const spPrix=e=>(e.pa>0||e.pe>0)?` · ${e.pa>0?eur(e.pa):'gratuit'}${(e.pe!=null&&e.pe!==e.pa)?' / enfant '+eur(e.pe):''}`:'';
+function spSync(){
+  const rows=[...document.querySelectorAll('#evSpL .sprow')];if(!rows.length&&spE.length&&!document.getElementById('evSpL').children.length)return;
+  spE=rows.map((r,i)=>({id:(spE[i]||{}).id||('e'+Date.now().toString(36)+i),k:(spE[i]||{}).k||'autre',lieu:r.querySelector('.sp-l').value.trim(),heure:r.querySelector('.sp-h').value,pa:spNum(r.querySelector('.sp-pa').value),pe:spNum(r.querySelector('.sp-pe').value),cap:(()=>{const c=parseInt(r.querySelector('.sp-c').value);return c>0?c:null;})(),note:r.querySelector('.sp-n').value.trim()}));
+}
+window.spSync=spSync;
+function spDraw(){
+  document.getElementById('evSpL').innerHTML=spE.map((e,i)=>`<div class="sprow"><div style="display:flex;justify-content:space-between;align-items:center;"><b>${spIc(e.k)} ${spLb(e.k)}</b><button type="button" class="be" onclick="spDel(${i})" aria-label="Retirer">✕</button></div>
+  <input class="fi sp-l" placeholder="Lieu (ville, restaurant, hôtel…)" value="${hx(e.lieu||'')}" oninput="spSync()">
+  <div class="frow"><div class="fs"><input class="fi sp-h" type="time" value="${hx(e.heure||'')}" onchange="spSync()"></div><div class="fs"><input class="fi sp-c" type="number" min="1" placeholder="${e.k==='nuit'?'Places max':'Capacité (opt.)'}" value="${e.cap||''}" oninput="spSync()"></div></div>
+  <div class="frow"><div class="fs"><input class="fi sp-pa" type="number" min="0" step="0.5" placeholder="Prix adulte €" value="${e.pa!=null?e.pa:''}" oninput="spSync()"></div><div class="fs"><input class="fi sp-pe" type="number" min="0" step="0.5" placeholder="Prix enfant €" value="${e.pe!=null?e.pe:''}" oninput="spSync()"></div></div>
+  <input class="fi sp-n" placeholder="Note (ex : accompagnants bienvenus, menu…)" value="${hx(e.note||'')}" oninput="spSync()"></div>`).join('');
+}
+window.spAdd=k=>{spSync();spE.push({id:'e'+Date.now().toString(36)+spE.length,k,lieu:'',heure:'',pa:null,pe:null,cap:null,note:''});spDraw();};
+window.spDel=i=>{spSync();spE.splice(i,1);spDraw();};
+function spTog(){document.getElementById('evSpF').style.display=document.getElementById('evSp').checked?'':'none';}
+window.spTog=spTog;
+function spLoad(ev){
+  const S=ev&&ev.spec;spE=S?(S.etapes||[]).map(x=>({id:x.id,k:x.k,lieu:x.lieu||'',heure:x.heure||'',pa:x.pa!=null?x.pa:null,pe:x.pe!=null?x.pe:null,cap:x.cap||null,note:x.note||''})):[];
+  document.getElementById('evSp').checked=!!S;document.getElementById('evSpB').value=(S&&S.butoir)||'';spDraw();spTog();
+}
+// Carte
+function spBar(ev){
+  const S=ev.spec;if(!S||!(S.etapes||[]).length)return'';
+  const d=lgDays(S.butoir);
+  const b=S.butoir?(d===null?'':d<0?`⏳ Inscriptions closes depuis le ${fmtS(S.butoir)}`:d===0?'⏳ <b>Dernier jour pour s’inscrire !</b>':`⏳ Avant le <b>${fmtS(S.butoir)}</b> (encore ${d} jour${d>1?'s':''})`):'';
+  const L=S.etapes.map(e=>`${spIc(e.k)} ${spLb(e.k)}${e.heure?' '+hx(e.heure.replace(':','h')):''}${e.lieu?' · '+hx(e.lieu):''}${spPrix(e)}${e.note?' <i>('+hx(e.note)+')</i>':''}`).join('<br>');
+  const mine=CU&&((ev.specRep||{})[CU.id]||{}).et;
+  return`<div class="spbar">🗓️ <b>Programme</b>${b?'<br>'+b:''}<br>${L}<div class="lgb" style="margin-top:6px;">${CU?`<button onclick="spOpen('${ev.id}')">✏️ ${mine&&mine.length?'Mon programme':'Je m’inscris aux étapes'}</button>`:''}${CU&&canAssign(ev)?`<button onclick="spRecap('${ev.id}')">📋 Récap organisateur</button>`:''}</div></div>`;
+}
+function spEnsure(){
+  if(document.getElementById('mSpec'))return;
+  const a=document.createElement('div');a.className='mo';a.id='mSpec';
+  a.innerHTML=`<div class="mdl"><button class="mc" onclick="cm('mSpec')">×</button><div class="mt2">🗓️ PROGRAMME</div><div class="imp-note" id="spNom"></div><div id="spTab"></div>
+  <div class="fl" style="margin-top:6px;">Ajouter un accompagnant</div><div class="frow"><div class="fs"><input class="fi" id="spN" placeholder="Prénom ou pseudo" maxlength="30" autocomplete="off"></div><div class="fs"><select class="fi" id="spT"><option value="a">Adulte</option><option value="e">Enfant</option></select></div></div><button class="be" onclick="spAddP()">➕ Ajouter</button>
+  <button class="bp" style="margin-top:8px;" onclick="spSaveP()">ENREGISTRER</button></div>`;
+  document.body.appendChild(a);
+  const r=document.createElement('div');r.className='mo';r.id='mSpecR';
+  r.innerHTML=`<div class="mdl"><button class="mc" onclick="cm('mSpecR')">×</button><div class="mt2">📋 RÉCAP PROGRAMME</div><div class="imp-note" id="spRNom"></div><div id="spRBody"></div></div>`;
+  document.body.appendChild(r);
+}
+window.spOpen=(evId,who)=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!ev.spec||!CU)return;
+  spEnsure();spEvId=evId;spWho=who||CU.id;
+  const me=((ev.specRep||{})[spWho]||{}).et||[];
+  spP=[{n:spWho===CU.id?'Moi':getMN(spWho),t:'a',m:1,e:[...me]},...accOf(ev,spWho).map(x=>({n:x.n,t:x.t,e:[...(x.e||[])]}))];
+  document.getElementById('spNom').textContent=ev.nom+' — '+(spWho===CU.id?'mon programme':fullName(spWho));
+  document.getElementById('spN').value='';spTab();document.getElementById('mSpec').classList.add('open');
+};
+function spTab(){
+  const ev=EVs.find(e=>e.id===spEvId);if(!ev)return;const E=ev.spec.etapes;
+  const tot=spP.reduce((t,p)=>t+spCost(E,p),0);
+  document.getElementById('spTab').innerHTML=`<div style="overflow-x:auto"><table class="sptb"><tr><th></th>${spP.map((p,j)=>`<th>${hx(p.n)}<br><small>${p.t==='e'?'enfant':'adulte'}</small>${j?` <a onclick="spRm(${j})" style="cursor:pointer;color:var(--R)">✕</a>`:''}</th>`).join('')}</tr>
+  ${E.map(e=>`<tr><td>${spIc(e.k)} ${spLb(e.k)}<br><small>${e.heure?hx(e.heure.replace(':','h'))+' ':''}${hx(e.lieu||'')}${spPrix(e)}</small></td>${spP.map((p,j)=>`<td><input type="checkbox" ${p.e.includes(e.id)?'checked':''} onchange="spChk(${j},'${e.id}',this.checked)"></td>`).join('')}</tr>`).join('')}
+  <tr><td><b>À payer</b></td>${spP.map(p=>`<td><b>${rsE(spCost(E,p))}</b></td>`).join('')}</tr></table></div><div style="text-align:right;font-size:13px;"><b>Total : ${rsE(tot)}</b></div>`;
+}
+window.spChk=(j,id,on)=>{const e=spP[j].e;const i=e.indexOf(id);if(on&&i<0)e.push(id);if(!on&&i>=0)e.splice(i,1);spTab();};
+window.spAddP=()=>{const n=document.getElementById('spN').value.trim();if(!n){showT('Indiquez un prénom ou un pseudo.');return;}if(spP.length>15){showT('15 accompagnants maximum.');return;}spP.push({n,t:document.getElementById('spT').value==='e'?'e':'a',e:[]});document.getElementById('spN').value='';spTab();};
+window.spRm=j=>{spP.splice(j,1);spTab();};
+window.spSaveP=async()=>{
+  const ev=EVs.find(e=>e.id===spEvId);if(!ev)return;
+  const S=ev.spec,d=lgDays(S.butoir);if(d!==null&&d<0&&!canAssign(ev)){showT('Les inscriptions au programme sont closes.');return;}
+  const R={...(ev.specRep||{})},A={...(ev.acc||{})},P={...(ev.participations||{})};
+  const me=spP[0].e,acs=spP.slice(1).map(x=>({n:x.n,t:x.t,...(x.e.length?{e:[...x.e]}:{})}));
+  const old=R[spWho]||{};
+  if(me.length||acs.some(a=>a.e))R[spWho]={et:[...me],...(old.pay?{pay:old.pay}:{})};else delete R[spWho];
+  if(acs.length)A[spWho]=acs;else delete A[spWho];
+  if(P[spWho]!=='oui'&&P[spWho]!=='benev'&&(me.length||acs.length))P[spWho]='oui';
+  await evWrite(ev,{specRep:Object.keys(R).length?R:null,acc:Object.keys(A).length?A:null,participations:P});
+  cm('mSpec');showT('Programme enregistré ✅');
+};
+// Récap organisateur
+function spCalc(ev){
+  const E=ev.spec.etapes,R=ev.specRep||{},cnt={};E.forEach(e=>cnt[e.id]={a:0,e:0});
+  const ids=[...new Set([...Object.keys(R),...Object.keys(ev.acc||{})])];const rows=[];
+  ids.forEach(id=>{
+    const persons=[{n:getMN(id),t:'a',m:1,e:(R[id]||{}).et||[]},...accOf(ev,id)].map(x=>({...x,e:x.e||[]}));
+    if(!persons.some(x=>x.e.length))return;
+    persons.forEach(x=>x.e.forEach(eid=>{if(cnt[eid])cnt[eid][x.t==='e'?'e':'a']++;}));
+    const due=persons.reduce((t,x)=>t+spCost(E,x),0),pay=(R[id]||{}).pay||{},paid=Object.values(pay).reduce((t,x)=>t+(+x.montant||0),0);
+    rows.push({id,persons,due,paid});
+  });
+  rows.sort((a,b)=>getMN(a.id).localeCompare(getMN(b.id)));
+  return{E,cnt,rows};
+}
+window.spRecap=evId=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!ev.spec)return;spEnsure();spRId=evId;spRender();document.getElementById('mSpecR').classList.add('open');
+};
+function spRender(){
+  const ev=EVs.find(e=>e.id===spRId);if(!ev||!ev.spec)return;const C=spCalc(ev);
+  document.getElementById('spRNom').textContent=ev.nom+' — '+fmtS(ev.date);
+  const due=C.rows.reduce((t,r)=>t+r.due,0),paid=C.rows.reduce((t,r)=>t+r.paid,0);
+  const opts=[...MEs].sort((a,b)=>(a.pseudo||a.prenom||'').localeCompare(b.pseudo||b.prenom||'')).map(m=>`<option value="${m.id}">${hx(getMN(m.id))}</option>`).join('');
+  document.getElementById('spRBody').innerHTML=`<table class="sptb"><tr><th>Étape</th><th>Adultes</th><th>Enfants</th><th>Total</th></tr>${C.E.map(e=>{const c=C.cnt[e.id],t=c.a+c.e,over=e.cap&&t>e.cap;return`<tr><td>${spIc(e.k)} ${spLb(e.k)}<br><small>${e.heure?hx(e.heure.replace(':','h'))+' ':''}${hx(e.lieu||'')}</small></td><td>${c.a}</td><td>${c.e}</td><td class="${over?'spwarn':''}"><b>${t}</b>${e.cap?' / '+e.cap:''}${over?' ⚠️':''}</td></tr>`;}).join('')}</table>
+  <div style="font-size:12px;margin:6px 0;">💶 À encaisser : <b>${rsE(due)}</b> · encaissé : <b>${rsE(paid)}</b> · reste : <b>${rsE(Math.max(0,due-paid))}</b></div>
+  ${C.rows.map(r=>`<div class="sprow"><div style="display:flex;justify-content:space-between;gap:6px;"><b>${hx(getMN(r.id))}${r.persons.length>1?' + '+(r.persons.length-1):''}</b><span class="${r.due-r.paid>0.001?'spwarn':''}">${rsE(r.paid)} / ${rsE(r.due)}</span></div>
+   <div class="hint">${r.persons.map(x=>hx(x.n)+(x.t==='e'?' (enfant)':'')+' : '+(x.e.map(id=>{const e=C.E.find(y=>y.id===id);return e?spIc(e.k):'';}).join('')||'—')).join(' · ')}</div>
+   <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;"><input class="fi" id="spPay-${r.id}" type="number" min="0" step="0.5" placeholder="€ reçus" style="flex:1;min-width:70px;margin:0;"><button class="be" onclick="spPay('${r.id}',false)">💶 Encaisser</button><button class="be" onclick="spPay('${r.id}',true)">✓ Soldé</button><button class="be" onclick="spOpen('${ev.id}','${r.id}')">✏️</button></div></div>`).join('')||'<div class="hint">Personne ne s’est encore inscrit aux étapes.</div>'}
+  <div class="fl" style="margin-top:8px;">Inscrire un adhérent à sa place</div><div class="frow"><div class="fs"><select class="fi" id="spRSel"><option value="">— choisir —</option>${opts}</select></div><button class="be" style="flex:0 0 auto;" onclick="spOpen('${ev.id}',document.getElementById('spRSel').value||null)">Ouvrir</button></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;"><button class="bp" style="flex:1;" onclick="spExport()">📊 Excel</button><button class="be" onclick="spCopy()">📋 Copier</button></div>`;
+}
+window.spPay=async(id,solde)=>{
+  const ev=EVs.find(e=>e.id===spRId);if(!ev||!canAssign(ev))return;
+  const C=spCalc(ev),r=C.rows.find(x=>x.id===id);if(!r)return;
+  let m=solde?Math.round((r.due-r.paid)*100)/100:parseFloat(document.getElementById('spPay-'+id).value);
+  if(isNaN(m)||m<=0){showT(solde?'Déjà soldé.':'Indiquez un montant.');return;}
+  const R={...(ev.specRep||{})},cur={...(R[id]||{et:[]})},pay={...(cur.pay||{})};
+  pay['p'+Date.now().toString(36)]={date:isoL(new Date()),montant:m};cur.pay=pay;if(!cur.et)cur.et=[];R[id]=cur;
+  await evWrite(ev,{specRep:R});showT('Paiement enregistré ✅');
+};
+window.spExport=async()=>{
+  const ev=EVs.find(e=>e.id===spRId);if(!ev)return;const C=spCalc(ev);
+  try{
+    const head=['Adhérent','Personne','Adulte/Enfant',...C.E.map(e=>spLb(e.k)+(e.lieu?' '+e.lieu:'')+(e.heure?' '+e.heure:'')),'Montant dû','Encaissé'];
+    const aoa=[[ev.nom+' — '+fmtL(ev.date)],[],head];
+    C.rows.forEach(r=>r.persons.forEach((x,i)=>aoa.push([fullName(r.id),i?x.n:'(adhérent)',x.t==='e'?'Enfant':'Adulte',...C.E.map(e=>x.e.includes(e.id)?'X':''),spCost(C.E,x),i===0?r.paid:''])));
+    aoa.push([]);aoa.push(['TOTAL','','',...C.E.map(e=>C.cnt[e.id].a+C.cnt[e.id].e),C.rows.reduce((t,r)=>t+r.due,0),C.rows.reduce((t,r)=>t+r.paid,0)]);
+    await xlDownload([['Programme',aoa,[22,18,12,...C.E.map(()=>16),12,12]]],'programme-'+(ev.nom||'sortie').replace(/[^\w]+/g,'-')+'.xlsx');
+  }catch(e){console.error(e);showT('Export impossible.');}
+};
+window.spCopy=async()=>{
+  const ev=EVs.find(e=>e.id===spRId);if(!ev)return;const C=spCalc(ev);
+  let t=`🗓️ ${ev.nom} — ${fmtL(ev.date)}\n`;C.E.forEach(e=>{const c=C.cnt[e.id];t+=`${spIc(e.k)} ${spLb(e.k)}${e.heure?' '+e.heure.replace(':','h'):''}${e.lieu?' · '+e.lieu:''} : ${c.a+c.e} (${c.a} ad., ${c.e} enf.)${e.cap?' / '+e.cap+' places':''}\n`;});
+  try{await navigator.clipboard.writeText(t);showT('Récap copié ✅');}catch(e){showT('Copie impossible.');}
+};
+function spLive(){if(spRId&&document.getElementById('mSpecR')&&document.getElementById('mSpecR').classList.contains('open'))spRender();}
+const _rb2=rebuildEVs;rebuildEVs=function(){_rb2.apply(this,arguments);spLive();};
+
+// ═══ ACCOMPAGNANTS, RDV DU CLUB, COMMUNES SANS VOITURE ═══
+const accOf=(ev,id)=>{const a=(ev.acc||{})[id];return Array.isArray(a)?a:(a?Object.values(a):[]);};
+function accTot(ev){return Object.keys(ev.acc||{}).reduce((t,id)=>t+((ev.participations||{})[id]==='oui'?accOf(ev,id).length:0),0);}
+function partAcc(ev,id){const a=accOf(ev,id);if(!a.length)return'';return`<div class="paccs">↳ + ${a.map(x=>hx(x.n)+(x.t==='e'?' (enfant)':'')).join(', ')}</div>`;}
+const rdvMi=ev=>(ev.rdvLieu||ev.rdvHeure)?`<span class="mi">🚩 RDV ${ev.rdvHeure?hx(ev.rdvHeure.replace(':','h'))+' ':''}${hx(ev.rdvLieu||'')}</span>`:'';
+let accEvId=null,accWho=null,accL=[];
+function accEnsure(){
+  if(document.getElementById('mAcc'))return;
+  const d=document.createElement('div');d.className='mo';d.id='mAcc';
+  d.innerHTML=`<div class="mdl"><button class="mc" onclick="cm('mAcc')">×</button><div class="mt2">➕ ACCOMPAGNANTS</div><div class="imp-note" id="accNom"></div><div id="accList"></div>
+  <div class="frow"><div class="fs"><input class="fi" id="accN" placeholder="Prénom ou pseudo" maxlength="30" autocomplete="off"></div><div class="fs"><select class="fi" id="accT"><option value="a">Adulte</option><option value="e">Enfant</option></select></div></div>
+  <button class="bp" onclick="accAdd()">AJOUTER</button><div class="hint" style="margin-top:6px;">Conjoint, enfants, amis… qui ne sont pas adhérents. Ils sont comptés avec vous.</div></div>`;
+  document.body.appendChild(d);
+}
+function accRender(){
+  const h=document.getElementById('accList');
+  h.innerHTML=accL.length?accL.map((x,i)=>`<div class="accl"><span>${x.t==='e'?'🧒':'🧑'} <b>${hx(x.n)}</b> · ${x.t==='e'?'enfant':'adulte'}</span><button onclick="accDel(${i})" aria-label="Retirer">✕</button></div>`).join(''):'<div class="hint">Aucun accompagnant pour le moment.</div>';
+}
+window.accOpen=(evId,who)=>{
+  const ev=EVs.find(e=>e.id===evId);if(!ev||!CU)return;
+  accEnsure();accEvId=evId;accWho=who||CU.id;accL=accOf(ev,accWho).map(x=>({...x}));
+  document.getElementById('accNom').textContent=ev.nom+' — '+(accWho===CU.id?'vous':fullName(accWho));
+  document.getElementById('accN').value='';accRender();document.getElementById('mAcc').classList.add('open');
+};
+async function accSave(){
+  const ev=EVs.find(e=>e.id===accEvId);if(!ev)return;
+  const all={...(ev.acc||{})};if(accL.length)all[accWho]=accL;else delete all[accWho];
+  await evWrite(ev,{acc:Object.keys(all).length?all:null});
+}
+window.accAdd=async()=>{
+  const el=document.getElementById('accN'),n=el.value.trim();if(!n){showT('Indiquez un prénom ou un pseudo.');return;}
+  if(accL.length>=15){showT('15 accompagnants maximum.');return;}
+  accL.push({n,t:document.getElementById('accT').value==='e'?'e':'a'});el.value='';accRender();await accSave();showT('Accompagnant ajouté ✅');
+};
+window.accDel=async i=>{accL.splice(i,1);accRender();await accSave();};
+// Communes sans voiture
+window.isNoCar=isNoCar;function isNoCar(lieu){
+  const L=String(lieu||'').trim();if(!L)return null;
+  const parts=L.split(',').map(x=>x.trim()).filter(Boolean),cands=[nrm(L),nrm(cityOf(L)),parts.length?nrm(parts[0]):''];
+  for(const v of (cfgGet().villesSansVoiture||[])){const n=nrm(v);if(n&&cands.includes(n))return v;}
+  return null;
+}
+window.ncCheck=()=>{const el=document.getElementById('evNoCar');if(!el)return;const v=isNoCar(document.getElementById('evLi').value);
+  if(v){el.style.display='';el.innerHTML='🚴 <b>'+hx(v)+'</b> est dans la liste des communes sans voiture : départ à vélo, pas de covoiturage. (Cochez la logistique voiture ci-dessus pour forcer.)';}else el.style.display='none';};
+window.lxFill=()=>{const d=document.getElementById('lxList');if(!d)return;const c=cfgGet();d.innerHTML=[...(c.lieuxConnus||[]),...(c.villesSansVoiture||[])].map(x=>`<option value="${hx(x)}">`).join('');};
+
 window.showPart=id=>{
   const ev=EVs.find(e=>e.id===id);if(!ev)return;
   const P=ev.participations||{};
-  const grp=(k,t)=>{const ids=Object.keys(P).filter(i=>P[i]===k);if(!ids.length)return'';return`<div class="plg"><h4>${t} (${ids.length})</h4><div>${ids.map(i=>hx(getMN(i))+discTag(ev,i)).join('<br>')}</div></div>`;};
+  const grp=(k,t)=>{const ids=Object.keys(P).filter(i=>P[i]===k);if(!ids.length)return'';return`<div class="plg"><h4>${t} (${ids.length})</h4><div>${ids.map(i=>hx(getMN(i))+discTag(ev,i)+(k==='oui'?partAcc(ev,i)+(canAssign(ev)?` <a style="font-size:10px;cursor:pointer;" onclick="accOpen('${ev.id}','${i}')">✏️ accompagnants</a>`:''):'')).join('<br>')}</div></div>`;};
   const rep=Object.keys(P).length,sr=Math.max(0,MEs.length-rep);
-  document.getElementById('partNom').textContent=ev.nom+' — '+fmtS(ev.date);
+  document.getElementById('partNom').textContent=ev.nom+' — '+fmtS(ev.date)+(accTot(ev)?' · +'+accTot(ev)+' accompagnant'+(accTot(ev)>1?'s':''):'');
   document.getElementById('partBody').innerHTML=(grp('oui','✅ Participants')+grp('benev','🤝 Bénévoles')+grp('nsp','🤔 Peut-être')+grp('non','❌ Absents'))||'<div class="hint">Personne ne s’est encore inscrit.</div>';
   document.getElementById('partBody').innerHTML+=`<div class="hint" style="margin-top:4px;">${sr} adhérent${sr>1?'s':''} sans réponse</div>`;
   document.getElementById('mPart').classList.add('open');
@@ -2420,7 +2636,7 @@ window.annBuild=()=>{
   wk.forEach(e=>{
     const h=/^\d/.test(e.heure||'')?e.heure:'';
     t+=`\n📅 ${fmtS(e.date).replace(/ \d{4}$/,'')}${h?' à '+h:''}${isFerie(e.date)?' (férié)':''} — ${e.nom}\n`;
-    const v=cityOf(e.lieu);t+=`📍 ${e.lieu||v||'Lieu à confirmer'}\n`;
+    const v=cityOf(e.lieu);t+=`📍 ${e.lieu||v||'Lieu à confirmer'}\n`;if(e.rdvLieu||e.rdvHeure)t+=`🚩 RDV ${e.rdvHeure?e.rdvHeure.replace(':','h')+' ':''}${e.rdvLieu||''}\n`;
     const k=plainT(kmSummary(e));if(k)t+=`${k}\n`;
     if(hasDeps(e))evFml(e).forEach(f=>parseKm(f.parcours).forEach(pp=>{const x=depOf(f,pp);if(x)t+=`   • ${f.d} ${pp} km : ${depTxt(x)}\n`;}));
     if(e.transport==='voiture')t+='🚗 Véhicule nécessaire\n';
@@ -2453,20 +2669,21 @@ const lgOffer=(r,leg,k)=>{const v=r[k+(leg==='al'?'a':'r')];return v!=null?+v||0
 const canAssign=ev=>!!CU&&(canMgEv()||ev.createdBy===CU.id);
 const lgOnly=ev=>Object.entries(ev.participations||{}).filter(([,v])=>v==='oui'||v==='benev').map(([id])=>id);
 function lgRows(ev){
-  return lgOnly(ev).map(id=>{const r=(ev.logiRep||{})[id];return r?{id,n:getMN(id),...r}:{id,n:getMN(id),none:true};});
+  return lgOnly(ev).map(id=>{const r=(ev.logiRep||{})[id];return r?{id,n:getMN(id),xn:accOf(ev,id).length,...r}:{id,n:getMN(id),none:true};});
 }
 function lgVeh(R,ev,k){
   const L=ev.logi||{},cap=L.remorqueCap||6,remOK=L.remorque!==false;
   const remHolder=(R.find(r=>r.rem&&(r.al==='cond'||r.re==='cond'))||{}).id;
   const key=k==='al'?'va':'vr';
-  const vs=R.filter(r=>r[k]==='cond').map(r=>({id:r.id,n:r.n,seats:lgOffer(r,k,'pl'),bikes:lgOffer(r,k,'pv')+(remOK&&r.id===remHolder?cap:0),rem:remOK&&r.id===remHolder,own:lgHasBike(r)?1:0,ps:[],role:r.role}));
+  const vs=R.filter(r=>r[k]==='cond').map(r=>({id:r.id,n:r.n,seats:lgOffer(r,k,'pl'),bikes:lgOffer(r,k,'pv')+(remOK&&r.id===remHolder?cap:0),rem:remOK&&r.id===remHolder,own:lgHasBike(r)?1:0,dxn:r.xn||0,ps:[],role:r.role}));
   const ps=R.filter(r=>r[k]==='pass');
   ps.forEach(r=>{const v=vs.find(x=>x.id===r[key]);if(v)v.ps.push(r);});
-  vs.forEach(v=>{v.bUsed=v.own+v.ps.filter(lgHasBike).length;});
+  vs.forEach(v=>{v.bUsed=v.own+v.ps.filter(lgHasBike).length;v.pn=v.dxn+v.ps.reduce((a,r)=>a+1+(r.xn||0),0);});
+  const pn=ps.reduce((a,r)=>a+1+(r.xn||0),0)+vs.reduce((a,v)=>a+v.dxn,0);
   const unp=ps.filter(r=>!vs.some(x=>x.id===r[key]));
   const seatsTot=vs.reduce((a,v)=>a+v.seats,0),bikesTot=vs.reduce((a,v)=>a+v.bikes,0);
   const bikeNeed=R.filter(r=>lgHasBike(r)&&(r[k]==='cond'||r[k]==='pass')).length;
-  return{vs,ps,unp,seatsTot,bikesTot,bikeNeed,seatMiss:Math.max(0,ps.length-seatsTot),bikeMiss:Math.max(0,bikeNeed-bikesTot),vel:R.filter(r=>r[k]==='velo'),remMany:R.filter(r=>r.rem&&(r.al==='cond'||r.re==='cond'))};
+  return{vs,ps,pn,unp,seatsTot,bikesTot,bikeNeed,seatMiss:Math.max(0,pn-seatsTot),bikeMiss:Math.max(0,bikeNeed-bikesTot),vel:R.filter(r=>r[k]==='velo'),remMany:R.filter(r=>r.rem&&(r.al==='cond'||r.re==='cond'))};
 }
 function lgPrice(ev,r){const L=ev.logi||{};const f=evFml(ev).find(x=>x.d===r.role);return(f&&f.tarif!=null?+f.tarif:0);}
 function lgDue(ev,r){const L=ev.logi||{};return lgPrice(ev,r)+(L.repas!==false&&L.repasPrix?(+r.rn||0)*L.repasPrix:0);}
@@ -2561,10 +2778,10 @@ window.lgAuto=async evId=>{
       const R=lgRows({...ev,logiRep:lg}).filter(r=>!r.none),V=lgVeh(R,ev,k),key=k==='al'?'va':'vr',oth=k==='al'?'vr':'va';
       V.unp.slice().sort((a,b)=>(lgHasBike(b)?1:0)-(lgHasBike(a)?1:0)).forEach(r=>{
         const bike=lgHasBike(r);
-        const ok=V.vs.filter(v=>v.seats-v.ps.length>0&&(!bike||v.bikes-v.bUsed>0));
+        const ok=V.vs.filter(v=>v.seats-v.pn>=1+(r.xn||0)&&(!bike||v.bikes-v.bUsed>0));
         if(!ok.length)return;
-        const v=ok.find(x=>x.id===r[oth])||ok.sort((a,b)=>(b.seats-b.ps.length)-(a.seats-a.ps.length))[0];
-        lg[r.id][key]=v.id;v.ps.push(r);if(bike)v.bUsed++;n++;
+        const v=ok.find(x=>x.id===r[oth])||ok.sort((a,b)=>(b.seats-b.pn)-(a.seats-a.pn))[0];
+        lg[r.id][key]=v.id;v.ps.push(r);v.pn+=1+(r.xn||0);if(bike)v.bUsed++;n++;
       });
     });
   });
@@ -2605,14 +2822,14 @@ function lgRender(){
       h+=`<div class="lgc"><h4>${lab}</h4>`;
       if(!V.vs.length)h+='<div class="hint">Aucun véhicule déclaré pour ce trajet.</div>';
       V.vs.forEach(v=>{
-        const rs=v.seats-v.ps.length,rb=v.bikes-v.bUsed,over=rs<0||rb<0;
+        const rs=v.seats-v.pn,rb=v.bikes-v.bUsed,over=rs<0||rb<0;
         const sel=r=>adm?`<select onchange="lgAssign('${ev.id}','${r.id}','${k}',this.value)"><option value="">— retirer —</option>${V.vs.map(x=>`<option value="${hx(x.id)}" ${x.id===v.id?'selected':''}>${hx(x.n)}</option>`).join('')}</select>`:'';
-        h+=`<div class="lgc" style="border-color:${over?'var(--R)':'var(--bb)'}"><div class="vh"><span>🚗 ${hx(v.n)}${v.rem?' 🚛':''}</span><span class="${over?'lgw':'lgsm'}">${v.ps.length}/${v.seats} pl. · ${v.bUsed}/${v.bikes} vélos</span></div><div class="vb"><i class="${over?'f':''}" style="width:${Math.min(100,v.seats?v.ps.length/v.seats*100:0)}%"></i></div>${v.ps.map(r=>`<div class="lgr"><span>🪑 ${hx(r.n)}${lgHasBike(r)?' 🚲':''}</span>${sel(r)}</div>`).join('')||'<div class="lgsm">Personne pour l’instant.</div>'}</div>`;
+        h+=`<div class="lgc" style="border-color:${over?'var(--R)':'var(--bb)'}"><div class="vh"><span>🚗 ${hx(v.n)}${v.rem?' 🚛':''}</span><span class="${over?'lgw':'lgsm'}">${v.pn}/${v.seats} pl. · ${v.bUsed}/${v.bikes} vélos</span></div><div class="vb"><i class="${over?'f':''}" style="width:${Math.min(100,v.seats?v.pn/v.seats*100:0)}%"></i></div>${v.dxn?`<div class="lgsm">${hx(v.n)} + ${v.dxn} accompagnant${v.dxn>1?'s':''}</div>`:''}${v.ps.map(r=>`<div class="lgr"><span>🪑 ${hx(r.n)}${r.xn?' +'+r.xn:''}${lgHasBike(r)?' 🚲':''}</span>${sel(r)}</div>`).join('')||'<div class="lgsm">Personne pour l’instant.</div>'}</div>`;
       });
-      if(V.unp.length)h+=`<div class="lgc" style="border-color:var(--R)"><b class="lgw">⚠️ Sans place (${V.unp.length})</b>${V.unp.map(r=>`<div class="lgr"><span>🪑 ${hx(r.n)}${lgHasBike(r)?' 🚲':''}</span>${adm&&V.vs.length?`<select onchange="lgAssign('${ev.id}','${r.id}','${k}',this.value)"><option value="">— placer —</option>${V.vs.map(x=>`<option value="${hx(x.id)}">${hx(x.n)} (${x.seats-x.ps.length} pl.)</option>`).join('')}</select>`:''}</div>`).join('')}</div>`;
+      if(V.unp.length)h+=`<div class="lgc" style="border-color:var(--R)"><b class="lgw">⚠️ Sans place (${V.unp.length})</b>${V.unp.map(r=>`<div class="lgr"><span>🪑 ${hx(r.n)}${r.xn?' +'+r.xn:''}${lgHasBike(r)?' 🚲':''}</span>${adm&&V.vs.length?`<select onchange="lgAssign('${ev.id}','${r.id}','${k}',this.value)"><option value="">— placer —</option>${V.vs.map(x=>`<option value="${hx(x.id)}">${hx(x.n)} (${x.seats-x.pn} pl.)</option>`).join('')}</select>`:''}</div>`).join('')}</div>`;
       if(V.vel.length)h+=`<div class="lgsm">🚴 À vélo : ${V.vel.map(r=>hx(r.n)).join(', ')}</div>`;
       const sOk=!V.seatMiss,bOk=!V.bikeMiss;
-      h+=`<div class="${sOk?'lgg':'lgw'}">${sOk?'✅':'⚠️'} Places : ${V.ps.length} demandée${V.ps.length>1?'s':''} / ${V.seatsTot} offerte${V.seatsTot>1?'s':''}${sOk?'':' — manque '+V.seatMiss}</div><div class="${bOk?'lgg':'lgw'}">${bOk?'✅':'⚠️'} Vélos : ${V.bikeNeed} / ${V.bikesTot} emplacement${V.bikesTot>1?'s':''}${bOk?'':' — manque '+V.bikeMiss}</div>`;
+      h+=`<div class="${sOk?'lgg':'lgw'}">${sOk?'✅':'⚠️'} Places : ${V.pn} demandée${V.pn>1?'s':''} / ${V.seatsTot} offerte${V.seatsTot>1?'s':''}${sOk?'':' — manque '+V.seatMiss}</div><div class="${bOk?'lgg':'lgw'}">${bOk?'✅':'⚠️'} Vélos : ${V.bikeNeed} / ${V.bikesTot} emplacement${V.bikesTot>1?'s':''}${bOk?'':' — manque '+V.bikeMiss}</div>`;
       if(L.remorque!==false&&V.bikeNeed>0&&!V.vs.some(v=>v.rem))h+='<div class="lgw">⚠️ Personne n’attelle la remorque.</div>';
       if(V.remMany.length>1)h+=`<div class="lgw">⚠️ Une seule remorque : ${V.remMany.map(r=>hx(r.n)).join(', ')} l’ont cochée (seule la première compte).</div>`;
       h+='</div>';
@@ -2634,7 +2851,7 @@ function lgRecap(ev,RR,adm){
   if(adm){const due=RR.reduce((a,r)=>a+lgDue(ev,r),0),paid=RR.filter(r=>r.pay).reduce((a,r)=>a+lgDue(ev,r),0);
     h+=`<div class="lgc"><h4>💶 Paiements</h4><div>Dû : <b>${eur(due)}</b> · Encaissé : <b>${eur(paid)}</b> · Reste : <b class="${due-paid>0?'lgw':'lgg'}">${eur(due-paid)}</b></div></div>`;}
   [['al','Aller'],['re','Retour']].forEach(([k,lab])=>{const V=lgVeh(RR,ev,k);
-    h+=`<div class="lgc"><h4>${k==='al'?'🚩':'🏁'} ${lab}</h4><div class="${V.seatMiss?'lgw':'lgg'}">${V.seatMiss?'⚠️':'✅'} Places : ${V.ps.length} / ${V.seatsTot} (solde ${V.seatsTot-V.ps.length})</div><div class="${V.bikeMiss?'lgw':'lgg'}">${V.bikeMiss?'⚠️':'✅'} Vélos : ${V.bikeNeed} / ${V.bikesTot} (solde ${V.bikesTot-V.bikeNeed})</div>${V.unp.length?`<div class="lgw">${V.unp.length} personne${V.unp.length>1?'s':''} sans place</div>`:''}</div>`;});
+    h+=`<div class="lgc"><h4>${k==='al'?'🚩':'🏁'} ${lab}</h4><div class="${V.seatMiss?'lgw':'lgg'}">${V.seatMiss?'⚠️':'✅'} Places : ${V.pn} / ${V.seatsTot} (solde ${V.seatsTot-V.pn})</div><div class="${V.bikeMiss?'lgw':'lgg'}">${V.bikeMiss?'⚠️':'✅'} Vélos : ${V.bikeNeed} / ${V.bikesTot} (solde ${V.bikesTot-V.bikeNeed})</div>${V.unp.length?`<div class="lgw">${V.unp.length} personne${V.unp.length>1?'s':''} sans place</div>`:''}</div>`;});
   const nr=Math.max(0,MEs.length-Object.keys(ev.participations||{}).length);
   h+=`<div class="hint">${nr} adhérent${nr>1?'s':''} sans réponse</div><button class="be" style="margin-top:6px;width:100%;padding:9px;" onclick="lgCopy('${ev.id}')">📋 Copier le récapitulatif</button>`;
   if(adm)h+=`<button class="bp" style="margin-top:6px;width:100%;" onclick="lgExport('${ev.id}')">📥 Exporter en Excel (suivi d’inscription)</button>`;
@@ -2646,10 +2863,10 @@ function lgText(ev){
   t+='\nINSCRITS\n';(ev.disciplines||[]).filter(d=>DISC[d]).forEach(d=>{const x=RR.filter(r=>r.role===d);t+=`${d} : ${x.length}${x.length?' — '+x.map(r=>r.n+(r.p?' ('+r.p+' km)':'')).join(', '):''}\n`;});
   if(L.repas!==false)t+=`\nREPAS : ${RR.reduce((a,r)=>a+(+r.rn||0),0)} personne(s)\n`;
   [['al','ALLER'],['re','RETOUR']].forEach(([k,lab])=>{const V=lgVeh(RR,ev,k);t+=`\n${lab}\n`;
-    V.vs.forEach(v=>{t+=`🚗 ${v.n}${v.rem?' (remorque)':''} ${v.ps.length}/${v.seats} pl., ${v.bUsed}/${v.bikes} vélos${v.ps.length?' : '+v.ps.map(r=>r.n).join(', '):''}\n`;});
+    V.vs.forEach(v=>{t+=`🚗 ${v.n}${v.rem?' (remorque)':''} ${v.pn}/${v.seats} pl., ${v.bUsed}/${v.bikes} vélos${v.ps.length?' : '+v.ps.map(r=>r.n+(r.xn?' +'+r.xn:'')).join(', '):''}\n`;});
     if(V.vel.length)t+='🚴 À vélo : '+V.vel.map(r=>r.n).join(', ')+'\n';
     if(V.unp.length)t+='⚠️ Sans place : '+V.unp.map(r=>r.n).join(', ')+'\n';
-    t+=`Places ${V.ps.length}/${V.seatsTot} · Vélos ${V.bikeNeed}/${V.bikesTot}\n`;});
+    t+=`Places ${V.pn}/${V.seatsTot} · Vélos ${V.bikeNeed}/${V.bikesTot}\n`;});
   return t;
 }
 window.lgCopy=async id=>{const ev=EVs.find(e=>e.id===id);if(!ev)return;try{await navigator.clipboard.writeText(lgText(ev));showT('Récapitulatif copié.');}catch(e){showT('Copie impossible.');}};
@@ -2665,9 +2882,9 @@ window.lgExport=async id=>{
         c&&r.rem?'OUI':'',nm(r.va),nm(r.vr),r.arr||''];});
     const tot=['','','','','','','','','','','','','','','','','Nb de places'];
     const V1=lgVeh(RR.filter(r=>!r.none),ev,'al'),V2=lgVeh(RR.filter(r=>!r.none),ev,'re');
-    const bal=['','','','','','','','','','','','','','','','','Solde (offert − besoin)','',V1.seatsTot-V1.ps.length,V1.bikesTot-V1.bikeNeed,V2.seatsTot-V2.ps.length,V2.bikesTot-V2.bikeNeed];
+    const bal=['','','','','','','','','','','','','','','','','Solde (offert − besoin)','',V1.seatsTot-V1.pn,V1.bikesTot-V1.bikeNeed,V2.seatsTot-V2.pn,V2.bikesTot-V2.bikeNeed];
     const vo=[['Trajet','Véhicule (conducteur)','Remorque','Places','Vélos','Passagers']];
-    [['al','Aller'],['re','Retour']].forEach(([k,lab])=>{const V=lgVeh(RR.filter(r=>!r.none),ev,k);V.vs.forEach(v=>vo.push([lab,v.n,v.rem?'OUI':'',`${v.ps.length}/${v.seats}`,`${v.bUsed}/${v.bikes}`,v.ps.map(r=>r.n).join(', ')]));if(V.unp.length)vo.push([lab,'SANS PLACE','','','',V.unp.map(r=>r.n).join(', ')]);});
+    [['al','Aller'],['re','Retour']].forEach(([k,lab])=>{const V=lgVeh(RR.filter(r=>!r.none),ev,k);V.vs.forEach(v=>vo.push([lab,v.n,v.rem?'OUI':'',`${v.pn}/${v.seats}`,`${v.bUsed}/${v.bikes}`,v.ps.map(r=>r.n+(r.xn?' +'+r.xn:'')).join(', ')]));if(V.unp.length)vo.push([lab,'SANS PLACE','','','',V.unp.map(r=>r.n).join(', ')]);});
     await xlDownload([['PARTICIPANTS',[['Inscription '+ev.nom+' '+ev.date.slice(0,4)],head,...rows,[],bal],[5,12,18,22,10,14,13,24,13,10,12,10,10,8,9,9,12,9,9,9,9,10,9,9,9,9,9,18,18,9]],['VOITURES',vo,[10,26,10,8,8,50]]],'Suivi_inscription_'+ev.nom.replace(/[^A-Za-z0-9]+/g,'-').slice(0,30)+'_'+ev.date+'.xlsx');
     showT('Export Excel prêt.');
   }catch(e){console.error(e);showT('Export impossible (connexion Internet nécessaire).');}
