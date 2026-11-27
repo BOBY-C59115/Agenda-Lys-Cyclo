@@ -1311,11 +1311,11 @@ function kmOf(ev,id){
   return fm.length>1?0:(ev.km||0);
 }
 function discTag(ev,id){const c=ev.choix&&ev.choix[id];if(!c||!DISC[c.d])return'';return` <span class="dtag">${DISC[c.d].i} ${c.d}${c.p?' '+c.p+' km':''}</span>`;}
-function evBarBtns(e){return`<span class="evbb"><button class="bv2btn" onclick="evSetBar('${e.id}','ouvert')">🟢 Ouvrir</button><button class="bd" onclick="evSetBar('${e.id}','ferme')">🔴 Fermer</button><button class="be" onclick="evSetBar('${e.id}','decider')">❓</button></span>`;}
+function evBarBtns(e){const m=e.barMode;const on=v=>m===v?' style="outline:2px solid var(--ac,#2b7bb9);"':'';return`<span class="evbb" style="flex-wrap:wrap;gap:4px;"><button class="bv2btn"${on('ouvert')} onclick="evSetBar('${e.id}','ouvert')">🟢 Bar ouvert</button><button class="bd"${on('ferme')} onclick="evSetBar('${e.id}','ferme')">🔴 Bar fermé</button><button class="be"${on('decider')} onclick="evSetBar('${e.id}','decider')">❓ À décider</button></span>`;}
 // évènements d'un jour de bar (calendrier du bar)
 function evChips(ds,btn){
   return EVs.filter(e=>e.date===ds&&e.type!=='club'&&!e.auto).map(e=>{
-    const m=e.barMode,t=m==='ouvert'?'🟢 bar souhaité':m==='ferme'?'🔴 pas de bar':m==='decider'?'❓ bar à décider':'';
+    const m=e.barMode,t=m==='ouvert'?'🟢 bar ouvert':m==='ferme'?'🔴 bar fermé':m==='decider'?'❓ bar à décider':'';
     return`<div class="evchip" style="color:${m==='decider'?'var(--O)':'var(--td)'}">📌 <b>${hx(e.nom)}</b>${t?' — '+t:''}${btn&&isAdm()&&m?evBarBtns(e):''}</div>`;
   }).join('');
 }
@@ -1323,14 +1323,27 @@ function barH(ev){
   if(ev.type==='club'||!ev.barMode)return'';
   const today=isoL(new Date());if(ev.date<today)return'';
   const m=ev.barMode,ds=ev.date,bd=isBarDay(ds),closed=BSs[ds]===false;
-  const t={ouvert:'🟢 Bar souhaité ce jour',ferme:'🔴 Pas de bar ce jour',decider:'❓ Bar : à décider'}[m]||'';
-  let cal;
-  if(bd){const b=BAs[ds]||{};const n=(b.b1?1:0)+(b.b2?1:0);cal=closed?'Agenda du bar : fermé':`Agenda du bar : ouvert · ${n}/2 bénévole${n>1?'s':''}`;}
-  else cal='Jour hors agenda habituel du bar (dimanches et fériés)';
+  const t={ouvert:'🟢 Le bar sera ouvert ce jour',ferme:'🔴 Le bar sera fermé ce jour',decider:'❓ Bar : l’organisateur décidera prochainement'}[m]||'';
+  let cal='',btn='';
+  if(m==='ferme')cal='Il n’y aura pas de bar pendant cet évènement.';
+  else if(m==='decider')cal='Nous vous dirons ici si le bar est ouvert ou fermé.';
+  else if(!bd)cal='Ce jour n’est pas un jour de bar habituel (dimanches et jours fériés) : l’ouverture est décidée par l’organisateur.';
+  else if(closed)cal='Le bar est fermé ce jour dans l’agenda du bar.';
+  else{
+    const b=BAs[ds]||{},ids=[b.b1,b.b2].filter(Boolean),n=ids.length,nm=ids.map(i=>'<b>'+hx(getMN(i))+'</b>').join(' et ');
+    const mine=CU&&ids.includes(CU.id);
+    cal=n===0?'Personne n’est encore inscrit pour tenir le bar (0/2 bénévole). <b>Vous pouvez vous inscrire pour aider !</b>'
+      :n===1?`${mine?'Vous tenez':nm+' vous accueillera'} le bar (1/2 bénévole). <b>Il reste 1 place pour l’aider.</b>`
+      :`${mine?'Vous tenez le bar avec '+hx(getMN(ids.find(i=>i!==CU.id)))+'.':nm+' vous accueilleront.'} Équipe complète (2/2).`;
+    if(CU&&!mine&&n<2)btn=`<button class="bv2btn" style="margin-top:5px;width:100%;" onclick="selfRegB('${ds}')">🍺 Je m’inscris comme bénévole du bar</button>`;
+  }
   let al='';
-  if(bd&&m==='ferme'&&!closed)al='⚠️ L’agenda du bar est encore ouvert ce jour';
-  if(bd&&m==='ouvert'&&closed)al='⚠️ L’agenda du bar est fermé ce jour';
-  return`<div class="evbar ${m}"><div class="evbt">${t}</div><div class="evbs">${cal}</div>${al?`<div class="evba">${al}</div>`:''}${isAdm()?evBarBtns(ev):''}</div>`;
+  if(isAdm()){
+    if(bd&&m==='ferme'&&!closed)al='⚠️ À corriger : bar annoncé fermé, mais l’agenda du bar est encore ouvert ce jour.';
+    if(bd&&m==='ouvert'&&closed)al='⚠️ À corriger : bar annoncé ouvert, mais l’agenda du bar est fermé ce jour.';
+  }
+  const adm=isAdm()?`<div class="evbs" style="margin-top:6px;">Décision de l’organisateur :</div>${evBarBtns(ev)}`:'';
+  return`<div class="evbar ${m}"><div class="evbt">${t}</div><div class="evbs" style="font-size:10px;">${cal}</div>${btn}${al?`<div class="evba">${al}</div>`:''}${adm}</div>`;
 }
 window.evSetBar=async(evId,mode)=>{
   if(!isAdm()){showT('Accès refusé.');return;}
