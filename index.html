@@ -540,6 +540,11 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   <div class="stitle">👤 Mon Profil</div>
   <div class="phdr"><div class="pbav" id="pBigAv"><div class="aveo">📷</div><input type="file" accept="image/*" onchange="upSelfAv(this)"></div><div class="pname" id="pName"></div><div class="ppseu" id="pPseu"></div><div class="prb" id="pRole"></div></div>
   <div class="card">
+    <div style="font-family:'Barlow Condensed';font-size:12px;font-weight:700;margin-bottom:6px;color:var(--j);">💡 Votre avis compte</div>
+    <div class="hint" style="margin-bottom:7px;">Un souci, une idée, quelque chose pas clair ? Dites-le en 20 secondes.</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="bp" style="flex:1;" onclick="avisOpen()">💡 Une idée ou un souci</button><button class="bs" style="flex:1;" onclick="avFinalOpen()">📝 Questionnaire (3 min)</button></div>
+  </div>
+  <div class="card">
     <div style="font-family:'Barlow Condensed';font-size:12px;font-weight:700;margin-bottom:9px;color:var(--j);">✏️ Modifier mes informations</div>
     <div class="frow"><div class="fs"><label class="fl">Prénom</label><input class="fi" id="epPr"></div><div class="fs"><label class="fl">Nom</label><input class="fi" id="epNo"></div></div>
     <div class="fs"><label class="fl">Téléphone *</label><input class="fi" id="epTe" type="tel"></div>
@@ -559,10 +564,15 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   <div id="admHome">
     <div class="admtiles">
       <button class="admtile" onclick="admGo('membres')"><span class="admti">👥</span><span class="admtx"><span class="admtt">Gestion des membres</span><span class="admts" id="admSubM"></span></span><span class="admar">›</span></button>
+      <button class="admtile" onclick="admGo('avis')"><span class="admti">💡</span><span class="admtx"><span class="admtt">Avis et amélioration</span><span class="admts" id="admSubA"></span></span><span class="admar">›</span></button>
       <button class="admtile" onclick="admGo('bar')"><span class="admti">🍺</span><span class="admtx"><span class="admtt">Gestion du bar</span><span class="admts" id="admSubB"></span></span><span class="admar">›</span></button>
       <button class="admtile" onclick="admGo('events')"><span class="admti">📅</span><span class="admtx"><span class="admtt">Gestion des évènements</span><span class="admts" id="admSubE"></span></span><span class="admar">›</span></button>
     </div>
     <div class="adang"><div class="ast" style="color:var(--R);">⚠️ Zone Danger</div><div class="imp-note" style="margin-top:0;">Supprime tous les évènements <b>et</b> toutes les inscriptions de bénévoles du bar.</div><button class="bd" style="width:100%;" onclick="confReset()">Réinitialiser évènements et bar</button></div>
+  </div>
+  <div id="admSecA" class="admsec" style="display:none">
+    <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>💡 Avis et amélioration</span></div>
+    <div id="avBody"></div>
   </div>
   <div id="admSecM" class="admsec" style="display:none">
     <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>👥 Gestion des membres</span></div>
@@ -927,6 +937,7 @@ async function initFirebase(){
   }
 
   // Écouter les membres en temps réel
+  onValue(ref(db,'avis'),snap=>{AVs=snap.exists()?Object.entries(snap.val()).map(([id,v])=>({...v,id})):[];if(typeof avRender==='function')avRender();},()=>{});
   onValue(ref(db,'demandes'),snap=>{DEMs=snap.exists()?Object.entries(snap.val()).map(([id,v])=>({...v,id})):[];demRender();},()=>{});
   onValue(ref(db,'membres'),snap=>{
     if(snap.exists()){
@@ -1093,9 +1104,9 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
 let spE=[],spEvId=null,spWho=null,spP=[],spRId=null;
-let dupG=[],dupIgn=new Set(),DEMs=[],demToast=false,memSort='nom',memFlt='tous',fc={},wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
+let AVs=[],avCur='accueil',avFlt='tous',dupG=[],dupIgn=new Set(),DEMs=[],demToast=false,memSort='nom',memFlt='tous',fc={},wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
 let aeType='tous',aeSel=new Set(),agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
-window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
+window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';avCur=name;const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const v=document.getElementById('view-'+name);if(v)v.classList.add('active');
@@ -1971,7 +1982,7 @@ const admNorm=s=>String(s??'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCa
 const admEsc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 window.admGo=s=>{
   if(!isAdm()){showT('Accès refusé.');return;}
-  const map={home:'admHome',membres:'admSecM',events:'admSecE',bar:'admSecB'};
+  const map={home:'admHome',avis:'admSecA',membres:'admSecM',events:'admSecE',bar:'admSecB'};
   Object.values(map).forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
   document.getElementById(map[s]||'admHome').style.display='';
   admAfter();demRender();
@@ -2026,7 +2037,7 @@ function admTiles(){
   const dec=EVs.filter(e=>e.barMode==='decider'&&(e.date||'')>=td&&e.type!=='club').length;
   if(dec){const el=document.getElementById('admSubB');if(el){el.textContent+=` · ❓ ${dec} évènement${dec>1?'s':''} : bar à décider`;el.className='admts warn';}}
 }
-function admAfter(){if(!isAdm())return;admTiles();admRenderBar();admFilterMem();admRenderCfg();}
+function admAfter(){if(!isAdm())return;admTiles();avRender();admRenderBar();admFilterMem();admRenderCfg();}
 
 // ═══ MULTI-DISCIPLINES : formulaire ═══
 function buildFml(){
@@ -2263,7 +2274,7 @@ function renderDashboard(){
 }
 function renderPlus(){
   const g=document.getElementById('plusGrid');if(!g)return;
-  g.innerHTML=[['👥','Membres','Annuaire du club',"sv('membres',9)"],['📊','Stats','Statistiques',"sv('stats',9)"],['👤','Profil','Mes informations',"sv('profil',9)"]].map(([i,l,s,fn])=>`<div class="dash-btn" onclick="${fn}"><div class="dash-icon">${i}</div><div class="dash-label">${l}</div><div class="dash-sub">${s}</div></div>`).join('');
+  g.innerHTML=[['👥','Membres','Annuaire du club',"sv('membres',9)"],['📊','Stats','Statistiques',"sv('stats',9)"],['👤','Profil','Mes informations',"sv('profil',9)"],['💡','Mon avis','Idée ou souci',"avisOpen()"]].map(([i,l,s,fn])=>`<div class="dash-btn" onclick="${fn}"><div class="dash-icon">${i}</div><div class="dash-label">${l}</div><div class="dash-sub">${s}</div></div>`).join('');
 }
 
 
@@ -2537,6 +2548,159 @@ async function mergeMembers(keepId,dupIds){
   await update(ref(db,'membres/'+keepId),patch);
   for(const d of dupIds)await remove(ref(db,'membres/'+d));
 }
+
+// ═══ AVIS, MICRO-SONDAGES, QUESTIONNAIRE FINAL ═══
+const AV_T={bug:['🐞','Ça ne marche pas'],flou:['😕','Pas clair'],idee:['💡','Une idée'],micro:['⏱️','Après action'],final:['📝','Questionnaire']};
+const AV_SCR={accueil:'Accueil',agenda:'Agenda',bar:'Bar',plus:'Plus',membres:'Membres',stats:'Stats',profil:'Profil',admin:'Administration',login:'Connexion'};
+const avLS=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}};
+async function avSend(o){
+  const base={ts:Date.now(),date:isoL(new Date()),statut:'new',ua:(navigator.userAgent||'').slice(0,90),role:CU?CU.role:'',ecran:AV_SCR[avCur]||avCur};
+  if(!o.anon&&CU){base.mid=CU.id;base.nom=((CU.prenom||'')+' '+(CU.nom||'')).trim();}
+  delete o.anon;
+  await set(push(ref(db,'avis')),{...base,...o});
+}
+function avEnsure(){
+  if(document.getElementById('mAvis'))return;
+  const d=document.createElement('div');d.className='mo';d.id='mAvis';
+  d.innerHTML='<div class="mdl"><button class="mc" onclick="cm(\'mAvis\')">×</button><div class="mt2">💡 VOTRE AVIS</div><div id="avisBody"></div></div>';
+  document.body.appendChild(d);
+}
+let avT='idee';
+window.avisOpen=()=>{avEnsure();avT='idee';avisDraw();document.getElementById('mAvis').classList.add('open');};
+function avisDraw(){
+  document.getElementById('avisBody').innerHTML=`<div class="imp-note">Dites-nous simplement ce qui ne va pas ou ce qui vous ferait plaisir. Aucun mot technique nécessaire 🙂<br><span class="hint">Écran concerné : <b>${hx(AV_SCR[avCur]||avCur)}</b></span></div>
+  <div style="display:flex;gap:6px;margin:8px 0;">${['bug','flou','idee'].map(k=>`<button class="${avT===k?'bp':'bs'}" style="flex:1;padding:10px 4px;font-size:11px;" onclick="avT_('${k}')">${AV_T[k][0]}<br>${AV_T[k][1]}</button>`).join('')}</div>
+  <textarea class="fi" id="avTxt" rows="4" placeholder="Racontez en quelques mots…" style="width:100%;"></textarea>
+  <label style="display:flex;gap:7px;align-items:center;margin:8px 0;font-size:12px;"><input type="checkbox" id="avAn"> Envoyer sans mon nom (anonyme)</label>
+  <button class="bp" onclick="avisSend()">ENVOYER</button>`;
+}
+window.avT_=k=>{const t=(document.getElementById('avTxt')||{}).value||'',a=(document.getElementById('avAn')||{}).checked;avT=k;avisDraw();document.getElementById('avTxt').value=t;document.getElementById('avAn').checked=!!a;};
+window.avisSend=async()=>{
+  const t=document.getElementById('avTxt').value.trim();if(t.length<3){showT('Écrivez quelques mots 🙂');return;}
+  try{await avSend({type:avT,txt:t.slice(0,800),anon:document.getElementById('avAn').checked});cm('mAvis');showT('Merci, c’est transmis ! 🙏');}catch(e){showT('Erreur, réessayez.');}
+};
+// micro-sondage à chaud
+const AV_MQ={inscr:'Votre inscription',bar:'Votre inscription au bar',connexion:'Votre première connexion'};
+const AV_MQ2=['Je ne savais pas quoi faire','C’était trop long','Ça ne marchait pas','Autre chose'];
+function avMicroOk(ctx){
+  if(!CU)return false;
+  if(ctx==='inscr')return EVs.some(e=>!e.virtual&&['oui','benev'].includes((e.participations||{})[CU.id]));
+  if(ctx==='bar')return Object.values(BAs||{}).some(b=>b&&(b.b1===CU.id||b.b2===CU.id));
+  return true;
+}
+function avMicroLater(ctx){
+  setTimeout(()=>{
+    if(!AV_MQ[ctx]||!avMicroOk(ctx))return;
+    const k='lc_avm_'+CU.id+'_'+ctx;if(avLS(k))return;
+    const last=+avLS('lc_avm_last')||0;if(Date.now()-last<600000)return;
+    avLS(k,'1');avLS('lc_avm_last',String(Date.now()));avMicroShow(ctx);
+  },1600);
+}
+window.avMicroLater=avMicroLater;window.avMicroShow=(c)=>avMicroShow(c);
+function avMicroShow(ctx){
+  let c=document.getElementById('avMicro');if(c)c.remove();
+  c=document.createElement('div');c.id='avMicro';
+  c.style.cssText='position:fixed;left:8px;right:8px;bottom:70px;z-index:260;background:var(--bm);border:2px solid var(--j);border-radius:14px;padding:12px;max-width:460px;margin:0 auto;box-shadow:0 6px 24px rgba(0,0,0,.5);';
+  c.innerHTML=`<button class="mc" style="top:4px;right:6px;" onclick="document.getElementById('avMicro').remove()">×</button><div style="font-weight:700;font-size:13px;margin-bottom:8px;">${hx(AV_MQ[ctx])} : c’était comment ?</div>
+  <div style="display:flex;gap:8px;">${[[3,'😀','Facile'],[2,'😐','Moyen'],[1,'😟','Difficile']].map(([n,e,l])=>`<button class="bs" style="flex:1;padding:8px 2px;font-size:11px;" onclick="avMicroRate('${ctx}',${n})"><span style="font-size:24px;">${e}</span><br>${l}</button>`).join('')}</div>`;
+  document.body.appendChild(c);
+}
+window.avMicroRate=async(ctx,n)=>{
+  const c=document.getElementById('avMicro');
+  let id=null;try{const r=push(ref(db,'avis'));id=r.key;await set(r,{type:'micro',ctx,note:n,ts:Date.now(),date:isoL(new Date()),statut:'new',role:CU?CU.role:'',ecran:AV_SCR[avCur]||avCur,mid:CU?CU.id:null,nom:CU?((CU.prenom||'')+' '+(CU.nom||'')).trim():''});}catch(e){}
+  if(!c)return;
+  if(n===3){c.innerHTML='<div style="font-weight:700;text-align:center;padding:6px;">Merci ! 🙏</div>';setTimeout(()=>c.remove(),1400);return;}
+  c.innerHTML=`<button class="mc" style="top:4px;right:6px;" onclick="document.getElementById('avMicro').remove()">×</button><div style="font-weight:700;font-size:13px;margin-bottom:6px;">Qu’est-ce qui était difficile ?</div>
+  ${AV_MQ2.map(t=>`<button class="bs" style="display:block;width:100%;margin:4px 0;text-align:left;" onclick="avMicroWhy('${id}','${t.replace(/'/g,"\\'")}')">${hx(t)}</button>`).join('')}`;
+};
+window.avMicroWhy=async(id,t)=>{
+  try{if(id&&id!=='null')await update(ref(db,'avis/'+id),{raison:t});}catch(e){}
+  const c=document.getElementById('avMicro');if(c){c.innerHTML='<div style="font-weight:700;text-align:center;padding:6px;">Merci, on va améliorer ça ! 🙏</div>';setTimeout(()=>c.remove(),1500);}
+};
+// questionnaire final
+const AV_Q=[
+ ['q1','Avez-vous réussi à vous connecter la première fois ?','r',['Facilement','Avec de l’aide','J’ai abandonné','Je n’ai pas essayé']],
+ ['q2','« C’est simple à utiliser »','r',['1 – Pas du tout','2','3','4','5 – Tout à fait']],
+ ['q3','Qu’avez-vous fait dans l’appli ?','c',['Regardé l’agenda','Répondu présent','Inscrit au bar','Choisi ma logistique (voiture…)','Sortie spéciale']],
+ ['q4','Quelle partie était la moins claire ?','r',['Accueil','Agenda','Bar','Mon inscription (sortie spéciale)','Profil','Rien, tout est clair']],
+ ['q5','Par rapport à Messenger et au bouche-à-oreille ?','r',['Plus pratique','Pareil','Moins pratique']],
+ ['q6','Utiliseriez-vous l’appli toute l’année ?','r',['Oui','Peut-être','Non']],
+ ['q7','Recommanderiez-vous l’appli à un adhérent ? (0 = non, 10 = oui)','r',['0','1','2','3','4','5','6','7','8','9','10']],
+];
+let avA={};
+window.avFinalOpen=()=>{
+  avEnsure();avA={};const M=document.getElementById('mAvis');
+  document.getElementById('avisBody').innerHTML=`<div class="imp-note">📝 <b>Questionnaire final</b> : 3 minutes, des réponses simples. Merci de votre aide !</div>
+  ${AV_Q.map(([k,q,t,o],i)=>`<div style="margin:10px 0;"><div style="font-weight:700;font-size:12px;margin-bottom:5px;">${i+1}. ${hx(q)}</div><div style="display:flex;flex-wrap:wrap;gap:5px;">${o.map((x,j)=>`<button class="bs" data-k="${k}" data-j="${j}" style="padding:8px 10px;font-size:11px;" onclick="avPick('${k}',${j},'${t}')">${hx(x)}</button>`).join('')}</div></div>`).join('')}
+  <div style="margin:10px 0;"><div style="font-weight:700;font-size:12px;margin-bottom:5px;">8. Ce qu’il manque, ce qu’il faut changer ou supprimer</div><textarea class="fi" id="avQ8" rows="3" style="width:100%;"></textarea></div>
+  <label style="display:flex;gap:7px;align-items:center;margin:8px 0;font-size:12px;"><input type="checkbox" id="avHelp"> J’aimerais qu’on m’aide ou qu’on m’appelle</label>
+  <label style="display:flex;gap:7px;align-items:center;margin:8px 0;font-size:12px;"><input type="checkbox" id="avAn"> Répondre sans mon nom (anonyme)</label>
+  <button class="bp" onclick="avFinalSend()">ENVOYER MES RÉPONSES</button>`;
+  M.classList.add('open');
+};
+window.avPick=(k,j,t)=>{
+  const q=AV_Q.find(x=>x[0]===k);
+  if(t==='c'){const a=new Set(avA[k]||[]);a.has(j)?a.delete(j):a.add(j);avA[k]=[...a];}else avA[k]=j;
+  document.querySelectorAll('#avisBody button[data-k="'+k+'"]').forEach(b=>{const on=t==='c'?(avA[k]||[]).includes(+b.dataset.j):avA[k]===+b.dataset.j;b.className=on?'bp':'bs';b.style.padding='8px 10px';b.style.fontSize='11px';});
+};
+window.avFinalSend=async()=>{
+  if(avA.q1===undefined||avA.q2===undefined){showT('Répondez au moins aux questions 1 et 2 🙂');return;}
+  const ans={};AV_Q.forEach(([k,q,t,o])=>{const v=avA[k];if(v===undefined)return;ans[k]=t==='c'?v.map(j=>o[j]):o[v];});
+  try{await avSend({type:'final',ans,txt:document.getElementById('avQ8').value.trim().slice(0,800),aide:document.getElementById('avHelp').checked,anon:document.getElementById('avAn').checked});
+    avLS('lc_av_final_'+(CU?CU.id:''),'1');cm('mAvis');showT('Merci beaucoup ! 🙏');}catch(e){showT('Erreur, réessayez.');}
+};
+// hooks
+(function(){
+  const wrap=(n,ctx)=>{const o=window[n];if(typeof o!=='function')return;window[n]=async(...a)=>{const r=await o(...a);avMicroLater(ctx);return r;};};
+  setTimeout(()=>{wrap('setPart','inscr');wrap('lgSave','inscr');wrap('rsSave','inscr');wrap('selfRegB','bar');wrap('fcSave','connexion');},0);
+})();
+// admin
+const avNote=a=>a.length?(a.reduce((s,x)=>s+x.note,0)/a.length):null;
+window.avSt=async(id,st)=>{try{await update(ref(db,'avis/'+id),{statut:st});}catch(e){showT('Erreur.');}};
+window.avDel=id=>conf('Supprimer cet avis ?','Cette action est définitive.',async()=>{try{await remove(ref(db,'avis/'+id));}catch(e){}});
+window.avFl=k=>{avFlt=k;avRender();};
+window.avInvite=async()=>{
+  const t='📝 Merci d’avoir testé l’appli Agenda Lys-Cyclo ! Pour l’améliorer, donnez-nous votre avis (3 minutes) : ouvrez l’appli › Profil › « Questionnaire (3 min) ». Vous pouvez aussi nous écrire à tout moment avec « 💡 Une idée ou un souci ». Merci 🙏';
+  if(navigator.share){try{await navigator.share({text:t});return;}catch(e){if(e&&e.name==='AbortError')return;}}
+  try{await navigator.clipboard.writeText(t);showT('Message copié ✅');}catch(e){showT('Copie impossible.');}
+};
+window.avXls=async()=>{
+  const rows=[['Date','Type','Écran','Statut','Nom','Texte / raison','Note','Questionnaire']];
+  AVs.slice().sort((a,b)=>b.ts-a.ts).forEach(a=>rows.push([a.date||'',(AV_T[a.type]||[])[1]||a.type,a.ecran||'',a.statut||'',a.nom||(a.mid?'':'anonyme'),a.txt||a.raison||'',a.note||'',a.ans?Object.entries(a.ans).map(([k,v])=>k+': '+(Array.isArray(v)?v.join(', '):v)).join(' | '):'']));
+  try{await xlDownload([['Avis',rows,[12,16,14,10,22,60,6,60]]],'Avis_Agenda_Lys-Cyclo_'+isoL(new Date())+'.xlsx');}catch(e){showT('Export impossible.');}
+};
+function avRender(){
+  try{
+  const sub=document.getElementById('admSubA');
+  const nNew=AVs.filter(a=>a.statut==='new'&&['bug','flou','idee'].includes(a.type)).length;
+  if(sub){sub.textContent=AVs.length?`${AVs.length} retour${AVs.length>1?'s':''}${nNew?` · ${nNew} à traiter`:''}`:'Aucun retour pour l’instant';sub.className='admts'+(nNew?' warn':'');}
+  const B=document.getElementById('avBody');if(!B||!isAdm())return;
+  const mem=MEs.length,pw=MEs.filter(m=>m.pwdSet||m.pwdH).length;
+  const ids=new Set();EVs.forEach(e=>{if(e.virtual)return;Object.entries(e.participations||{}).forEach(([k,v])=>{if(v==='oui'||v==='benev')ids.add(k);});});
+  Object.values(BAs||{}).forEach(b=>{if(b){if(b.b1)ids.add(b.b1);if(b.b2)ids.add(b.b2);}});
+  const mic=AVs.filter(a=>a.type==='micro'),fin=AVs.filter(a=>a.type==='final');
+  const mc=n=>mic.filter(a=>a.note===n).length;
+  const q2=fin.map(a=>({note:+String((a.ans||{}).q2||'0')[0]})).filter(x=>x.note>0);
+  const nps=fin.map(a=>+((a.ans||{}).q7)).filter(x=>!isNaN(x));
+  const npsV=nps.length?Math.round((nps.filter(x=>x>=9).length-nps.filter(x=>x<=6).length)/nps.length*100):null;
+  const cnt=(k)=>{const o={};fin.forEach(a=>{const v=(a.ans||{})[k];if(v!==undefined)(Array.isArray(v)?v:[v]).forEach(x=>o[x]=(o[x]||0)+1);});return Object.entries(o).sort((a,b)=>b[1]-a[1]).map(([x,n])=>`${hx(x)} <b>${n}</b>`).join(' · ')||'—';};
+  const kp=(v,l)=>`<div style="flex:1;min-width:92px;border:1px solid var(--bb);border-radius:10px;padding:8px;text-align:center;"><div style="font-size:20px;font-weight:800;color:var(--j);">${v}</div><div class="hint">${l}</div></div>`;
+  const list=AVs.filter(a=>['bug','flou','idee'].includes(a.type)||(a.type==='micro'&&a.raison)||(a.type==='final'&&(a.txt||a.aide))).filter(a=>avFlt==='tous'||(avFlt==='new'&&a.statut==='new')||(avFlt==='wip'&&a.statut==='wip')||(avFlt==='done'&&a.statut==='done')).sort((a,b)=>b.ts-a.ts);
+  const chip=(k,l)=>`<button class="${avFlt===k?'bp':'bs'}" style="padding:5px 9px;font-size:11px;" onclick="avFl('${k}')">${l}</button>`;
+  B.innerHTML=`<div class="imp-note" style="margin-top:0;">Les chiffres ci-dessous viennent de l’appli. Les avis des membres arrivent ici.</div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">${kp(pw+'/'+mem,'ont choisi leur mot de passe')}${kp(ids.size+'/'+mem,'actifs (inscrits ou au bar)')}${kp(mem?Math.round(ids.size/mem*100)+' %':'—','taux d’usage')}</div>
+  <div class="sprow"><b>⏱️ Après une action</b> <span class="hint">· ${mic.length} réponse(s)</span><div style="margin-top:4px;font-size:13px;">😀 ${mc(3)} &nbsp; 😐 ${mc(2)} &nbsp; 😟 ${mc(1)}</div></div>
+  <div class="sprow"><b>📝 Questionnaire final</b> <span class="hint">· ${fin.length} réponse(s)</span>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin:5px 0;">${kp(q2.length?(avNote(q2)).toFixed(1)+'/5':'—','simplicité')}${kp(npsV===null?'—':(npsV>0?'+':'')+npsV,'recommandation (NPS)')}${kp(fin.filter(a=>a.aide).length,'demandes d’aide')}</div>
+    <div class="hint" style="line-height:1.6;">Connexion : ${cnt('q1')}<br>Usage : ${cnt('q3')}<br>Moins clair : ${cnt('q4')}<br>Vs Messenger : ${cnt('q5')}<br>Toute l’année : ${cnt('q6')}</div></div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin:8px 0;"><button class="be" onclick="avInvite()">📣 Inviter les membres à répondre</button><button class="be" onclick="avXls()">📊 Exporter en Excel</button></div>
+  <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;">${chip('tous','Tous')}${chip('new','À traiter')}${chip('wip','En cours')}${chip('done','Fait')}</div>
+  ${list.length?list.map(a=>`<div class="sprow"><div style="font-size:11px;"><b>${(AV_T[a.type]||['',''])[0]} ${hx((AV_T[a.type]||['',a.type])[1])}</b> <span class="hint">· ${hx(a.date||'')} · écran ${hx(a.ecran||'?')} · ${hx(a.nom||'anonyme')}${a.aide?' · 🙋 veut de l’aide':''}</span></div>
+   <div style="font-size:12px;margin:3px 0;">${hx(a.txt||a.raison||'')}</div>
+   <div style="display:flex;gap:5px;flex-wrap:wrap;">${[['new','À traiter'],['wip','En cours'],['done','Fait']].map(([k,l])=>`<button class="${a.statut===k?'bp':'be'}" style="padding:4px 8px;font-size:10px;" onclick="avSt('${a.id}','${k}')">${l}</button>`).join('')}<button class="be" style="padding:4px 8px;font-size:10px;" onclick="avDel('${a.id}')">🗑</button></div></div>`).join(''):'<div class="empty"><div class="ei">💬</div><div>Aucun retour dans cette liste.</div></div>'}`;
+  }catch(e){console.error(e);}
+}
+window.avRender=avRender;window.avGet=()=>AVs;
 
 // ═══ PREMIÈRE CONNEXION, DEMANDES D'ACCÈS, MOTS DE PASSE CHIFFRÉS ═══
 const stripPw=o=>{const{pwd,pwdH,...r}=o||{};return r;};
