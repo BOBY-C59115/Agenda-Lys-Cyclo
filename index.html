@@ -570,7 +570,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
     <div class="imp-note" id="admMemCount" style="margin:0 0 6px;"></div>
     <div id="admDem"></div>
   <div class="asec">
-    <div class="ast" style="color:var(--P);"><span>👑 Membres &amp; Rôles</span><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportMembersExcel()">📊 Export Excel</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openNewMem()">＋ Nouveau membre</button></div></div>
+    <div class="ast" style="color:var(--P);"><span>👑 Membres &amp; Rôles</span><div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="bv2btn" id="dupBtn" style="font-size:10px;padding:4px 9px;" onclick="dupOpen()">🧹 Doublons</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="exportMembersExcel()">📊 Export Excel</button><button class="bv2btn" style="font-size:10px;padding:4px 9px;" onclick="openNewMem()">＋ Nouveau membre</button></div></div>
     <div id="admMem"></div>
   </div>
   </div>
@@ -1093,7 +1093,7 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
 let spE=[],spEvId=null,spWho=null,spP=[],spRId=null;
-let DEMs=[],demToast=false,memSort='nom',memFlt='tous',fc={},wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
+let dupG=[],dupIgn=new Set(),DEMs=[],demToast=false,memSort='nom',memFlt='tous',fc={},wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
 let aeType='tous',aeSel=new Set(),agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
 window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1490,7 +1490,7 @@ function rAdmin(){
   const chip=(k,l)=>`<button class="be" style="font-size:10px;padding:3px 9px;${memFlt===k?'outline:2px solid var(--ac,#2b7bb9);':''}" onclick="memSetF('${k}')">${l}</button>`;
   const srt=(k,l)=>`<button class="be" style="font-size:10px;padding:3px 9px;${memSort===k?'outline:2px solid var(--ac,#2b7bb9);':''}" onclick="memSetS('${k}')">${l}</button>`;
   let memHtml = `<div style="margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:10px;color:var(--td);">Trier :</span>${srt('nom','Nom')}${srt('prenom','Prénom')}</div>
-  <div style="margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:10px;color:var(--td);">Afficher :</span>${chip('tous','Tous')}${chip('org','Organisateurs')}${chip('mem','Membres')}${chip('nopwd','Sans mot de passe choisi')}</div>
+  <div style="margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:10px;color:var(--td);">Afficher :</span>${chip('tous','Tous')}${chip('org','Organisateurs')}${chip('mem','Membres')}${chip('nopwd','Sans mot de passe choisi')}${chip('notel','Sans téléphone')}</div>
   <div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
     <span style="font-size:10px;color:var(--td);">Mots de passe de départ :</span>
     <button class="be" style="font-size:10px;padding:3px 9px;" onclick="togglePwdView()" id="pwdToggleBtn">👁 Afficher</button>
@@ -1509,7 +1509,7 @@ function rAdmin(){
     const rc=m.role==='superviseur'?'color:var(--G)':m.role==='admin'?'color:var(--P)':'color:var(--V)';
     const chosen=!!(m.pwdSet||m.pwdH);
     const pw=m.pwdH?`<span style="color:var(--V);">🔒 choisi par la personne</span>`:`<span class="pwd-cell" data-pwd="${m.pwd||'-'}" style="font-family:monospace;background:var(--bm);padding:2px 5px;border-radius:4px;color:var(--O);">••••••</span>`;
-    memHtml+=`<tr style="border-bottom:1px solid var(--bb);" data-r="${m.role==='admin'||m.role==='superviseur'?'org':'mem'}" data-p="${chosen?'1':'0'}">
+    memHtml+=`<tr style="border-bottom:1px solid var(--bb);" data-r="${m.role==='admin'||m.role==='superviseur'?'org':'mem'}" data-p="${chosen?'1':'0'}" data-t="${telN(m.tel).length>=9?'1':'0'}">
       <td style="padding:5px 6px;"><b>${m.prenom} ${m.nom}</b>${(m.pseudo||m.tel)?`<br><span style="color:var(--td);font-size:9px;">${m.pseudo?'« '+m.pseudo+' » ':''}${m.tel||''}</span>`:''}</td>
       <td style="padding:5px 6px;"><span style="font-family:monospace;background:var(--bm);padding:2px 5px;border-radius:4px;color:var(--j);">${m.login||'-'}</span></td>
       <td style="padding:5px 6px;">${pw}</td>
@@ -1519,6 +1519,7 @@ function rAdmin(){
   });
   memHtml += '</tbody></table></div>';
   document.getElementById('admMem').innerHTML = memHtml;
+  dupBadge();
   admEvRender();
   admAfter();
 }
@@ -1586,6 +1587,7 @@ window.createNewMem=async()=>{
   if(!pr||!no){showT('Prénom et Nom requis !');return;}
   if(!te||!/^(06|07)[0-9]{8}$/.test(te)){showT('Téléphone invalide !');return;}
   if(!isSup()&&ro==='superviseur'){showT('Seul un superviseur peut créer ce rôle !');return;}
+  if(!window.__dupConfirm){const sm=similarMember(pr,no,te);if(sm){conf('Cette personne existe peut-être déjà',`${sm.prenom} ${sm.nom} (login ${sm.login}) ressemble à cette personne. Créer quand même une nouvelle fiche ?`,()=>{window.__dupConfirm=true;createNewMem().finally(()=>{window.__dupConfirm=false;});});return;}}
   // Générer login unique
   let login=(no.substring(0,4)+pr[0]).toUpperCase().replace(/[^A-Z]/g,'');
   let cpt=0;let fl=login;
@@ -1982,7 +1984,7 @@ window.admFilterMem=()=>{
   const rows=document.querySelectorAll('#admMem tbody tr');let n=0;
   rows.forEach(tr=>{
     const c=tr.cells;const txt=admNorm((c[0]?c[0].textContent:'')+' '+(c[1]?c[1].textContent:'')+' '+(c[3]?c[3].textContent:''));
-    const fo=memFlt==='tous'||(memFlt==='org'&&tr.dataset.r==='org')||(memFlt==='mem'&&tr.dataset.r==='mem')||(memFlt==='nopwd'&&tr.dataset.p==='0');
+    const fo=memFlt==='tous'||(memFlt==='org'&&tr.dataset.r==='org')||(memFlt==='mem'&&tr.dataset.r==='mem')||(memFlt==='nopwd'&&tr.dataset.p==='0')||(memFlt==='notel'&&tr.dataset.t==='0');
     const ok=fo&&(!q||txt.includes(q));tr.style.display=ok?'':'none';if(ok)n++;
   });
   const el=document.getElementById('admMemCount');
@@ -2013,8 +2015,9 @@ window.admRenderBar=()=>{
 };
 function admTiles(){
   const set=(id,t,cls)=>{const el=document.getElementById(id);if(el){el.textContent=t;el.className='admts'+(cls?' '+cls:'');}};
+  dupBadge();
   if(typeof DEMs!=='undefined'&&DEMs.length)set('admSubM',`📨 ${DEMs.length} demande${DEMs.length>1?'s':''} d’accès à valider · ${MEs.length} membres`,'warn');
-  else set('admSubM',`${MEs.length} membre${MEs.length>1?'s':''}`);
+  else set('admSubM',`${MEs.length} membre${MEs.length>1?'s':''}${dupG.length?` · ⚠️ ${dupG.length} doublon${dupG.length>1?'s':''} possible${dupG.length>1?'s':''}`:''}`,dupG.length?'warn':'');
   const td=isoL(new Date());const RL2=EVs.filter(e=>!e.virtual),up=RL2.filter(e=>(e.date||'')>=td).length;
   set('admSubE',`${RL2.length} évènement${RL2.length>1?'s':''} · ${up} à venir`);
   const b=admBarStats(15),todo=b.empty+b.half;
@@ -2437,6 +2440,104 @@ window.goEv=id=>{
 const nIns=ev=>Object.values(ev.participations||{}).filter(v=>v==='oui'||v==='benev').length;
 
 
+// ═══ DOUBLONS : détection et fusion ═══
+const ROLE_RK={participant:0,admin:1,superviseur:2};
+const prePre=(a,b)=>{a=nrmA(a);b=nrmA(b);return a&&b&&(a===b||a.startsWith(b)||b.startsWith(a));};
+function similarMember(pr,no,te){
+  const t=telN(te);
+  return MEs.find(x=>(nrmA(x.prenom)===nrmA(pr)&&nrmA(x.nom)===nrmA(no))||(t.length>=9&&telN(x.tel)===t&&prePre(x.prenom,pr)))||null;
+}
+function memUse(id){let n=0;EVs.forEach(e=>{if(e.virtual)return;if((e.participations||{})[id])n++;});Object.values(BAs||{}).forEach(b=>{if(b&&(b.b1===id||b.b2===id))n++;});return n;}
+function dupCompute(){
+  const ms=MEs.filter(m=>m&&m.id),par={};
+  const f=x=>{while(par[x]!==x)x=par[x]=par[par[x]];return x;};
+  ms.forEach(m=>par[m.id]=m.id);
+  const un=(a,b)=>{par[f(a)]=f(b);};
+  const byK={},byT={};
+  ms.forEach(m=>{if(nrmA(m.prenom)&&nrmA(m.nom))(byK[nrmA(m.prenom)+'|'+nrmA(m.nom)]=byK[nrmA(m.prenom)+'|'+nrmA(m.nom)]||[]).push(m);const t=telN(m.tel);if(t.length>=9)(byT[t]=byT[t]||[]).push(m);});
+  Object.values(byK).forEach(a=>a.slice(1).forEach(x=>un(a[0].id,x.id)));
+  Object.values(byT).forEach(a=>{for(let i=0;i<a.length;i++)for(let j=i+1;j<a.length;j++)if(prePre(a[i].prenom,a[j].prenom))un(a[i].id,a[j].id);});
+  const g={};ms.forEach(m=>{(g[f(m.id)]=g[f(m.id)]||[]).push(m);});
+  const sc=m=>((m.pwdSet||m.pwdH)?40:0)+Math.min(memUse(m.id),10)*3+(telN(m.tel).length>=9?10:0)+(ROLE_RK[m.role]||0)*2+(m.pseudo?1:0)+String(m.nom||'').length/100;
+  return Object.values(g).filter(a=>a.length>1).map(a=>a.sort((x,y)=>sc(y)-sc(x))).filter(a=>!dupIgn.has(a.map(x=>x.id).sort().join('+')));
+}
+function dupBadge(){
+  try{dupG=isAdm()?dupCompute():[];}catch(e){dupG=[];}
+  const b=document.getElementById('dupBtn');if(b)b.textContent='🧹 Doublons'+(dupG.length?' ('+dupG.length+')':'');
+}
+function dupEnsure(){
+  if(document.getElementById('mDup'))return;
+  const d=document.createElement('div');d.className='mo';d.id='mDup';
+  d.innerHTML='<div class="mdl"><button class="mc" onclick="cm(\'mDup\')">×</button><div class="mt2">🧹 DOUBLONS DE MEMBRES</div><div class="imp-note">Une même personne a plusieurs fiches ? Cochez la fiche à <b>conserver</b> : les autres sont fusionnées dedans (inscriptions, bar, repas, logistique, accompagnants, rôle le plus élevé, téléphone, pseudo) puis supprimées.</div><div id="dupBody"></div></div>';
+  document.body.appendChild(d);
+}
+window.dupCompute=dupCompute;window.similarMember=similarMember;window.dupGet=()=>dupG;
+window.dupOpen=()=>{if(!isAdm())return;dupEnsure();dupBadge();dupDraw();document.getElementById('mDup').classList.add('open');};
+function dupDraw(){
+  const B=document.getElementById('dupBody');if(!B)return;
+  if(!dupG.length){B.innerHTML='<div class="empty"><div class="ei">✅</div><div>Aucun doublon détecté.</div></div>';return;}
+  B.innerHTML=dupG.map((a,gi)=>{
+    const tels=[...new Set(a.map(m=>telN(m.tel)).filter(Boolean))];
+    const rl=a.reduce((r,m)=>(ROLE_RK[m.role]||0)>(ROLE_RK[r]||0)?m.role:r,'participant');
+    return`<div class="sprow"><b>${hx(a[0].prenom)} ${hx(a[0].nom)}</b> <span class="hint">· ${a.length} fiches</span>
+    ${a.map((m,i)=>`<label style="display:flex;gap:7px;align-items:flex-start;padding:5px 0;border-top:1px solid #e1ecf4;font-size:11px;"><input type="radio" name="dk${gi}" value="${m.id}" ${i===0?'checked':''}><span><b>${hx(m.login||'-')}</b> · ${hx(m.prenom)} ${hx(m.nom)}${m.pseudo?' · « '+hx(m.pseudo)+' »':''}<br><span class="hint">${m.tel?hx(m.tel):'sans téléphone'} · ${hx((RL[m.role]||{}).l||m.role)} · ${memUse(m.id)} inscription(s)${(m.pwdSet||m.pwdH)?' · 🔒 mot de passe choisi':''}</span></span></label>`).join('')}
+    ${tels.length>1?'<div class="spwarn" style="font-size:10px;">⚠️ Téléphones différents : celui de la fiche conservée sera gardé.</div>':''}
+    <div class="hint" style="margin:3px 0;">Résultat : rôle <b>${hx((RL[rl]||{}).l||rl)}</b>${a.some(m=>m.pwdSet||m.pwdH)?' · le mot de passe de la fiche conservée est gardé':''}</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;"><button class="be" onclick="dupMerge(${gi})">✅ Fusionner dans la fiche cochée</button><button class="be" onclick="dupIgnore(${gi})">Ce ne sont pas des doublons</button></div></div>`;}).join('');
+}
+window.dupIgnore=gi=>{const a=dupG[gi];if(!a)return;dupIgn.add(a.map(x=>x.id).sort().join('+'));dupG.splice(gi,1);dupDraw();dupBadge();};
+window.dupMerge=gi=>{
+  const a=dupG[gi];if(!a)return;
+  const r=document.querySelector('input[name="dk'+gi+'"]:checked');const keepId=r?r.value:a[0].id;
+  const dups=a.filter(m=>m.id!==keepId);
+  if(CU&&dups.some(m=>m.id===CU.id)){showT('Conservez votre propre fiche (celle avec laquelle vous êtes connecté).');return;}
+  if(!a.every(m=>canMgM(m))){showT('Droits insuffisants pour fusionner ces fiches.');return;}
+  const k=a.find(m=>m.id===keepId);
+  conf('Fusionner ces fiches ?',`Garder « ${k.login} » (${k.prenom} ${k.nom}) et supprimer ${dups.map(m=>m.login).join(', ')} après avoir repris leurs inscriptions. Cette action est définitive.`,async()=>{
+    try{await mergeMembers(keepId,dups.map(m=>m.id));dupG.splice(gi,1);dupDraw();dupBadge();showT('Fiches fusionnées ✅');}
+    catch(e){console.error(e);showT('Erreur pendant la fusion : rien n’a été supprimé.');}
+  });
+};
+const _toArr=x=>Array.isArray(x)?x:(x&&typeof x==='object'?Object.values(x):[]);
+function mergeInEv(e,from,to){
+  let ch=false;const rk={oui:3,benev:2,nsp:1,non:0};
+  const ren=(o,fn)=>{if(o&&typeof o==='object'&&!Array.isArray(o)&&Object.prototype.hasOwnProperty.call(o,from)){const v=o[from];delete o[from];o[to]=(to in o)?fn(o[to],v):v;ch=true;}};
+  ren(e.participations,(a,b)=>((rk[b]??-1)>(rk[a]??-1)?b:a));
+  ren(e.choix,a=>a);
+  ren(e.logiRep,a=>a);
+  ren(e.resaRep,(a,b)=>({...b,...a,lines:{...(b.lines||{}),...(a.lines||{})},pay:{...(b.pay||{}),...(a.pay||{})}}));
+  ren(e.specRep,(a,b)=>({...b,...a,et:[...new Set([..._toArr(a.et),..._toArr(b.et)])],pay:{...(b.pay||{}),...(a.pay||{})}}));
+  ren(e.acc,(a,b)=>[..._toArr(a),..._toArr(b)]);
+  if(e.createdBy===from){e.createdBy=to;ch=true;}
+  if(e.logiRep)Object.values(e.logiRep).forEach(r=>{['va','vr'].forEach(k=>{if(r&&r[k]===from){r[k]=to;ch=true;}});});
+  if(e.resaRep)Object.values(e.resaRep).forEach(o=>Object.values((o&&o.lines)||{}).forEach(l=>{if(l&&l.mid===from){l.mid=to;ch=true;}}));
+  return ch;
+}
+async function mergeMembers(keepId,dupIds){
+  const keep=MEs.find(m=>m.id===keepId),dups=dupIds.map(id=>MEs.find(m=>m.id===id)).filter(Boolean);
+  if(!keep||!dups.length)throw new Error('fiches introuvables');
+  const writes=[];
+  const sn=await get(ref(db,'evenements'));const all=sn.exists()?sn.val():{};
+  for(const [eid,ev] of Object.entries(all)){
+    const e=JSON.parse(JSON.stringify(ev));let ch=false;
+    for(const d of dupIds)if(mergeInEv(e,d,keepId))ch=true;
+    if(ch)writes.push(set(ref(db,'evenements/'+eid),e));
+  }
+  const bs=await get(ref(db,'bar/slots'));const slots=bs.exists()?bs.val():{};
+  for(const [ds,sl] of Object.entries(slots)){
+    if(!sl)continue;const n={...sl};let ch=false;
+    for(const d of dupIds){if(n.b1===d){n.b1=keepId;ch=true;}if(n.b2===d){n.b2=keepId;ch=true;}}
+    if(n.b1&&n.b1===n.b2)n.b2='';
+    if(ch)writes.push(set(ref(db,'bar/slots/'+ds),{b1:n.b1||'',b2:n.b2||''}));
+  }
+  await Promise.all(writes);
+  const role=[keep,...dups].reduce((r,m)=>(ROLE_RK[m.role]||0)>(ROLE_RK[r]||0)?m.role:r,'participant');
+  const patch={role};
+  for(const f of ['tel','pseudo','disc','photo']){if(!keep[f]){const o=dups.find(d=>d[f]);if(o)patch[f]=o[f];}}
+  await update(ref(db,'membres/'+keepId),patch);
+  for(const d of dupIds)await remove(ref(db,'membres/'+d));
+}
+
 // ═══ PREMIÈRE CONNEXION, DEMANDES D'ACCÈS, MOTS DE PASSE CHIFFRÉS ═══
 const stripPw=o=>{const{pwd,pwdH,...r}=o||{};return r;};
 async function pwHash(login,pwd){try{const b=new TextEncoder().encode('lc|'+String(login).toUpperCase()+'|'+pwd);const d=await crypto.subtle.digest('SHA-256',b);return[...new Uint8Array(d)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return null;}}
@@ -2537,7 +2638,7 @@ function demRender(){
 }
 window.demOk=async id=>{
   if(!isAdm())return;const d=DEMs.find(x=>x.id===id);if(!d)return;
-  const same=MEs.find(m=>nrmA((m.prenom||'')+(m.nom||''))===nrmA((d.prenom||'')+(d.nom||''))||nrmA((m.nom||'')+(m.prenom||''))===nrmA((d.prenom||'')+(d.nom||'')));
+  const same=MEs.find(m=>nrmA((m.prenom||'')+(m.nom||''))===nrmA((d.prenom||'')+(d.nom||''))||nrmA((m.nom||'')+(m.prenom||''))===nrmA((d.prenom||'')+(d.nom||'')))||similarMember(d.prenom,d.nom,d.tel);
   try{
     if(same){await update(ref(db,'membres/'+same.id),{tel:d.tel});showT('Numéro ajouté à la fiche de '+same.prenom+' '+same.nom+' ✅');}
     else{
