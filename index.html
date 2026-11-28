@@ -455,7 +455,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
       <button class="ltab" onclick="loginTab('inscr',this)">Première connexion</button>
     </div>
     <div id="tabConn">
-      <div class="fs"><label class="fl">Identifiant (Login)</label><input class="fi" id="lLogin" placeholder="ex: FADAM" autocapitalize="characters" autocomplete="username"></div>
+      <div class="fs"><label class="fl">Identifiant, pseudo ou téléphone</label><input class="fi" id="lLogin" placeholder="ex: FADAM, votre pseudo ou 06 12 34 56 78" autocomplete="username"></div>
       <div class="fs"><label class="fl">Mot de passe</label><input class="fi" id="lPwd" type="password" placeholder="Mot de passe" autocomplete="current-password"></div>
       <button class="bp" onclick="doLogin()" style="margin-bottom:7px;">SE CONNECTER</button>
       <span class="forgotlnk" onclick="openForgot()">🔑 Mot de passe oublié ?</span>
@@ -566,7 +566,7 @@ input::placeholder,textarea::placeholder{color:#4a5f82;opacity:1;}
   </div>
   <div id="admSecM" class="admsec" style="display:none">
     <div class="admhd"><button class="be" onclick="admGo('home')">← Retour</button><span>👥 Gestion des membres</span></div>
-    <input class="admq" id="admMemQ" type="search" placeholder="🔍 Rechercher un membre (nom, login, rôle)" oninput="admFilterMem()" autocomplete="off">
+    <input class="admq" id="admMemQ" type="search" placeholder="🔍 Rechercher un membre (nom, prénom, pseudo, téléphone, login…)" oninput="admFilterMem()" autocomplete="off">
     <div class="imp-note" id="admMemCount" style="margin:0 0 6px;"></div>
     <div id="admDem"></div>
   <div class="asec">
@@ -997,9 +997,11 @@ window.doLogin=async()=>{
   const snap=await get(ref(db,'membres'));
   if(!snap.exists()){showT('Erreur : base de données vide.');return;}
   const all=snap.val();
-  const hh=await pwHash(login,pwd);
-  const entry=Object.entries(all).find(([,v])=>v.login&&v.login.toUpperCase()===login&&((v.pwd&&v.pwd===pwd)||(hh&&v.pwdH&&v.pwdH===hh)));
-  if(!entry){showT('Login ou mot de passe incorrect.');return;}
+  const typed=document.getElementById('lLogin').value.trim(),tn=telN(typed),na=nrmA(typed);
+  const cands=Object.entries(all).filter(([,v])=>(v.login&&v.login.toUpperCase()===login)||(tn.length>=9&&v.tel&&telN(v.tel)===tn)||(na.length>=2&&v.pseudo&&nrmA(v.pseudo)===na));
+  let entry=null;
+  for(const c of cands){const v=c[1],h=await pwHash(v.login||login,pwd);if((v.pwd&&v.pwd===pwd)||(h&&v.pwdH&&v.pwdH===h)){entry=c;break;}}
+  if(!entry){showT('Identifiant ou mot de passe incorrect.');return;}
   const [id,data]=entry;
   CU={...stripPw(data),id};
   localStorage.setItem('lc_user_v3',JSON.stringify(CU));
@@ -1091,7 +1093,7 @@ function setAv(el,m){if(!el||!m)return;el.innerHTML='';if(m.photo){const img=doc
 // ═══ NAVIGATION ═══
 const NAVI={accueil:0,agenda:1,sorties:1,bar:3,membres:9,stats:9,profil:9,plus:9,admin:7};
 let spE=[],spEvId=null,spWho=null,spP=[],spRId=null;
-let DEMs=[],fc={},wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
+let DEMs=[],demToast=false,memSort='nom',memFlt='tous',fc={},wizId=null,deepId=(()=>{try{const m=String(location.hash).match(/^#evt=(.+)$/);return m?decodeURIComponent(m[1]):null;}catch(e){return null;}})(),deepTry=0;
 let aeType='tous',aeSel=new Set(),agMode='home',mcY=0,mcM=0,homeFilt='tous',agType='tous',agSub='tous',agFocus=null,agH=56;
 window.sv=(name,idx0)=>{if(name==='sorties')name='agenda';const idx=NAVI[name]??idx0;
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1485,10 +1487,13 @@ function rAdmin(){
   if(!isAdm())return;
   const so=document.getElementById('nmRoSup');if(so)so.style.display=isSup()?'':'none';
   // Table membres avec logins/mots de passe
-  let memHtml = `<div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-    <span style="font-size:10px;color:var(--td);">Afficher les mots de passe :</span>
-    <button class="be" style="font-size:10px;padding:3px 9px;" onclick="togglePwdView()"
-      id="pwdToggleBtn">👁 Afficher</button>
+  const chip=(k,l)=>`<button class="be" style="font-size:10px;padding:3px 9px;${memFlt===k?'outline:2px solid var(--ac,#2b7bb9);':''}" onclick="memSetF('${k}')">${l}</button>`;
+  const srt=(k,l)=>`<button class="be" style="font-size:10px;padding:3px 9px;${memSort===k?'outline:2px solid var(--ac,#2b7bb9);':''}" onclick="memSetS('${k}')">${l}</button>`;
+  let memHtml = `<div style="margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:10px;color:var(--td);">Trier :</span>${srt('nom','Nom')}${srt('prenom','Prénom')}</div>
+  <div style="margin-bottom:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;"><span style="font-size:10px;color:var(--td);">Afficher :</span>${chip('tous','Tous')}${chip('org','Organisateurs')}${chip('mem','Membres')}${chip('nopwd','Sans mot de passe choisi')}</div>
+  <div style="margin-bottom:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+    <span style="font-size:10px;color:var(--td);">Mots de passe de départ :</span>
+    <button class="be" style="font-size:10px;padding:3px 9px;" onclick="togglePwdView()" id="pwdToggleBtn">👁 Afficher</button>
   </div>`;
   memHtml += `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:10px;">
     <thead><tr style="background:var(--bm);">
@@ -1498,13 +1503,16 @@ function rAdmin(){
       <th style="padding:5px 6px;text-align:left;color:var(--td);font-weight:700;border-bottom:1px solid var(--bb);">Rôle</th>
       <th style="padding:5px 6px;text-align:left;color:var(--td);font-weight:700;border-bottom:1px solid var(--bb);"></th>
     </tr></thead><tbody>`;
-  MEs.forEach(m=>{
+  const key=m=>memSort==='prenom'?nrmA(m.prenom)+nrmA(m.nom):nrmA(m.nom)+nrmA(m.prenom);
+  [...MEs].sort((a,b)=>key(a).localeCompare(key(b))).forEach(m=>{
     const can=canMgM(m);
     const rc=m.role==='superviseur'?'color:var(--G)':m.role==='admin'?'color:var(--P)':'color:var(--V)';
-    memHtml+=`<tr style="border-bottom:1px solid var(--bb);">
-      <td style="padding:5px 6px;font-weight:700;">${m.prenom} ${m.nom}</td>
+    const chosen=!!(m.pwdSet||m.pwdH);
+    const pw=m.pwdH?`<span style="color:var(--V);">🔒 choisi par la personne</span>`:`<span class="pwd-cell" data-pwd="${m.pwd||'-'}" style="font-family:monospace;background:var(--bm);padding:2px 5px;border-radius:4px;color:var(--O);">••••••</span>`;
+    memHtml+=`<tr style="border-bottom:1px solid var(--bb);" data-r="${m.role==='admin'||m.role==='superviseur'?'org':'mem'}" data-p="${chosen?'1':'0'}">
+      <td style="padding:5px 6px;"><b>${m.prenom} ${m.nom}</b>${(m.pseudo||m.tel)?`<br><span style="color:var(--td);font-size:9px;">${m.pseudo?'« '+m.pseudo+' » ':''}${m.tel||''}</span>`:''}</td>
       <td style="padding:5px 6px;"><span style="font-family:monospace;background:var(--bm);padding:2px 5px;border-radius:4px;color:var(--j);">${m.login||'-'}</span></td>
-      <td style="padding:5px 6px;"><span class="pwd-cell" data-pwd="${m.pwd||'-'}" style="font-family:monospace;background:var(--bm);padding:2px 5px;border-radius:4px;color:var(--O);">••••••</span></td>
+      <td style="padding:5px 6px;">${pw}</td>
       <td style="padding:5px 6px;font-size:9px;${rc}">${RL[m.role]?.l||m.role}</td>
       <td style="padding:5px 6px;">${can?`<button class="be" style="padding:2px 6px;font-size:9px;" onclick="openEdM('${m.id}')">✏️</button>`:'🔒'}</td>
     </tr>`;
@@ -1967,12 +1975,15 @@ window.admGo=s=>{
   admAfter();demRender();
   try{document.getElementById('view-admin').scrollTop=0;window.scrollTo(0,0);}catch(e){}
 };
+window.memSetS=k=>{memSort=k;rAdmin();admFilterMem();};
+window.memSetF=k=>{memFlt=k;rAdmin();admFilterMem();};
 window.admFilterMem=()=>{
   const q=admNorm((document.getElementById('admMemQ')||{}).value||'').trim();
   const rows=document.querySelectorAll('#admMem tbody tr');let n=0;
   rows.forEach(tr=>{
     const c=tr.cells;const txt=admNorm((c[0]?c[0].textContent:'')+' '+(c[1]?c[1].textContent:'')+' '+(c[3]?c[3].textContent:''));
-    const ok=!q||txt.includes(q);tr.style.display=ok?'':'none';if(ok)n++;
+    const fo=memFlt==='tous'||(memFlt==='org'&&tr.dataset.r==='org')||(memFlt==='mem'&&tr.dataset.r==='mem')||(memFlt==='nopwd'&&tr.dataset.p==='0');
+    const ok=fo&&(!q||txt.includes(q));tr.style.display=ok?'':'none';if(ok)n++;
   });
   const el=document.getElementById('admMemCount');
   if(el)el.textContent=q?`${n} résultat${n>1?'s':''} sur ${rows.length} membres`:`${rows.length} membres`;
@@ -2002,7 +2013,8 @@ window.admRenderBar=()=>{
 };
 function admTiles(){
   const set=(id,t,cls)=>{const el=document.getElementById(id);if(el){el.textContent=t;el.className='admts'+(cls?' '+cls:'');}};
-  set('admSubM',`${MEs.length} membre${MEs.length>1?'s':''}`);
+  if(typeof DEMs!=='undefined'&&DEMs.length)set('admSubM',`📨 ${DEMs.length} demande${DEMs.length>1?'s':''} d’accès à valider · ${MEs.length} membres`,'warn');
+  else set('admSubM',`${MEs.length} membre${MEs.length>1?'s':''}`);
   const td=isoL(new Date());const RL2=EVs.filter(e=>!e.virtual),up=RL2.filter(e=>(e.date||'')>=td).length;
   set('admSubE',`${RL2.length} évènement${RL2.length>1?'s':''} · ${up} à venir`);
   const b=admBarStats(15),todo=b.empty+b.half;
@@ -2213,6 +2225,7 @@ function renderHome(){
       const empty=nextBarDays(6).filter(ds=>BSs[ds]!==false&&!(BAs[ds]&&(BAs[ds].b1||BAs[ds].b2))).length;
       const dec=EVs.filter(e=>e.barMode==='decider'&&(e.date||'')>=T&&e.type!=='club').length;
       const go="sv('admin',7);admGo('bar')";
+      if(DEMs.length)h+=`<span class="hchip" onclick="sv('admin',7);admGo('membres')">📨 ${DEMs.length} demande${DEMs.length>1?'s':''} d’accès à valider ›</span>`;
       if(empty)h+=`<span class="hchip" onclick="${go}">🍺 ${empty} date${empty>1?'s':''} de bar sans bénévole ›</span>`;
       if(dec)h+=`<span class="hchip" onclick="${go}">❓ ${dec} évènement${dec>1?'s':''} : bar à décider ›</span>`;
     }
@@ -2440,8 +2453,8 @@ function fcDraw(step,x){
     <button class="bp" onclick="fcFind()">CONTINUER</button>`;
   else if(step==='pick')B.innerHTML=`<div class="imp-note">Plusieurs personnes ont ce numéro. <b>Qui êtes-vous ?</b></div>${fc.list.map(c=>`<button class="bp" style="margin:4px 0;" onclick="fcPick('${c.id}')">${hx((c.prenom||'')+' '+(c.nom||''))}</button>`).join('')}${back}`;
   else if(step==='confirm'){
-    if(m.role==='admin'||m.role==='superviseur')B.innerHTML=`<div class="imp-note">👑 <b>${hx(m.prenom)} ${hx(m.nom)}</b>, votre compte est un compte <b>organisateur</b>.<br>Connectez-vous avec votre identifiant <b>${hx(m.login||'')}</b> et votre mot de passe habituel (onglet « Connexion »). En cas d’oubli : « Mot de passe oublié ».</div>${back}`;
-    else if(m.pwdSet||m.pwdH)B.innerHTML=`<div class="imp-note">✅ <b>${hx(m.prenom)} ${hx(m.nom)}</b>, vous avez déjà choisi votre mot de passe.<br>Connectez-vous avec votre identifiant <b>${hx(m.login||'')}</b> (onglet « Connexion »). Mot de passe perdu : « Mot de passe oublié », ou demandez à un responsable du club.</div>${back}`;
+    if(m.role==='admin'||m.role==='superviseur')B.innerHTML=`<div class="imp-note">👑 <b>${hx(m.prenom)} ${hx(m.nom)}</b>, votre compte est un compte <b>organisateur</b>.<br>Connectez-vous (onglet « Connexion ») avec votre identifiant <b>${hx(m.login||'')}</b>, votre pseudo <b>ou votre numéro de téléphone</b>, et votre mot de passe habituel. En cas d’oubli : « Mot de passe oublié ».</div>${back}`;
+    else if(m.pwdSet||m.pwdH)B.innerHTML=`<div class="imp-note">✅ <b>${hx(m.prenom)} ${hx(m.nom)}</b>, vous avez déjà choisi votre mot de passe.<br>Connectez-vous (onglet « Connexion ») avec votre identifiant <b>${hx(m.login||'')}</b>, votre pseudo <b>ou votre numéro de téléphone</b>. Mot de passe perdu : « Mot de passe oublié », ou demandez à un responsable du club.</div>${back}`;
     else B.innerHTML=`<div class="imp-note">Bonjour <b>${hx(m.prenom)} ${hx(m.nom)}</b> 👋<br>C’est bien vous ?<br><span class="hint">Votre identifiant de connexion sera : <b>${hx(m.login||'')}</b> (notez-le).</span></div>
       <button class="bp" style="margin:6px 0;" onclick="fcDraw('pwd')">✅ Oui, c’est moi</button><button class="be" style="width:100%;" onclick="fcStart()">❌ Non, recommencer</button>`;
   }
@@ -2450,14 +2463,17 @@ function fcDraw(step,x){
     <div class="fs"><label class="fl">Le même, une 2<sup>e</sup> fois</label><input class="fi" id="fcP2" type="password" autocomplete="new-password"></div>
     <label style="font-size:11px;"><input type="checkbox" onchange="document.getElementById('fcP1').type=document.getElementById('fcP2').type=this.checked?'text':'password'"> Afficher le mot de passe</label>
     <button class="bp" style="margin-top:8px;" onclick="fcSave()">CRÉER MON MOT DE PASSE</button>`;
-  else if(step==='none')B.innerHTML=`<div class="imp-note">${x&&x.tel?'Ce numéro est bien dans la liste, mais le <b>prénom ne correspond pas</b>. Vérifiez l’orthographe, ou essayez votre pseudo.':'Nous ne trouvons pas ce numéro dans la liste des adhérents.'}</div>
+  else if(step==='nom')B.innerHTML=`<div class="imp-note">Ce numéro est bien dans la liste du club 👍<br>Pour vérifier que c’est vous, tapez votre <b>nom de famille</b>.</div>
+    <div class="fs"><label class="fl">Votre nom de famille</label><input class="fi" id="fcNom" autocomplete="family-name"></div>
+    <button class="bp" onclick="fcNom()">CONTINUER</button><button class="be" style="width:100%;margin-top:6px;" onclick="fcDraw('id')">↩ Retour</button>`;
+  else if(step==='none')B.innerHTML=`<div class="imp-note">${x&&x.tel?'Ce numéro est dans la liste, mais le <b>nom ne correspond pas</b>. Vérifiez l’orthographe.':'Nous ne trouvons pas ce numéro dans la liste des adhérents.'}</div>
     <button class="bp" style="margin:6px 0;" onclick="fcDraw('id')">↩ Réessayer</button>
     <button class="be" style="width:100%;" onclick="fcDraw('req')">📨 Je ne suis pas dans la liste : envoyer une demande</button>`;
   else if(step==='req')B.innerHTML=`<div class="imp-note">Un responsable du club vérifiera votre demande. Ensuite, revenez ici faire « Première connexion ».</div>
     <div class="frow"><div class="fs"><label class="fl">Prénom *</label><input class="fi" id="fqP" value="${hx(fc.n||'')}"></div><div class="fs"><label class="fl">Nom *</label><input class="fi" id="fqN"></div></div>
     <div class="fs"><label class="fl">Téléphone *</label><input class="fi" id="fqT" type="tel" value="${hx(fc.t||'')}"></div>
     <button class="bp" onclick="fcReq()">ENVOYER MA DEMANDE</button>${back}`;
-  else if(step==='sent')B.innerHTML=`<div class="imp-note">✅ <b>Demande envoyée.</b><br>Un responsable va la valider. Revenez ensuite sur « Première connexion ».</div>`;
+  else if(step==='sent')B.innerHTML=`<div class="imp-note">✅ <b>Demande envoyée.</b><br>Un responsable va la valider. Revenez ensuite sur « Première connexion ».</div>${fc.sms?`<a class="bp" style="display:block;text-align:center;text-decoration:none;margin-top:8px;" href="${fc.sms}">📲 Prévenir un responsable par SMS</a><div class="hint">Facultatif, mais cela accélère la validation.</div>`:''}`;
 }
 window.fcDraw=fcDraw;
 window.fcStart=()=>{fc={};fcDraw('id');};
@@ -2470,10 +2486,18 @@ window.fcFind=async()=>{
   const ms=Object.entries(all).map(([id,v])=>({...v,id}));
   const byTel=ms.filter(m=>m.tel&&telN(m.tel)===t);
   const keys=m=>[m.prenom,m.pseudo,m.nom,(m.prenom||'')+(m.nom||''),(m.nom||'')+(m.prenom||''),(m.pseudo||'')+(m.nom||'')].map(nrmA).filter(Boolean);
-  const c=byTel.filter(m=>keys(m).includes(n));
+  const pre=m=>n.length>=3&&[m.prenom,m.pseudo].map(nrmA).some(k=>k.length>=3&&(k.startsWith(n)||n.startsWith(k)));
+  const c=byTel.filter(m=>keys(m).includes(n)||pre(m));
+  fc.byTel=byTel;
   if(c.length===1){fc.m=c[0];fcDraw('confirm');}
   else if(c.length>1){fc.list=c;fcDraw('pick');}
-  else fcDraw('none',{tel:byTel.length>0});
+  else if(byTel.length>0)fcDraw('nom');
+  else fcDraw('none');
+};
+window.fcNom=()=>{
+  const n=nrmA(document.getElementById('fcNom').value);if(n.length<2){showT('Indiquez votre nom de famille.');return;}
+  const c=(fc.byTel||[]).filter(m=>nrmA(m.nom)===n||(n.length>=3&&nrmA(m.nom).includes(n)));
+  if(c.length===1){fc.m=c[0];fcDraw('confirm');}else if(c.length>1){fc.list=c;fcDraw('pick');}else fcDraw('none',{tel:true});
 };
 window.fcPick=id=>{fc.m=(fc.list||[]).find(x=>x.id===id);if(fc.m)fcDraw('confirm');};
 window.fcSave=async()=>{
@@ -2496,11 +2520,17 @@ window.fcReq=async()=>{
   try{
     const sn=await get(ref(db,'demandes'));const ex=sn.exists()?Object.values(sn.val()):[];
     if(!ex.some(d=>telN(d.tel)===telN(te)&&nrmA(d.prenom)===nrmA(pr)))await push(ref(db,'demandes'),{prenom:pr,nom:no.toUpperCase(),tel:te,date:isoL(new Date())});
-    fcDraw('sent');
+    let sms='';try{const mm=Object.values((await get(ref(db,'membres'))).val()||{}).filter(x=>(x.role==='superviseur'||x.role==='admin')&&telN(x.tel).length>=9).sort((a,b)=>(a.role==='superviseur'?0:1)-(b.role==='superviseur'?0:1))[0];
+      if(mm)sms='sms:'+String(mm.tel).replace(/[^\d+]/g,'')+'?&body='+encodeURIComponent('Bonjour, je demande l’accès à l’appli Agenda Lys-Cyclo : '+pr+' '+no.toUpperCase()+', tél. '+te+'. Merci de valider ma demande !');}catch(e){}
+    fc.sms=sms;fcDraw('sent');
   }catch(e){showT('Envoi impossible, réessayez.');}
 };
 // Admin : demandes d'accès
 function demRender(){
+  try{if(CU&&isAdm()){
+    admTiles();renderHome();
+    if(DEMs.length&&!demToast){demToast=true;showT('📨 '+DEMs.length+' demande'+(DEMs.length>1?'s':'')+' d’accès à valider');}
+  }}catch(e){}
   const h=document.getElementById('admDem');if(!h)return;
   if(!DEMs.length||typeof isAdm!=='function'||!CU||!isAdm()){h.innerHTML='';return;}
   h.innerHTML=`<div class="asec" style="border:1px solid var(--O);"><div class="ast"><span>📨 Demandes d’accès (${DEMs.length})</span></div>${DEMs.map(d=>`<div class="sprow"><b>${hx(d.prenom)} ${hx(d.nom)}</b> · ${hx(d.tel)} <span class="hint">${d.date?fmtS(d.date):''}</span><div style="display:flex;gap:6px;margin-top:5px;"><button class="be" onclick="demOk('${d.id}')">✅ Valider (simple membre)</button><button class="be" onclick="demNo('${d.id}')">🗑 Refuser</button></div></div>`).join('')}<div class="hint">Si la personne est déjà dans la liste sans numéro, son numéro est simplement ajouté à sa fiche.</div></div>`;
